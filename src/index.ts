@@ -20,10 +20,14 @@ interface CliOptions {
 
 const abortController = new AbortController();
 
+let aborting = false;
 const handleSignal = () => {
-  process.stderr.write('\n' + chalk.yellow('Aborting and cleaning up...') + '\n');
+  if (aborting) {
+    process.exit(130);
+  }
+  aborting = true;
+  process.stderr.write('\n' + chalk.yellow('Aborting and cleaning up (press Ctrl-C again to force quit)...') + '\n');
   abortController.abort();
-  process.exit(130);
 };
 
 process.on('SIGINT', handleSignal);
@@ -106,7 +110,9 @@ program
       spinner.succeed(`Extracted frames successfully (${paragraphs.length} paragraphs).`);
 
       spinner.start('Generating HTML...');
-      await generateHtml(url, paragraphs);
+      const filename = path.parse(videoFile).name;
+      const title = filename.replace(/\s\[[a-zA-Z0-9_-]+\]$/, '');
+      await generateHtml(url, paragraphs, title);
       spinner.succeed(`Done! View your webpage at ${path.join(process.cwd(), 'index.html')}`);
     } catch (err: unknown) {
       if (abortController.signal.aborted) {
