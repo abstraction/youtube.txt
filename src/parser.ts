@@ -1,25 +1,34 @@
 import fs from 'fs';
 import readline from 'readline';
+import nlp from 'compromise';
 
-export interface Cue {
+export interface Paragraph {
   timestamp: string; // HH:MM:SS.mmm
   seconds: number;
   text: string;
+  sceneTimestamp?: string;
 }
 
-export async function parseVtt(vttFile: string): Promise<Cue[]> {
+interface RawCue {
+  timestamp: string;
+  seconds: number;
+  endSeconds: number;
+  text: string;
+}
+
+export async function parseVtt(vttFile: string): Promise<Paragraph[]> {
   const fileStream = fs.createReadStream(vttFile);
   const rl = readline.createInterface({
     input: fileStream,
     crlfDelay: Infinity
   });
 
-  const cues: Cue[] = [];
+  const rawCues: RawCue[] = [];
   let currentTimestamp: string | null = null;
-  let currentSeconds: number = 0;
+  let currentSeconds = 0;
+  let currentEndSeconds = 0;
   let timestampSeen = false;
   
-  // Sliding window to deduplicate rolling captions
   const slidingWindow: string[] = [];
   const WINDOW_SIZE = 5;
 
@@ -27,48 +36,99 @@ export async function parseVtt(vttFile: string): Promise<Cue[]> {
     const trimmed = line.trim();
     if (!trimmed) continue;
     
-    // Ignore VTT header or formatting cues until we see the first timestamp
-    if (!timestampSeen && !trimmed.match(/^\d{2}:\d{2}/)) {
-      continue;
-    }
+    if (!timestampSeen && !trimmed.match(/^\d{2}:\d{2}/)) continue;
     timestampSeen = true;
 
-    // Check for timestamp line (e.g. 00:00:01.199 --> 00:00:05.120)
-    // Sometimes it's MM:SS.mmm instead of HH:MM:SS.mmm
-    const timeMatch = trimmed.match(/^(\d{2}:)?(\d{2}:\d{2}\.\d{3})\s*-->/);
+    // e.g. 00:00:01.199 --> 00:00:05.120
+    const timeMatch = trimmed.match(/^(\d{2}:)?(\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:)?(\d{2}:\d{2}\.\d{3})/);
     if (timeMatch) {
-      const timeStr = timeMatch[1] ? `${timeMatch[1]}${timeMatch[2]}` : `00:${timeMatch[2]}`;
-      currentTimestamp = timeStr;
+      const startStr = timeMatch[1] ? `${timeMatch[1]}${timeMatch[2]}` : `00:${timeMatch[2]}`;
+      const endStr = timeMatch[3] ? `${timeMatch[3]}${timeMatch[4]}` : `00:${timeMatch[4]}`;
+      currentTimestamp = startStr;
       
-      const [hours, minutes, secondsStr] = currentTimestamp.split(':');
-      const seconds = parseFloat(secondsStr);
-      currentSeconds = (parseInt(hours, 10) * 3600) + (parseInt(minutes, 10) * 60) + seconds;
+      const parseTime = (ts: string) => {
+        const parts = ts.split(':');
+        const h = parseInt(parts[0] ?? '0', 10);
+        const m = parseInt(parts[1] ?? '0', 10);
+        const s = parseFloat(parts[2] ?? '0');
+        return (h * 3600) + (m * 60) + s;
+      };
+      
+      currentSeconds = parseTime(startStr);
+      currentEndSeconds = parseTime(endStr);
       continue;
     }
 
-    // Ignore lines that are just numbers (cue indices)
     if (trimmed.match(/^\d+$/)) continue;
 
-    // Remove tags like <c> or <c.colorXXXX>
     const cleanText = trimmed.replace(/<[^>]+>/g, '').trim();
     if (!cleanText) continue;
 
     if (currentTimestamp) {
-      // Deduplicate using the sliding window
       if (!slidingWindow.includes(cleanText)) {
-        cues.push({
-          timestamp: currentTimestamp, // 00:00:01.199
+        rawCues.push({
+          timestamp: currentTimestamp,
           seconds: currentSeconds,
+          endSeconds: currentEndSeconds,
           text: cleanText
         });
         
         slidingWindow.push(cleanText);
-        if (slidingWindow.length > WINDOW_SIZE) {
-          slidingWindow.shift();
-        }
+        if (slidingWindow.length > WINDOW_SIZE) slidingWindow.shift();
       }
     }
   }
 
-  return cues;
+  // Phase 2: Binning into Paragraphs using NLP
+  const paragraphs: Paragraph[] = [];
+  let buffer: RawCue[] = [];
+
+  const processBuffer = (cues: RawCue[]) => {
+    if (cues.length === 0) return;
+    const combinedText = cues.map(c => c.text).join(' ');
+    // Use compromise to split into sentences
+    const doc = nlp(combinedText);
+    const sentences = doc.sentences().out('array') as string[];
+
+    // Group 3-4 sentences per paragraph
+    let currentParagraphSentences: string[] = [];
+    for (let i = 0; i < sentences.length; i++) {
+      currentParagraphSentences.push(sentences[i] as string);
+      if (currentParagraphSentences.length >= 3 || i === sentences.length - 1) {
+        paragraphs.push({
+          timestamp: (cues[0] as RawCue).timestamp,
+          seconds: (cues[0] as RawCue).seconds,
+          text: currentParagraphSentences.join(' ')
+        });
+        currentParagraphSentences = [];
+      }
+    }
+  };
+
+  for (let i = 0; i < rawCues.length; i++) {
+    const cue = rawCues[i] as RawCue;
+    const prev = i > 0 ? (rawCues[i - 1] as RawCue) : null;
+    let shouldBreak = false;
+
+    if (buffer.length > 0 && prev) {
+      const pauseDuration = cue.seconds - prev.endSeconds;
+      const bufferDuration = cue.seconds - (buffer[0] as RawCue).seconds;
+      
+      if (pauseDuration > 1.5) {
+        shouldBreak = true;
+      } else if (bufferDuration > 30) {
+        shouldBreak = true;
+      }
+    }
+
+    if (shouldBreak) {
+      processBuffer(buffer);
+      buffer = [];
+    }
+    
+    buffer.push(cue);
+  }
+  processBuffer(buffer);
+
+  return paragraphs;
 }

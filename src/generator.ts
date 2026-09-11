@@ -1,6 +1,6 @@
 import fs from 'fs';
 import ejs from 'ejs';
-import { Cue } from './parser.js';
+import type { Paragraph } from './parser.js';
 
 const TEMPLATE = `<!DOCTYPE html>
 <html lang="en">
@@ -45,34 +45,53 @@ const TEMPLATE = `<!DOCTYPE html>
       font-size: 0.9rem;
       opacity: 0.8;
     }
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
+    .scene {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 2rem;
+      margin-bottom: 3rem;
     }
-    li {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 1.5rem;
-      gap: 1.5rem;
+    .bento-grid {
+      position: sticky;
+      top: 1rem;
+      display: grid;
+      gap: 0.5rem;
+      grid-template-columns: 1fr;
     }
-    .thumb {
-      flex-shrink: 0;
-      width: 288px; /* Classic size for high readability without dominating screen */
+    .bento-grid[data-count="2"] {
+      grid-template-columns: 1fr;
     }
-    .thumb img {
+    .bento-grid[data-count="3"] {
+      grid-template-columns: 1fr 1fr;
+    }
+    .bento-grid[data-count="3"] > div:first-child {
+      grid-column: span 2;
+    }
+    .bento-grid[data-count="4"] {
+      grid-template-columns: 1fr 1fr;
+    }
+    .bento-grid[data-count="4"] > div:first-child {
+      grid-column: span 2;
+    }
+    
+    .bento-grid img {
       width: 100%;
-      height: auto;
+      height: 100%;
+      object-fit: cover;
       display: block;
-      border-radius: 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      border: 1px solid rgba(128,128,128,0.2);
     }
-    .text {
-      flex-grow: 1;
-      max-width: 65ch; /* Optimal reading width */
+    .bento-grid img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    .text p {
-      margin: 0;
-      display: inline;
+
+    .prose p {
+      margin: 0 0 1rem 0;
+      max-width: 65ch;
     }
     .anchor {
       color: var(--link);
@@ -84,14 +103,34 @@ const TEMPLATE = `<!DOCTYPE html>
     .anchor:hover {
       opacity: 1;
     }
+    
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+    .lightbox.active {
+      display: flex;
+    }
+    .lightbox img {
+      max-width: 90%;
+      max-height: 90vh;
+      border-radius: 8px;
+    }
+
     @media (max-width: 600px) {
-      li {
-        flex-direction: column;
-        gap: 0.5rem;
+      .scene {
+        grid-template-columns: 1fr;
+        gap: 1rem;
       }
-      .thumb {
-        width: 100%;
-        max-width: 320px;
+      .bento-grid {
+        position: relative;
+        top: 0;
       }
     }
   </style>
@@ -101,30 +140,68 @@ const TEMPLATE = `<!DOCTYPE html>
     Source: <a href="<%= url %>" target="_blank"><%= url %></a>
   </header>
   <main>
-    <ul>
-    <% cues.forEach(cue => { 
-        const tsFilename = cue.timestamp.replace(/:/g, '-');
-        const linkChar = url.includes('?') ? '&' : '?';
-        const timestampUrl = \`\${url}\${linkChar}t=\${Math.floor(cue.seconds)}\`;
-    %>
-      <li>
-        <div class="thumb">
-          <a href="<%= timestampUrl %>" target="_blank" title="Jump to <%= cue.timestamp %>">
-            <img src="images/<%= tsFilename %>.jpg" alt="Frame at <%= cue.timestamp %>" loading="lazy">
-          </a>
+    <% scenes.forEach(scene => { %>
+      <div class="scene">
+        <div class="bento-container">
+          <div class="bento-grid" data-count="<%= Math.min(scene.paragraphs.length, 4) %>">
+            <% scene.paragraphs.forEach((p, index) => { %>
+              <% if (index < 4) { %>
+              <div>
+                <img src="images/<%= p.seconds %>.jpg" alt="Frame" loading="lazy" class="lightbox-trigger">
+              </div>
+              <% } %>
+            <% }) %>
+          </div>
         </div>
-        <div class="text">
-          <p><%= cue.text %></p><a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= cue.timestamp %>">#</a>
+        <div class="prose">
+          <% scene.paragraphs.forEach(p => { 
+               const linkChar = url.includes('?') ? '&' : '?';
+               const timestampUrl = \`\${url}\${linkChar}t=\${Math.floor(p.seconds)}\`;
+          %>
+            <p><%= p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>">#</a></p>
+          <% }) %>
         </div>
-      </li>
-    <% }); %>
-    </ul>
+      </div>
+    <% }) %>
   </main>
+
+  <div class="lightbox" id="lightbox">
+    <img src="" id="lightbox-img">
+  </div>
+  
+  <script>
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    
+    document.querySelectorAll('.lightbox-trigger').forEach(img => {
+      img.addEventListener('click', (e) => {
+        lightboxImg.src = e.target.src;
+        lightbox.classList.add('active');
+      });
+    });
+    
+    lightbox.addEventListener('click', () => {
+      lightbox.classList.remove('active');
+    });
+  </script>
 </body>
 </html>
 `;
 
-export async function generateHtml(url: string, cues: Cue[]): Promise<void> {
-  const html = ejs.render(TEMPLATE, { url, cues });
+export async function generateHtml(url: string, paragraphs: Paragraph[]): Promise<void> {
+  const scenes: { timestamp: string, paragraphs: Paragraph[] }[] = [];
+  
+  for (const p of paragraphs) {
+    if (scenes.length === 0 || (scenes[scenes.length - 1] as any).timestamp !== p.sceneTimestamp) {
+      scenes.push({
+        timestamp: p.sceneTimestamp as string,
+        paragraphs: [p]
+      });
+    } else {
+      (scenes[scenes.length - 1] as any).paragraphs.push(p);
+    }
+  }
+
+  const html = ejs.render(TEMPLATE, { url, scenes });
   fs.writeFileSync('index.html', html, 'utf-8');
 }

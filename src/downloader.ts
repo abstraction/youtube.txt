@@ -1,20 +1,27 @@
 import { execa } from 'execa';
-import fs from 'fs';
+import fs from 'node:fs';
 
 export interface DownloadResult {
   videoFile: string;
   vttFile: string;
 }
 
-export async function downloadVideoAndCaptions(url: string): Promise<DownloadResult> {
-  // Use the one-pass print method mandated
+export interface DownloadOptions {
+  signal?: AbortSignal;
+}
+
+export async function downloadVideoAndCaptions(
+  url: string,
+  options: DownloadOptions = {}
+): Promise<DownloadResult> {
+  const execOptions = options.signal ? { cancelSignal: options.signal } : {};
   const { stdout } = await execa('yt-dlp', [
     '--write-auto-subs',
     '--write-subs',
     url,
     '--no-simulate',
     '--print', 'after_move:filepath'
-  ]);
+  ], execOptions);
 
   const lines = stdout.split('\n').map(l => l.trim()).filter(Boolean);
   
@@ -26,7 +33,7 @@ export async function downloadVideoAndCaptions(url: string): Promise<DownloadRes
   const vttFile = files.find(f => f.endsWith('.vtt'));
 
   if (!videoFile || !fs.existsSync(videoFile)) {
-    throw new Error(`Failed to locate downloaded video file. output was: ${stdout}`);
+    throw new Error(`Failed to locate downloaded video file. Output was: ${stdout}`);
   }
 
   if (!vttFile) {
