@@ -6,19 +6,23 @@
 ▄▌                    
 </pre>
 
-Read the video. See the scenes.
+YouTube you can skim.
 </div>
 
 ---
 
-This tool converts a Youtube video into a page you can actually read and skim. 
+Converts YouTube videos into clean, side-by-side reading documents with deduplicated transcripts and scene-detected frames.
 
-<div align="center">
-  <video src="assets/demo.mp4" controls="controls" muted="muted" width="100%"></video>
+<div align="center" style="margin: 1.5rem 0;">
   <p>
-    <a href="https://abstraction.github.io/youtube.txt/"><strong>View Live Example Preview &rarr;</strong></a>
+    <a href="https://abstraction.github.io/youtube.txt/"><strong>View Live Preview &rarr;</strong></a> • <a href="assets/demo.mp4">Demo Video</a>
   </p>
-</div> 
+</div>
+
+- **Deduplicated transcripts.** Cleans and deduplicates YouTube's rolling captions into readable paragraphs.
+- **Scene detection.** Captures keyframes at visual scene cuts rather than fixed intervals.
+- **Side-by-side layout.** Aligns transcript blocks next to responsive image bento grids.
+- **Standalone output.** Self-contained static HTML with dark mode, an image lightbox, and timestamp jump links. 
 
 ## Requirements
 
