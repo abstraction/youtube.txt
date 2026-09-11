@@ -42,20 +42,31 @@ const TEMPLATE = `<!DOCTYPE html>
     a:hover {
       text-decoration: underline;
     }
-    header {
-      margin-bottom: 2rem;
+    
+    .header-container {
+      display: grid;
+      grid-template-columns: minmax(0, 800px) min(65ch, 100%);
+      gap: 3rem;
+      justify-content: end;
       padding-left: 2rem;
+      padding-right: max(2rem, calc(50vw - 480px));
+      margin-bottom: 2rem;
+    }
+    .header-content {
+      grid-column: 2;
       font-size: 0.9rem;
       opacity: 0.8;
     }
+
     .scene {
       display: grid;
-      grid-template-columns: 1fr min(65ch, 100%);
+      grid-template-columns: minmax(0, 800px) min(65ch, 100%);
       gap: 3rem;
+      justify-content: end;
       align-items: start;
       padding-left: 2rem;
       padding-right: max(2rem, calc(50vw - 480px));
-      margin-bottom: 8rem;
+      margin-bottom: 5rem;
     }
     .visuals-column {
       position: sticky;
@@ -152,8 +163,11 @@ const TEMPLATE = `<!DOCTYPE html>
     }
 
     @media (max-width: 600px) {
-      .scene {
+      .scene, .header-container {
         grid-template-columns: 1fr;
+      }
+      .header-content {
+        grid-column: 1;
       }
       .visuals-column {
         position: relative;
@@ -164,8 +178,10 @@ const TEMPLATE = `<!DOCTYPE html>
   </style>
 </head>
 <body>
-  <header>
-    Source: <a href="<%= url %>" target="_blank"><%= url %></a>
+  <header class="header-container">
+    <div class="header-content">
+      Source: <a href="<%= url %>" target="_blank"><%= url %></a>
+    </div>
   </header>
   <main>
     <% chapters.forEach(chapter => { 
@@ -235,13 +251,39 @@ const TEMPLATE = `<!DOCTYPE html>
 export async function generateHtml(url: string, paragraphs: Paragraph[]): Promise<void> {
   const chapters: { uniqueScenes: string[], paragraphs: Paragraph[] }[] = [];
   
-  for (let i = 0; i < paragraphs.length; i += 3) {
-    const chunk = paragraphs.slice(i, i + 3);
-    const uniqueScenes = Array.from(new Set(chunk.map(p => p.sceneTimestamp).filter(Boolean))) as string[];
+  let currentChunk: Paragraph[] = [];
+  let currentScenes = new Set<string>();
+
+  for (let i = 0; i < paragraphs.length; i++) {
+    const p = paragraphs[i];
+    currentChunk.push(p);
+    if (p.sceneTimestamp) {
+      currentScenes.add(p.sceneTimestamp);
+    }
     
+    // Check if we should split
+    const nextP = paragraphs[i + 1];
+    if (nextP) {
+      // We only split if the scene is visibly changing to a NEW scene
+      const isNewScene = nextP.sceneTimestamp !== p.sceneTimestamp;
+      // Ensure the text block has enough vertical height to roughly match the images
+      const meetsMinLength = currentChunk.length >= 4;
+      
+      if (meetsMinLength && isNewScene) {
+        chapters.push({
+          uniqueScenes: Array.from(currentScenes),
+          paragraphs: currentChunk
+        });
+        currentChunk = [];
+        currentScenes = new Set<string>();
+      }
+    }
+  }
+  
+  if (currentChunk.length > 0) {
     chapters.push({
-      uniqueScenes,
-      paragraphs: chunk
+      uniqueScenes: Array.from(currentScenes),
+      paragraphs: currentChunk
     });
   }
 
