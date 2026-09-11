@@ -20,10 +20,14 @@ interface CliOptions {
 
 const abortController = new AbortController();
 
+let aborting = false;
 const handleSignal = () => {
-  process.stderr.write('\n' + chalk.yellow('Aborting and cleaning up...') + '\n');
+  if (aborting) {
+    process.exit(130);
+  }
+  aborting = true;
+  process.stderr.write('\n' + chalk.yellow('Aborting and cleaning up (press Ctrl-C again to force quit)...') + '\n');
   abortController.abort();
-  process.exit(130);
 };
 
 process.on('SIGINT', handleSignal);
