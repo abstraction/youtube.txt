@@ -6,31 +6,29 @@
 ▄▌                    
 </pre>
 
-YouTube you can skim.
+Youtube you can skim.
 </div>
 
 ---
 
-Converts YouTube videos into clean, side-by-side reading documents with deduplicated transcripts and scene-detected frames.
+### Overview
 
-<div align="center" style="margin: 1.5rem 0;">
+Converts Youtube videos into clean, side-by-side reading documents with deduplicated transcripts and scene-detected frames.
+
+<div align="center" style="margin: 2rem 0;">
+  <video src="https://github.com/user-attachments/assets/012bb00d-2e57-4b40-a8d7-e7bacccf8d88" width="600"></video>
   <p>
-    <a href="https://abstraction.github.io/youtube.txt/"><strong>View Live Preview &rarr;</strong></a> • <a href="assets/demo.mp4">Demo Video</a>
+    <a href="https://abstraction.github.io/youtube.txt/">View Live Example Preview &rarr;</a>
   </p>
-</div>
+</div> 
 
-- **Deduplicated transcripts.** Cleans and deduplicates YouTube's rolling captions into readable paragraphs.
-- **Scene detection.** Captures keyframes at visual scene cuts rather than fixed intervals.
-- **Side-by-side layout.** Aligns transcript blocks next to responsive image bento grids.
-- **Standalone output.** Self-contained static HTML with dark mode, an image lightbox, and timestamp jump links. 
-
-## Requirements
+### Requirements
 
 You need `yt-dlp` and `ffmpeg` installed and available in your system path.
 
-## Usage
+### Usage
 
-### Global Installation (Recommended)
+#### Global Installation (Recommended)
 
 Build the tool and link it globally to run it from anywhere:
 
@@ -46,7 +44,7 @@ Now you can use it in any directory:
 youtube.txt -u "https://www.youtube.com/watch?v=..." -o "project-folder"
 ```
 
-### Local Execution
+#### Local Execution
 
 If you don't want to link it globally, you can run it directly from the repository using \`tsx\`:
 
@@ -54,7 +52,6 @@ If you don't want to link it globally, you can run it directly from the reposito
 pnpm install
 pnpm run dev -u "https://www.youtube.com/watch?v=..." -o "project-folder"
 ```
-
 
 ---
 
