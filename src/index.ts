@@ -110,7 +110,9 @@ program
       spinner.succeed(`Extracted frames successfully (${paragraphs.length} paragraphs).`);
 
       spinner.start('Generating HTML...');
-      await generateHtml(url, paragraphs);
+      const filename = path.parse(videoFile).name;
+      const title = filename.replace(/\s\[[a-zA-Z0-9_-]+\]$/, '');
+      await generateHtml(url, paragraphs, title);
       spinner.succeed(`Done! View your webpage at ${path.join(process.cwd(), 'index.html')}`);
     } catch (err: unknown) {
       if (abortController.signal.aborted) {
