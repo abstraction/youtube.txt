@@ -9,8 +9,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --clean --minify",
     "dev": "tsx src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
