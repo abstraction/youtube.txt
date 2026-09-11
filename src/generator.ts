@@ -255,7 +255,7 @@ const TEMPLATE = `<!DOCTYPE html>
   </script>
 </body>
 </html>
-\`;
+`;
 
 export async function generateHtml(url: string, paragraphs: Paragraph[]): Promise<void> {
   const chapters: { uniqueScenes: string[], paragraphs: Paragraph[] }[] = [];
