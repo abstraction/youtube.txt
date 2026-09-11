@@ -1,6 +1,6 @@
-import { parseVtt } from './src/parser.js';
-import { extractFrames } from './src/extractor.js';
-import { generateHtml } from './src/generator.js';
+import { parseVtt } from '../src/parser.js';
+import { extractFrames } from '../src/extractor.js';
+import { generateHtml } from '../src/generator.js';
 import fs from 'node:fs';
 
 const videoFile = 'iPhone 18 Pro⧸Duo Impressions： Mogged [Od6M0AXpcxQ].webm';
