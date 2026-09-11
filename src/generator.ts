@@ -24,9 +24,8 @@ const TEMPLATE = `<!DOCTYPE html>
       }
     }
     body {
-      margin: 0 auto;
-      padding: 1rem 1rem 3rem 1rem;
-      max-width: 960px;
+      margin: 0;
+      padding: 1rem 0 3rem 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       font-size: 18px;
       line-height: 1.6;
@@ -45,29 +44,39 @@ const TEMPLATE = `<!DOCTYPE html>
     }
     header {
       margin-bottom: 2rem;
+      padding-left: 2rem;
       font-size: 0.9rem;
       opacity: 0.8;
     }
-    .reading-layout {
+    .scene {
       display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 2rem;
+      grid-template-columns: 1fr min(65ch, 100%);
+      gap: 3rem;
       align-items: start;
+      padding-left: 2rem;
+      padding-right: max(2rem, calc(50vw - 480px));
+      margin-bottom: 8rem;
     }
     .visuals-column {
       position: sticky;
       top: 2rem;
+      max-height: calc(100vh - 4rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
     .text-column {
       max-width: 65ch;
     }
     .bento-grid {
       display: grid;
-      gap: 0.5rem;
+      gap: 0.75rem;
+    }
+    .bento-grid[data-count="1"] {
       grid-template-columns: 1fr;
     }
     .bento-grid[data-count="2"] {
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr 1fr;
     }
     .bento-grid[data-count="3"] {
       grid-template-columns: 1fr 1fr;
@@ -77,9 +86,6 @@ const TEMPLATE = `<!DOCTYPE html>
     }
     .bento-grid[data-count="4"] {
       grid-template-columns: 1fr 1fr;
-    }
-    .bento-grid[data-count="4"] > div:first-child {
-      grid-column: span 2;
     }
     
     button.lightbox-trigger {
@@ -93,6 +99,7 @@ const TEMPLATE = `<!DOCTYPE html>
     .bento-grid img {
       width: 100%;
       height: 100%;
+      aspect-ratio: 16 / 9;
       object-fit: cover;
       display: block;
       border-radius: 8px;
@@ -145,7 +152,7 @@ const TEMPLATE = `<!DOCTYPE html>
     }
 
     @media (max-width: 600px) {
-      .reading-layout {
+      .scene {
         grid-template-columns: 1fr;
       }
       .visuals-column {
@@ -161,30 +168,35 @@ const TEMPLATE = `<!DOCTYPE html>
     Source: <a href="<%= url %>" target="_blank"><%= url %></a>
   </header>
   <main>
-    <div class="reading-layout">
-      <div class="visuals-column">
-        <div class="bento-container">
-          <div class="bento-grid" id="dynamic-bento">
-            <!-- Rendered by JS -->
+    <% chapters.forEach(chapter => { 
+         const sceneImages = chapter.uniqueScenes.slice(0, 4);
+    %>
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="<%= sceneImages.length %>">
+              <% sceneImages.forEach(sceneTs => { %>
+                <div>
+                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at <%= sceneTs %>s">
+                    <img src="images/<%= sceneTs %>.jpg" alt="Video frame at <%= sceneTs %>s" loading="lazy">
+                  </button>
+                </div>
+              <% }) %>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="text-column prose">
-        <% chapters.forEach(chapter => { 
-             const sceneImages = chapter.uniqueScenes.slice(0, 4).map(ts => ({ src: \`images/\${ts}.jpg\`, alt: \`Video frame at \${ts}s\` }));
-        %>
-          <% chapter.paragraphs.forEach((p, idx) => { 
+        <div class="text-column prose">
+          <% chapter.paragraphs.forEach(p => { 
                const linkChar = url.includes('?') ? '&' : '?';
                const timestampUrl = \`\${url}\${linkChar}t=\${Math.floor(p.seconds)}\`;
                let timeLabel = p.timestamp.replace(/^\\d{2}:/, '');
                timeLabel = timeLabel.split('.')[0];
-               const dataAttr = (idx === 0 && sceneImages.length > 0) ? \` data-scene-images='\${JSON.stringify(sceneImages)}'\` : '';
           %>
-            <p<%- dataAttr %>><%= p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
+            <p><%= p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
           <% }) %>
-        <% }) %>
+        </div>
       </div>
-    </div>
+    <% }) %>
   </main>
 
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image fullscreen view">
@@ -193,55 +205,18 @@ const TEMPLATE = `<!DOCTYPE html>
   
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const bentoGrid = document.getElementById('dynamic-bento');
       const lightbox = document.getElementById('lightbox');
       const lightboxImg = document.getElementById('lightbox-img');
       
-      function renderImages(images) {
-        bentoGrid.setAttribute('data-count', images.length);
-        bentoGrid.innerHTML = '';
-        images.forEach(img => {
-          const div = document.createElement('div');
-          
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'lightbox-trigger';
-          btn.setAttribute('aria-haspopup', 'dialog');
-          btn.setAttribute('aria-label', img.alt);
-          
-          const image = document.createElement('img');
-          image.src = img.src;
-          image.alt = img.alt;
-          image.loading = 'lazy';
-          
-          btn.appendChild(image);
-          div.appendChild(btn);
-          bentoGrid.appendChild(div);
-          
-          btn.addEventListener('click', () => {
-            if (lightbox && lightboxImg) {
-              lightboxImg.src = image.src;
-              lightbox.classList.add('active');
-            }
-          });
-        });
-      }
-
-      const firstP = document.querySelector('p[data-scene-images]');
-      if (firstP) {
-        renderImages(JSON.parse(firstP.getAttribute('data-scene-images')));
-      }
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const imgs = JSON.parse(entry.target.getAttribute('data-scene-images'));
-            renderImages(imgs);
+      document.querySelectorAll('.lightbox-trigger').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const img = btn.querySelector('img');
+          if (img) {
+            lightboxImg.src = img.src;
+            lightbox.classList.add('active');
           }
         });
-      }, { rootMargin: '-10% 0px -80% 0px' });
-      
-      document.querySelectorAll('p[data-scene-images]').forEach(p => observer.observe(p));
+      });
       
       lightbox.addEventListener('click', () => {
         lightbox.classList.remove('active');
