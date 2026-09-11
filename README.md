@@ -20,7 +20,7 @@ Converts Youtube videos into clean, side-by-side reading documents with deduplic
   <p>
     <a href="https://abstraction.github.io/youtube.txt/">View Live Example Preview &rarr;</a>
   </p>
-</div> 
+</div>
 
 ### Requirements
 
@@ -28,7 +28,19 @@ You need `yt-dlp` and `ffmpeg` installed and available in your system path.
 
 ### Usage
 
-#### Global Installation (Recommended)
+#### Remote Execution (Zero Install)
+
+You can run `youtube.txt` directly from GitHub without cloning the repository or installing anything globally.
+
+```bash
+# Using pnpm (Recommended)
+pnpm dlx github:abstraction/youtube.txt -u "https://www.youtube.com/watch?v=..." -o "project-folder"
+
+# Using npm
+npx github:abstraction/youtube.txt -u "https://www.youtube.com/watch?v=..." -o "project-folder"
+```
+
+#### Global Installation
 
 Build the tool and link it globally to run it from anywhere:
 
@@ -46,7 +58,7 @@ youtube.txt -u "https://www.youtube.com/watch?v=..." -o "project-folder"
 
 #### Local Execution
 
-If you don't want to link it globally, you can run it directly from the repository using \`tsx\`:
+If you don't want to link it globally, you can run it directly from the repository using `tsx`:
 
 ```bash
 pnpm install

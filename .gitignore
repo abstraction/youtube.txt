@@ -2,8 +2,7 @@
 node_modules/
 .pnpm-debug.log*
 
-# Build output
-dist/
+# Build output (tracked for GitHub direct execution)
 
 # Agent and AI artifacts
 .agents/
