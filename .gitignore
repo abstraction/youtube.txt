@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+.pnpm-debug.log*
+
+# Build output
+dist/
+
+# Agent and AI artifacts
+.agents/
+AGENTS.md
+skills-lock.json
+docs/
+.scratch/
+original/
+
+# Test runs and generated output
+test-*/
+*.webm
+*.mp4
+*.vtt
+*.jpg
+images/
+index.html
+
+# OS generated files
+.DS_Store
+Thumbs.db
