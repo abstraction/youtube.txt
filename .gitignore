@@ -17,10 +17,14 @@ original/
 test-*/
 *.webm
 *.mp4
+!assets/demo.mp4
 *.vtt
 *.jpg
 images/
 index.html
+!example/index.html
+!example/images/
+!example/images/**
 
 # OS generated files
 .DS_Store

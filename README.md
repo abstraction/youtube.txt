@@ -13,6 +13,13 @@ Read the video. See the scenes.
 
 This tool converts a Youtube video into a page you can actually read and skim. 
 
+<div align="center">
+  <video src="assets/demo.mp4" controls="controls" muted="muted" width="100%"></video>
+  <p>
+    <a href="https://abstraction.github.io/youtube.txt/"><strong>View Live Example Preview &rarr;</strong></a>
+  </p>
+</div> 
+
 ## Requirements
 
 You need `yt-dlp` and `ffmpeg` installed and available in your system path.
