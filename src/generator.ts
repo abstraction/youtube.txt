@@ -139,7 +139,7 @@ const TEMPLATE = `<!DOCTYPE html>
       object-fit: cover;
       display: block;
       border-radius: 8px;
-      cursor: pointer;
+      cursor: zoom-in;
       transition: transform 0.2s;
       border: 1px solid rgba(128,128,128,0.2);
     }
@@ -205,7 +205,7 @@ const TEMPLATE = `<!DOCTYPE html>
 <body>
   <header class="header-container">
     <div class="header-content">
-      <div class="video-title" title="<%= title %>"><%= title %></div>
+      <div class="video-title" title="<%= title %>"><a href="<%= url %>" target="_blank" style="color: inherit;"><%= title %></a></div>
     </div>
   </header>
   <main>
