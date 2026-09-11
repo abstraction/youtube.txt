@@ -62,8 +62,7 @@ export async function extractFrames(
   }
 
   // Phase C: Extract frames
-  const uniqueParagraphTimes = new Set(paragraphs.map(p => p.seconds));
-  const timestampsToExtract = Array.from(uniqueParagraphTimes);
+  const timestampsToExtract = Array.from(uniqueScenes);
   const total = timestampsToExtract.length;
   let completed = 0;
   let currentIndex = 0;

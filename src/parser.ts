@@ -39,7 +39,6 @@ export async function parseVtt(vttFile: string): Promise<Paragraph[]> {
     if (!timestampSeen && !trimmed.match(/^\d{2}:\d{2}/)) continue;
     timestampSeen = true;
 
-    // e.g. 00:00:01.199 --> 00:00:05.120
     const timeMatch = trimmed.match(/^(\d{2}:)?(\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:)?(\d{2}:\d{2}\.\d{3})/);
     if (timeMatch) {
       const startStr = timeMatch[1] ? `${timeMatch[1]}${timeMatch[2]}` : `00:${timeMatch[2]}`;
@@ -79,25 +78,43 @@ export async function parseVtt(vttFile: string): Promise<Paragraph[]> {
     }
   }
 
-  // Phase 2: Binning into Paragraphs using NLP
   const paragraphs: Paragraph[] = [];
   let buffer: RawCue[] = [];
 
   const processBuffer = (cues: RawCue[]) => {
     if (cues.length === 0) return;
     const combinedText = cues.map(c => c.text).join(' ');
-    // Use compromise to split into sentences
     const doc = nlp(combinedText);
     const sentences = doc.sentences().out('array') as string[];
 
-    // Group 3-4 sentences per paragraph
     let currentParagraphSentences: string[] = [];
+    let charCount = 0;
+    let thisParagraphCue: RawCue | null = null;
+
     for (let i = 0; i < sentences.length; i++) {
-      currentParagraphSentences.push(sentences[i] as string);
+      const sentence = sentences[i] as string;
+      
+      // When starting a new paragraph, accurately map the character offset back to the original Cue
+      if (currentParagraphSentences.length === 0) {
+         let currentLen = 0;
+         let matchedCue = cues[0] as RawCue;
+         for (const c of cues) {
+           if (currentLen + c.text.length >= charCount) {
+             matchedCue = c;
+             break;
+           }
+           currentLen += c.text.length + 1; // +1 for the space
+         }
+         thisParagraphCue = matchedCue;
+      }
+
+      currentParagraphSentences.push(sentence);
+      charCount += sentence.length + 1;
+      
       if (currentParagraphSentences.length >= 3 || i === sentences.length - 1) {
         paragraphs.push({
-          timestamp: (cues[0] as RawCue).timestamp,
-          seconds: (cues[0] as RawCue).seconds,
+          timestamp: thisParagraphCue!.timestamp,
+          seconds: thisParagraphCue!.seconds,
           text: currentParagraphSentences.join(' ')
         });
         currentParagraphSentences = [];

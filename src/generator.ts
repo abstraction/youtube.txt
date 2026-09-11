@@ -140,21 +140,19 @@ const TEMPLATE = `<!DOCTYPE html>
     Source: <a href="<%= url %>" target="_blank"><%= url %></a>
   </header>
   <main>
-    <% scenes.forEach(scene => { %>
+    <% chapters.forEach(chapter => { %>
       <div class="scene">
         <div class="bento-container">
-          <div class="bento-grid" data-count="<%= Math.min(scene.paragraphs.length, 4) %>">
-            <% scene.paragraphs.forEach((p, index) => { %>
-              <% if (index < 4) { %>
+          <div class="bento-grid" data-count="<%= Math.min(chapter.uniqueScenes.length, 4) %>">
+            <% chapter.uniqueScenes.slice(0, 4).forEach(sceneTs => { %>
               <div>
-                <img src="images/<%= p.seconds %>.jpg" alt="Frame" loading="lazy" class="lightbox-trigger">
+                <img src="images/<%= sceneTs %>.jpg" alt="Frame" loading="lazy" class="lightbox-trigger">
               </div>
-              <% } %>
             <% }) %>
           </div>
         </div>
         <div class="prose">
-          <% scene.paragraphs.forEach(p => { 
+          <% chapter.paragraphs.forEach(p => { 
                const linkChar = url.includes('?') ? '&' : '?';
                const timestampUrl = \`\${url}\${linkChar}t=\${Math.floor(p.seconds)}\`;
           %>
@@ -189,19 +187,20 @@ const TEMPLATE = `<!DOCTYPE html>
 `;
 
 export async function generateHtml(url: string, paragraphs: Paragraph[]): Promise<void> {
-  const scenes: { timestamp: string, paragraphs: Paragraph[] }[] = [];
+  const chapters: { uniqueScenes: string[], paragraphs: Paragraph[] }[] = [];
   
-  for (const p of paragraphs) {
-    if (scenes.length === 0 || (scenes[scenes.length - 1] as any).timestamp !== p.sceneTimestamp) {
-      scenes.push({
-        timestamp: p.sceneTimestamp as string,
-        paragraphs: [p]
-      });
-    } else {
-      (scenes[scenes.length - 1] as any).paragraphs.push(p);
-    }
+  // Group every 3 paragraphs into a "Chapter" to create consistent text blocks.
+  // We collect the unique FFmpeg scene cuts (sceneTimestamp) within that chapter.
+  for (let i = 0; i < paragraphs.length; i += 3) {
+    const chunk = paragraphs.slice(i, i + 3);
+    const uniqueScenes = Array.from(new Set(chunk.map(p => p.sceneTimestamp).filter(Boolean))) as string[];
+    
+    chapters.push({
+      uniqueScenes,
+      paragraphs: chunk
+    });
   }
 
-  const html = ejs.render(TEMPLATE, { url, scenes });
+  const html = ejs.render(TEMPLATE, { url, chapters });
   fs.writeFileSync('index.html', html, 'utf-8');
 }
