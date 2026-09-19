@@ -130,8 +130,29 @@ const TEMPLATE = `<!DOCTYPE html>
       width: 100%;
       height: 100%;
       text-align: left;
+      position: relative;
+      display: block;
     }
     
+    .scene-timestamp {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      background: rgba(0, 0, 0, 0.72);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.7rem;
+      font-weight: 500;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      padding: 2px 5px;
+      border-radius: 4px;
+      letter-spacing: 0.02em;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: opacity 0.2s ease;
+      line-height: 1.2;
+    }
+
     .bento-grid img {
       width: 100%;
       height: 100%;
@@ -142,12 +163,11 @@ const TEMPLATE = `<!DOCTYPE html>
       cursor: zoom-in;
       transition: transform 0.2s, opacity 0.2s;
       border: 1px solid rgba(128,128,128,0.12);
-      opacity: 0.85;
+      opacity: 1;
     }
     .bento-grid button.lightbox-trigger:hover img,
     .bento-grid button.lightbox-trigger:focus img {
       transform: scale(1.02);
-      opacity: 1;
       box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     }
 
@@ -293,10 +313,18 @@ const TEMPLATE = `<!DOCTYPE html>
         <div class="visuals-column">
           <div class="bento-container">
             <div class="bento-grid" data-count="<%= sceneImages.length %>">
-              <% sceneImages.forEach(sceneTs => { %>
+              <% sceneImages.forEach(sceneTs => { 
+                   const s = Math.floor(parseFloat(sceneTs));
+                   const mins = Math.floor(s / 60);
+                   const secs = s % 60;
+                   const minsStr = mins < 10 ? '0' + mins : '' + mins;
+                   const secsStr = secs < 10 ? '0' + secs : '' + secs;
+                   const sceneLabel = minsStr + ':' + secsStr;
+              %>
                 <div>
                   <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at <%= sceneTs %>s">
                     <img id="img-<%= sceneTs %>" src="images/<%= sceneTs %>.jpg" alt="Video frame at <%= sceneTs %>s" loading="lazy">
+                    <span class="scene-timestamp"><%= sceneLabel %></span>
                   </button>
                 </div>
               <% }) %>
@@ -348,64 +376,88 @@ const TEMPLATE = `<!DOCTYPE html>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const paragraphs = document.querySelectorAll('.transcript-p');
+      const images = document.querySelectorAll('.bento-grid img');
+      let dwellTimer = null;
 
-      // Scroll observer logic (optimized for mobile)
-      const observer = new IntersectionObserver((entries) => {
-        let activeEntry = null;
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            if (!activeEntry || entry.intersectionRatio > activeEntry.intersectionRatio) {
-              activeEntry = entry;
+      function clearActive() {
+        if (dwellTimer) {
+          clearTimeout(dwellTimer);
+          dwellTimer = null;
+        }
+        document.querySelectorAll('.active-p').forEach(p => p.classList.remove('active-p'));
+        document.querySelectorAll('.active-scene').forEach(img => img.classList.remove('active-scene'));
+        document.querySelectorAll('.bento-grid.has-active').forEach(g => g.classList.remove('has-active'));
+      }
+
+      function highlightScenes(sceneIds) {
+        sceneIds.forEach(sceneId => {
+          const img = document.getElementById('img-' + sceneId);
+          if (img) {
+            const grid = img.closest('.bento-grid');
+            if (grid) {
+              grid.classList.add('has-active');
+              img.classList.add('active-scene');
             }
           }
         });
+      }
+
+      // 1. Image Hover Intent (750ms dwell filter)
+      images.forEach(img => {
+        const sceneId = img.id.replace('img-', '');
         
-        if (activeEntry) {
-          // Clear previous scroll-active highlights
-          document.querySelectorAll('.bento-grid.scroll-active').forEach(g => {
-            g.classList.remove('has-active', 'scroll-active');
-            g.querySelectorAll('.active-scene').forEach(img => img.classList.remove('active-scene'));
-          });
-          document.querySelectorAll('.active-p-scroll').forEach(p => p.classList.remove('active-p', 'active-p-scroll'));
-          
-          const p = activeEntry.target;
-          const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',').filter(Boolean);
-          if (scenes.length === 0) return;
-          
-          p.classList.add('active-p', 'active-p-scroll');
-          let firstImg = null;
-          scenes.forEach(sceneId => {
-            const img = document.getElementById('img-' + sceneId);
-            if (img) {
-              const grid = img.closest('.bento-grid');
-              if (grid) {
-                grid.classList.add('has-active', 'scroll-active');
-                img.classList.add('active-scene');
-                if (!firstImg) firstImg = img;
+        img.addEventListener('mouseenter', (e) => {
+          if (e.pointerType === 'touch') return;
+          clearActive();
+          dwellTimer = setTimeout(() => {
+            img.classList.add('active-scene');
+            const grid = img.closest('.bento-grid');
+            if (grid) grid.classList.add('has-active');
+
+            paragraphs.forEach(p => {
+              const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',');
+              if (scenes.includes(sceneId)) {
+                p.classList.add('active-p');
               }
-            }
-          });
-          
-          if (firstImg && window.innerWidth <= 800) {
-            const grid = firstImg.closest('.bento-grid');
-            if (grid) {
-              const imgLeft = firstImg.offsetLeft;
-              const gridWidth = grid.clientWidth;
-              const imgWidth = firstImg.clientWidth;
-              grid.scrollTo({
-                left: imgLeft - (gridWidth / 2) + (imgWidth / 2),
-                behavior: 'smooth'
-              });
-            }
-          }
-        }
-      }, {
-        rootMargin: '-30% 0px -50% 0px',
-        threshold: [0, 0.5, 1]
+            });
+          }, 750);
+        });
+
+        img.addEventListener('mouseleave', () => {
+          clearActive();
+        });
       });
 
-      // Enable scroll spy on all viewports (drives all image highlights)
-      paragraphs.forEach(p => observer.observe(p));
+      // 2. Paragraph Click-to-Focus
+      paragraphs.forEach(p => {
+        p.addEventListener('click', (e) => {
+          // Ignore anchor clicks and drag text selection
+          if (e.target.tagName.toLowerCase() === 'a') return;
+          if (window.getSelection && window.getSelection().toString().length > 0) return;
+
+          const isAlreadyActive = p.classList.contains('active-p');
+          clearActive();
+
+          if (!isAlreadyActive) {
+            p.classList.add('active-p');
+            const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',').filter(Boolean);
+            highlightScenes(scenes);
+          }
+        });
+      });
+
+      // 3. Global Frictionless Dismissal on Scroll
+      const scrollOpts = { passive: true };
+      window.addEventListener('wheel', clearActive, scrollOpts);
+      window.addEventListener('scroll', clearActive, scrollOpts);
+      window.addEventListener('touchmove', clearActive, scrollOpts);
+
+      // Click outside text/bento dismisses active highlight
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.transcript-p') && !e.target.closest('.bento-grid')) {
+          clearActive();
+        }
+      });
     });
   </script>
 </body>

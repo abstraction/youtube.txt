@@ -40,7 +40,7 @@ Modern web reading is noisy. Pages buckle under tracking scripts, client-side hy
 
 Attention is fragile. For readers managing ADHD or high cognitive load, a noisy interface destroys comprehension. Software should guide attention rather than demand it.
 
-We removed erratic mouse hover triggers that cause peripheral flashing. Visual state tracking is tied strictly to vertical scrolling via `IntersectionObserver`. The interface stays quiet so you can focus entirely on the text.
+We eliminated scroll-spying and accidental hover triggers that cause peripheral flicker. Scrolling is completely quiet and passive. All images rest at full, natural opacity, paired with subtle timestamp badges in each frame corner for effortless, zero-distraction reference.
 
 ### The pleasure of inspection
 
@@ -53,7 +53,8 @@ Video frames sit in a balanced bento grid in the right margin, providing immedia
 ## Key Features
 
 - **Balanced Dynamic Bento Grid:** Adapts compositions cleanly from 1 to 6 images per chapter without awkward thumbnail squishing or layout shifts.
-- **Scroll-Synchronized Focus:** Smoothly highlights the active visual scene in sync with your vertical reading progress, resting inactive images at 35% opacity.
+- **Static Semantic Anchoring:** Every visual frame displays an editorial timestamp badge in its corner (e.g. `00:55`), naturally mapping to paragraph timestamps with zero clicks, zero hover, and zero JavaScript.
+- **Intentional Focus & Hover Intent:** Dwell filtering (750ms on frames) and single-click paragraph focus illuminate connections only when you ask for them. Scrolling instantly dismisses active states to keep reading uninterrupted.
 - **Frictionless Lightbox:** Inspect full-resolution frames with one click. Scroll (`wheel` or `touchmove`) or press `Escape` to instantly dismiss and continue reading.
 - **Perceptual dHash Deduplication:** Uses 64-bit difference hashing with letterbox normalization (Hamming distance threshold 4) to prune frozen talking heads while keeping intentional motion and slide transitions.
 - **Mid-Paragraph Scene Tracking:** Captures visual cuts that occur during speech (such as brief product close-ups or diagram switches) so context is never dropped.
@@ -113,7 +114,7 @@ Compiles paragraphs and frames into static HTML:
 - **Semantic Chunking:** Groups paragraphs at natural scene boundaries with an upper bound of 14 paragraphs or 180 seconds per chapter.
 - **Asymmetric Desktop Grid:** 65ch reading column anchored on the left; sticky bento visual column on the right.
 - **Mobile Flow:** Adapts to a single-column layout on screens `<= 800px` with a horizontal carousel for visual frames.
-- **Scroll Spy:** Uses `IntersectionObserver` across viewports to highlight images matching the current text without mouse hover jitter.
+- **Intentional Focus:** Uses dwell filtering (750ms on frames) and click-to-focus on text so visual correlations only illuminate when requested, keeping scrolling 100% passive and quiet.
 
 ---
 
