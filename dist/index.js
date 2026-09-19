@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import{Command as J}from"commander";import k from"chalk";import{execa as O}from"execa";import K from"ora";import M from"fs";import j from"path";import{execa as N}from"execa";import $ from"fs";async function F(h,p={}){let f=p.signal?{cancelSignal:p.signal}:{},{stdout:d}=await N("yt-dlp",["--write-auto-subs","--write-subs",h,"--no-simulate","--print","after_move:filepath"],f),n=d.split(`
-`).map(e=>e.trim()).filter(Boolean),t=n.find(e=>e.match(/\.(webm|mp4|mkv|m4a|weba|flv)$/i))||n[n.length-1],i=$.readdirSync(".").find(e=>e.endsWith(".vtt"));if(!t||!$.existsSync(t))throw new Error(`Failed to locate downloaded video file. Output was: ${d}`);if(!i)throw new Error("Failed to locate downloaded VTT subtitles (video might not have captions).");return{videoFile:t,vttFile:i}}import B from"fs";import{execa as I}from"execa";async function A(h,p,f={}){let{concurrency:d=4,threadsPerWorker:n=1,signal:t,onProgress:y,sceneThreshold:i=.15}=f;if(p.length===0)return;let e=[0];try{let r=t?{cancelSignal:t}:{},{stderr:s}=await I("ffmpeg",["-i",h,"-filter:v",`select='gt(scene,${i})',showinfo`,"-f","null","-"],r),x=/pts_time:([0-9.]+)/g,S;for(;(S=x.exec(s))!==null;)e.push(parseFloat(S[1]))}catch{if(t?.aborted)throw new Error("Frame extraction aborted by user")}e.sort((r,s)=>r-s);let b=new Set;for(let r of p){let s=e[0];for(let x of e)if(x<=r.seconds)s=x;else break;r.sceneTimestamp=String(s),b.add(s)}let o=8,a=new Set;for(let r of p){let s=r.sceneTimestamp?parseFloat(r.sceneTimestamp):NaN;(isNaN(s)||Math.abs(r.seconds-s)>o)&&(a.add(r.seconds),r.sceneTimestamp=String(r.seconds))}for(let r of a)b.add(r);let w=Array.from(b),c=w.length,g=0,l=0,m=async()=>{for(;l<w.length;){if(t?.aborted)throw new Error("Frame extraction aborted by user");let r=l++,s=w[r],x=`images/${s}.jpg`;if(!B.existsSync(x)){let S=t?{cancelSignal:t}:{};await I("ffmpeg",["-y","-ss",String(s),"-nostdin","-threads",String(n),"-i",h,"-frames:v","1","-q:v","2","-vf","scale=1024:-1",x],S)}g++,y&&y(g,c)}},u=Math.max(1,Math.min(d,w.length)),v=Array.from({length:u},()=>m());await Promise.all(v)}import H from"fs";import V from"readline";import _ from"compromise";async function L(h){let p=H.createReadStream(h),f=V.createInterface({input:p,crlfDelay:1/0}),d=[],n=null,t=0,y=0,i=!1,e=[],b=5;for await(let c of f){let g=c.trim();if(!g||!i&&!g.match(/^\d{2}:\d{2}/))continue;i=!0;let l=g.match(/^(\d{2}:)?(\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:)?(\d{2}:\d{2}\.\d{3})/);if(l){let u=l[1]?`${l[1]}${l[2]}`:`00:${l[2]}`,v=l[3]?`${l[3]}${l[4]}`:`00:${l[4]}`;n=u;let r=s=>{let x=s.split(":"),S=parseInt(x[0]??"0",10),P=parseInt(x[1]??"0",10),T=parseFloat(x[2]??"0");return S*3600+P*60+T};t=r(u),y=r(v);continue}if(g.match(/^\d+$/))continue;let m=g.replace(/<[^>]+>/g,"").trim();m&&n&&(e.includes(m)||(d.push({timestamp:n,seconds:t,endSeconds:y,text:m}),e.push(m),e.length>b&&e.shift()))}let o=[],a=[],w=c=>{if(c.length===0)return;let g=c.map(s=>s.text).join(" "),m=_(g).sentences().out("array"),u=[],v=0,r=null;for(let s=0;s<m.length;s++){let x=m[s];if(u.length===0){let S=0,P=c[0];for(let T of c){if(S+T.text.length>=v){P=T;break}S+=T.text.length+1}r=P}u.push(x),v+=x.length+1,(u.length>=3||s===m.length-1)&&(o.push({timestamp:r.timestamp,seconds:r.seconds,text:u.join(" ")}),u=[])}};for(let c=0;c<d.length;c++){let g=d[c],l=c>0?d[c-1]:null,m=!1;if(a.length>0&&l){let u=g.seconds-l.endSeconds,v=g.seconds-a[0].seconds;(u>1.5||v>30)&&(m=!0)}m&&(w(a),a=[]),a.push(g)}return w(a),o}import U from"fs";import Y from"ejs";var G=`<!DOCTYPE html>
+import{Command as J}from"commander";import k from"chalk";import{execa as z}from"execa";import K from"ora";import C from"fs";import q from"path";import{execa as B}from"execa";import I from"fs";async function M(f,p={}){let u=p.signal?{cancelSignal:p.signal}:{},{stdout:d}=await B("yt-dlp",["--write-auto-subs","--write-subs",f,"--no-simulate","--print","after_move:filepath"],u),n=d.split(`
+`).map(e=>e.trim()).filter(Boolean),t=n.find(e=>e.match(/\.(webm|mp4|mkv|m4a|weba|flv)$/i))||n[n.length-1],s=I.readdirSync(".").find(e=>e.endsWith(".vtt"));if(!t||!I.existsSync(t))throw new Error(`Failed to locate downloaded video file. Output was: ${d}`);if(!s)throw new Error("Failed to locate downloaded VTT subtitles (video might not have captions).");return{videoFile:t,vttFile:s}}import N from"fs";import{execa as A}from"execa";async function $(f,p,u={}){let{concurrency:d=4,threadsPerWorker:n=1,signal:t,onProgress:x,sceneThreshold:s=.15}=u;if(p.length===0)return;let e=[0];try{let r=t?{cancelSignal:t}:{},{stderr:a}=await A("ffmpeg",["-i",f,"-filter:v",`select='gt(scene,${s})',showinfo`,"-f","null","-"],r),v=/pts_time:([0-9.]+)/g,S;for(;(S=v.exec(a))!==null;)e.push(parseFloat(S[1]))}catch{if(t?.aborted)throw new Error("Frame extraction aborted by user")}e.sort((r,a)=>r-a);let b=new Set;for(let r of p){let a=e[0];for(let v of e)if(v<=r.seconds)a=v;else break;r.sceneTimestamp=String(a),b.add(a)}let o=8,i=new Set;for(let r of p){let a=r.sceneTimestamp?parseFloat(r.sceneTimestamp):NaN;(isNaN(a)||Math.abs(r.seconds-a)>o)&&(i.add(r.seconds),r.sceneTimestamp=String(r.seconds))}for(let r of i)b.add(r);let y=Array.from(b),c=y.length,g=0,l=0,m=async()=>{for(;l<y.length;){if(t?.aborted)throw new Error("Frame extraction aborted by user");let r=l++,a=y[r],v=`images/${a}.jpg`;if(!N.existsSync(v)){let S=t?{cancelSignal:t}:{};await A("ffmpeg",["-y","-ss",String(a),"-nostdin","-threads",String(n),"-i",f,"-frames:v","1","-q:v","2","-vf","scale=1024:-1",v],S)}g++,x&&x(g,c)}},h=Math.max(1,Math.min(d,y.length)),w=Array.from({length:h},()=>m());await Promise.all(w)}import H from"fs";import V from"readline";import _ from"compromise";async function F(f){let p=H.createReadStream(f),u=V.createInterface({input:p,crlfDelay:1/0}),d=[],n=null,t=0,x=0,s=!1,e=[],b=5;for await(let c of u){let g=c.trim();if(!g||!s&&!g.match(/^\d{2}:\d{2}/))continue;s=!0;let l=g.match(/^(\d{2}:)?(\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:)?(\d{2}:\d{2}\.\d{3})/);if(l){let h=l[1]?`${l[1]}${l[2]}`:`00:${l[2]}`,w=l[3]?`${l[3]}${l[4]}`:`00:${l[4]}`;n=h;let r=a=>{let v=a.split(":"),S=parseInt(v[0]??"0",10),T=parseInt(v[1]??"0",10),E=parseFloat(v[2]??"0");return S*3600+T*60+E};t=r(h),x=r(w);continue}if(g.match(/^\d+$/))continue;let m=g.replace(/<[^>]+>/g,"").trim();m&&n&&(e.includes(m)||(d.push({timestamp:n,seconds:t,endSeconds:x,text:m}),e.push(m),e.length>b&&e.shift()))}let o=[],i=[],y=c=>{if(c.length===0)return;let g=c.map(a=>a.text).join(" "),m=_(g).sentences().out("array"),h=[],w=0,r=null;for(let a=0;a<m.length;a++){let v=m[a];if(h.length===0){let S=0,T=c[0];for(let E of c){if(S+E.text.length>=w){T=E;break}S+=E.text.length+1}r=T}h.push(v),w+=v.length+1,(h.length>=3||a===m.length-1)&&(o.push({timestamp:r.timestamp,seconds:r.seconds,text:h.join(" ")}),h=[])}};for(let c=0;c<d.length;c++){let g=d[c],l=c>0?d[c-1]:null,m=!1;if(i.length>0&&l){let h=g.seconds-l.endSeconds,w=g.seconds-i[0].seconds;(h>1.5||w>30)&&(m=!0)}m&&(y(i),i=[]),i.push(g)}return y(i),o}import U from"fs";import Y from"ejs";var G=`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -224,6 +224,33 @@ import{Command as J}from"commander";import k from"chalk";import{execa as O}from"
         margin: 0 0 1.75rem 0;
       }
     }
+  
+    /* Active scene highlights */
+    .bento-grid img {
+      transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+    }
+    .bento-grid.has-active img:not(.active-scene) {
+      opacity: 0.4;
+      filter: grayscale(0.5);
+    }
+    .bento-grid.has-active img.active-scene {
+      opacity: 1;
+      transform: scale(1.03);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      border-color: var(--accent);
+      z-index: 10;
+      position: relative;
+    }
+    .transcript-p {
+      transition: color 0.3s ease;
+      border-left: 3px solid transparent;
+      padding-left: 1rem;
+      margin-left: -1rem;
+    }
+    .transcript-p.active-p {
+      border-left-color: var(--accent);
+    }
+
   </style>
 </head>
 <body>
@@ -244,7 +271,7 @@ import{Command as J}from"commander";import k from"chalk";import{execa as O}from"
                let timeLabel = p.timestamp.replace(/^d{2}:/, '');
                timeLabel = timeLabel.split('.')[0];
           %>
-            <p><%= p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
+            <p data-scene="<%= p.sceneTimestamp %>" class="transcript-p"><%= p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
           <% }) %>
         </div>
         <div class="visuals-column">
@@ -253,7 +280,7 @@ import{Command as J}from"commander";import k from"chalk";import{execa as O}from"
               <% sceneImages.forEach(sceneTs => { %>
                 <div>
                   <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at <%= sceneTs %>s">
-                    <img src="images/<%= sceneTs %>.jpg" alt="Video frame at <%= sceneTs %>s" loading="lazy">
+                    <img id="img-<%= sceneTs %>" src="images/<%= sceneTs %>.jpg" alt="Video frame at <%= sceneTs %>s" loading="lazy">
                   </button>
                 </div>
               <% }) %>
@@ -299,8 +326,85 @@ import{Command as J}from"commander";import k from"chalk";import{execa as O}from"
       });
     });
   </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const paragraphs = document.querySelectorAll('.transcript-p');
+      
+      // Hover logic
+      paragraphs.forEach(p => {
+        p.addEventListener('mouseenter', () => {
+          const sceneId = p.getAttribute('data-scene');
+          if (!sceneId) return;
+          const img = document.getElementById('img-' + sceneId);
+          if (img) {
+            const grid = img.closest('.bento-grid');
+            grid.classList.add('has-active');
+            img.classList.add('active-scene');
+            p.classList.add('active-p');
+          }
+        });
+        
+        p.addEventListener('mouseleave', () => {
+          const sceneId = p.getAttribute('data-scene');
+          if (!sceneId) return;
+          const img = document.getElementById('img-' + sceneId);
+          if (img) {
+            const grid = img.closest('.bento-grid');
+            grid.classList.remove('has-active');
+            img.classList.remove('active-scene');
+            p.classList.remove('active-p');
+          }
+        });
+      });
+
+      // Scroll observer logic (optional but good for mobile)
+      const observer = new IntersectionObserver((entries) => {
+        let activeEntry = null;
+        // Find the most visible intersecting entry
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            if (!activeEntry || entry.intersectionRatio > activeEntry.intersectionRatio) {
+              activeEntry = entry;
+            }
+          }
+        });
+        
+        if (activeEntry) {
+          // Clear previous scroll-active
+          document.querySelectorAll('.bento-grid.scroll-active').forEach(g => {
+            if (!g.matches(':hover') && !g.closest('.scene').matches(':hover')) {
+               g.classList.remove('has-active', 'scroll-active');
+               g.querySelectorAll('.active-scene').forEach(img => img.classList.remove('active-scene'));
+            }
+          });
+          document.querySelectorAll('.active-p-scroll').forEach(p => p.classList.remove('active-p', 'active-p-scroll'));
+          
+          const p = activeEntry.target;
+          const sceneId = p.getAttribute('data-scene');
+          if (!sceneId) return;
+          const img = document.getElementById('img-' + sceneId);
+          if (img) {
+            const grid = img.closest('.bento-grid');
+            grid.classList.add('has-active', 'scroll-active');
+            img.classList.add('active-scene');
+            p.classList.add('active-p', 'active-p-scroll');
+          }
+        }
+      }, {
+        rootMargin: '-30% 0px -50% 0px', // Trigger when paragraph is near center of screen
+        threshold: [0, 0.5, 1]
+      });
+
+      // Only enable scroll spy on mobile to avoid fighting with desktop hovers
+      if (window.innerWidth <= 800) {
+        paragraphs.forEach(p => observer.observe(p));
+      }
+    });
+  </script>
 </body>
+
 </html>
-`;async function R(h,p,f="YouTube Transcript"){let d=[],n=[],t=new Set;for(let i=0;i<p.length;i++){let e=p[i];n.push(e),e.sceneTimestamp&&t.add(e.sceneTimestamp);let b=p[i+1];if(b){let o=b.sceneTimestamp!==e.sceneTimestamp,a=b.sceneTimestamp,w=o&&t.size>=6&&a&&!t.has(a),c=n.length>=6&&o,g=n.length>=12,l=n[0].seconds,m=e.seconds-l>120;(w||c||g||m)&&(d.push({uniqueScenes:Array.from(t),paragraphs:n}),n=[],t=new Set)}}n.length>0&&d.push({uniqueScenes:Array.from(t),paragraphs:n});let y=Y.render(G,{url:h,chapters:d,title:f});U.writeFileSync("index.html",y,"utf-8")}import C from"os";import{execa as Z}from"execa";async function z(h){let f=C.cpus().length||1,d=Math.floor(C.freemem()/(1024*1024)),n=Math.floor(C.totalmem()/(1024*1024)),t=C.loadavg()[0]??0,y=Math.max(1,Math.min(8,Math.floor(f*.35))),i=Math.max(1,Math.floor(d/250)),e=t>f*.7?.5:1,b=Math.max(1,Math.floor(Math.min(y,i)*e));h&&h>0&&(b=h);let o=null;try{let{stdout:a}=await Z("ffmpeg",["-hwaccels"]);a.includes("cuda")?o="cuda":a.includes("vaapi")?o="vaapi":a.includes("qsv")&&(o="qsv")}catch{o=null}return{cpuCount:f,freeMemoryMb:d,totalMemoryMb:n,loadAverage:t,recommendedConcurrency:b,threadsPerWorker:1,hwaccel:o}}var E=new AbortController,D=!1,q=()=>{D&&process.exit(130),D=!0,process.stderr.write(`
+`;async function R(f,p,u="YouTube Transcript"){let d=[],n=[],t=new Set;for(let s=0;s<p.length;s++){let e=p[s];n.push(e),e.sceneTimestamp&&t.add(e.sceneTimestamp);let b=p[s+1];if(b){let o=b.sceneTimestamp!==e.sceneTimestamp,i=b.sceneTimestamp,y=o&&t.size>=6&&i&&!t.has(i),c=n.length>=6&&o,g=n.length>=12,l=n[0].seconds,m=e.seconds-l>120;(y||c||g||m)&&(d.push({uniqueScenes:Array.from(t),paragraphs:n}),n=[],t=new Set)}}n.length>0&&d.push({uniqueScenes:Array.from(t),paragraphs:n});let x=Y.render(G,{url:f,chapters:d,title:u});U.writeFileSync("index.html",x,"utf-8")}import P from"os";import{execa as Z}from"execa";async function O(f){let u=P.cpus().length||1,d=Math.floor(P.freemem()/(1024*1024)),n=Math.floor(P.totalmem()/(1024*1024)),t=P.loadavg()[0]??0,x=Math.max(1,Math.min(8,Math.floor(u*.35))),s=Math.max(1,Math.floor(d/250)),e=t>u*.7?.5:1,b=Math.max(1,Math.floor(Math.min(x,s)*e));f&&f>0&&(b=f);let o=null;try{let{stdout:i}=await Z("ffmpeg",["-hwaccels"]);i.includes("cuda")?o="cuda":i.includes("vaapi")?o="vaapi":i.includes("qsv")&&(o="qsv")}catch{o=null}return{cpuCount:u,freeMemoryMb:d,totalMemoryMb:n,loadAverage:t,recommendedConcurrency:b,threadsPerWorker:1,hwaccel:o}}var L=new AbortController,j=!1,D=()=>{j&&process.exit(130),j=!0,process.stderr.write(`
 `+k.yellow("Aborting and cleaning up (press Ctrl-C again to force quit)...")+`
-`),E.abort()};process.on("SIGINT",q);process.on("SIGTERM",q);var W=new J;W.name("youtube.txt").description("Create a webpage from a Youtube video with a transcript paired with screenshots").requiredOption("-u, --url <url>","URL of the YouTube video").requiredOption("-o, --out <projectName>","Name of the output project folder").option("-c, --concurrency <number>","Number of parallel extraction workers (default: dynamic auto-tuning)").option("-t, --threads <number>","FFmpeg threads per worker instance (default: 1)").option("-s, --scene-threshold <number>","FFmpeg scene detection sensitivity 0-1, lower = more scenes (default: 0.15)").action(async h=>{let{out:p,url:f,concurrency:d,threads:n,sceneThreshold:t}=h;try{await O("yt-dlp",["--version"])}catch{console.error(k.red("Error: yt-dlp is not installed or not in PATH.")),process.exit(1)}try{await O("ffmpeg",["-version"])}catch{console.error(k.red("Error: ffmpeg is not installed or not in PATH.")),process.exit(1)}let y=d?parseInt(d,10):void 0,i=await z(y),e=n?parseInt(n,10):i.threadsPerWorker,b=t?parseFloat(t):.15;console.log(k.blue(`Initializing project: ${p}...`)),console.log(k.dim(`System: ${i.cpuCount} CPU cores | ${i.freeMemoryMb} MB free RAM | Load avg: ${i.loadAverage.toFixed(2)}`)),console.log(k.dim(`Dynamic allocation: ${i.recommendedConcurrency} worker pool (${e} thread/worker)`)),M.existsSync(p)||M.mkdirSync(p,{recursive:!0}),process.chdir(p),M.existsSync("images")||M.mkdirSync("images");let o=K("Downloading video and captions...").start();try{let{videoFile:a,vttFile:w}=await F(f,{signal:E.signal});o.succeed(`Downloaded video and captions: ${a}`),o.start("Parsing captions...");let c=await L(w);o.succeed(`Parsed ${c.length} paragraphs.`),o.start("Extracting frames (0%)..."),await A(a,c,{concurrency:i.recommendedConcurrency,threadsPerWorker:e,signal:E.signal,sceneThreshold:b,onProgress:(m,u)=>{let v=Math.floor(m/u*100);o.text=`Extracting frames: ${m}/${u} (${v}%) [${i.recommendedConcurrency} workers, ${e} th/w]`}}),o.succeed(`Extracted frames successfully (${c.length} paragraphs).`),o.start("Generating HTML...");let l=j.parse(a).name.replace(/\s\[[a-zA-Z0-9_-]+\]$/,"");await R(f,c,l),o.succeed(`Done! View your webpage at ${j.join(process.cwd(),"index.html")}`)}catch(a){E.signal.aborted&&(o.fail("Process aborted."),process.exit(130)),o.fail("An error occurred during processing."),a instanceof Error&&console.error(k.red(a.message)),process.exit(1)}});W.parse(process.argv);
+`),L.abort()};process.on("SIGINT",D);process.on("SIGTERM",D);var W=new J;W.name("youtube.txt").description("Create a webpage from a Youtube video with a transcript paired with screenshots").requiredOption("-u, --url <url>","URL of the YouTube video").requiredOption("-o, --out <projectName>","Name of the output project folder").option("-c, --concurrency <number>","Number of parallel extraction workers (default: dynamic auto-tuning)").option("-t, --threads <number>","FFmpeg threads per worker instance (default: 1)").option("-s, --scene-threshold <number>","FFmpeg scene detection sensitivity 0-1, lower = more scenes (default: 0.15)").action(async f=>{let{out:p,url:u,concurrency:d,threads:n,sceneThreshold:t}=f;try{await z("yt-dlp",["--version"])}catch{console.error(k.red("Error: yt-dlp is not installed or not in PATH.")),process.exit(1)}try{await z("ffmpeg",["-version"])}catch{console.error(k.red("Error: ffmpeg is not installed or not in PATH.")),process.exit(1)}let x=d?parseInt(d,10):void 0,s=await O(x),e=n?parseInt(n,10):s.threadsPerWorker,b=t?parseFloat(t):.15;console.log(k.blue(`Initializing project: ${p}...`)),console.log(k.dim(`System: ${s.cpuCount} CPU cores | ${s.freeMemoryMb} MB free RAM | Load avg: ${s.loadAverage.toFixed(2)}`)),console.log(k.dim(`Dynamic allocation: ${s.recommendedConcurrency} worker pool (${e} thread/worker)`)),C.existsSync(p)||C.mkdirSync(p,{recursive:!0}),process.chdir(p),C.existsSync("images")||C.mkdirSync("images");let o=K("Downloading video and captions...").start();try{let{videoFile:i,vttFile:y}=await M(u,{signal:L.signal});o.succeed(`Downloaded video and captions: ${i}`),o.start("Parsing captions...");let c=await F(y);o.succeed(`Parsed ${c.length} paragraphs.`),o.start("Extracting frames (0%)..."),await $(i,c,{concurrency:s.recommendedConcurrency,threadsPerWorker:e,signal:L.signal,sceneThreshold:b,onProgress:(m,h)=>{let w=Math.floor(m/h*100);o.text=`Extracting frames: ${m}/${h} (${w}%) [${s.recommendedConcurrency} workers, ${e} th/w]`}}),o.succeed(`Extracted frames successfully (${c.length} paragraphs).`),o.start("Generating HTML...");let l=q.parse(i).name.replace(/\s\[[a-zA-Z0-9_-]+\]$/,"");await R(u,c,l),o.succeed(`Done! View your webpage at ${q.join(process.cwd(),"index.html")}`)}catch(i){L.signal.aborted&&(o.fail("Process aborted."),process.exit(130)),o.fail("An error occurred during processing."),i instanceof Error&&console.error(k.red(i.message)),process.exit(1)}});W.parse(process.argv);

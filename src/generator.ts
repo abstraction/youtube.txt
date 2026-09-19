@@ -226,6 +226,33 @@ const TEMPLATE = `<!DOCTYPE html>
         margin: 0 0 1.75rem 0;
       }
     }
+  
+    /* Active scene highlights */
+    .bento-grid img {
+      transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+    }
+    .bento-grid.has-active img:not(.active-scene) {
+      opacity: 0.4;
+      filter: grayscale(0.5);
+    }
+    .bento-grid.has-active img.active-scene {
+      opacity: 1;
+      transform: scale(1.03);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      border-color: var(--accent);
+      z-index: 10;
+      position: relative;
+    }
+    .transcript-p {
+      transition: color 0.3s ease;
+      border-left: 3px solid transparent;
+      padding-left: 1rem;
+      margin-left: -1rem;
+    }
+    .transcript-p.active-p {
+      border-left-color: var(--accent);
+    }
+
   </style>
 </head>
 <body>
@@ -246,7 +273,7 @@ const TEMPLATE = `<!DOCTYPE html>
                let timeLabel = p.timestamp.replace(/^\d{2}:/, '');
                timeLabel = timeLabel.split('.')[0];
           %>
-            <p><%= p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
+            <p data-scene="<%= p.sceneTimestamp %>" class="transcript-p"><%= p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
           <% }) %>
         </div>
         <div class="visuals-column">
@@ -255,7 +282,7 @@ const TEMPLATE = `<!DOCTYPE html>
               <% sceneImages.forEach(sceneTs => { %>
                 <div>
                   <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at <%= sceneTs %>s">
-                    <img src="images/<%= sceneTs %>.jpg" alt="Video frame at <%= sceneTs %>s" loading="lazy">
+                    <img id="img-<%= sceneTs %>" src="images/<%= sceneTs %>.jpg" alt="Video frame at <%= sceneTs %>s" loading="lazy">
                   </button>
                 </div>
               <% }) %>
@@ -301,7 +328,84 @@ const TEMPLATE = `<!DOCTYPE html>
       });
     });
   </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const paragraphs = document.querySelectorAll('.transcript-p');
+      
+      // Hover logic
+      paragraphs.forEach(p => {
+        p.addEventListener('mouseenter', () => {
+          const sceneId = p.getAttribute('data-scene');
+          if (!sceneId) return;
+          const img = document.getElementById('img-' + sceneId);
+          if (img) {
+            const grid = img.closest('.bento-grid');
+            grid.classList.add('has-active');
+            img.classList.add('active-scene');
+            p.classList.add('active-p');
+          }
+        });
+        
+        p.addEventListener('mouseleave', () => {
+          const sceneId = p.getAttribute('data-scene');
+          if (!sceneId) return;
+          const img = document.getElementById('img-' + sceneId);
+          if (img) {
+            const grid = img.closest('.bento-grid');
+            grid.classList.remove('has-active');
+            img.classList.remove('active-scene');
+            p.classList.remove('active-p');
+          }
+        });
+      });
+
+      // Scroll observer logic (optional but good for mobile)
+      const observer = new IntersectionObserver((entries) => {
+        let activeEntry = null;
+        // Find the most visible intersecting entry
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            if (!activeEntry || entry.intersectionRatio > activeEntry.intersectionRatio) {
+              activeEntry = entry;
+            }
+          }
+        });
+        
+        if (activeEntry) {
+          // Clear previous scroll-active
+          document.querySelectorAll('.bento-grid.scroll-active').forEach(g => {
+            if (!g.matches(':hover') && !g.closest('.scene').matches(':hover')) {
+               g.classList.remove('has-active', 'scroll-active');
+               g.querySelectorAll('.active-scene').forEach(img => img.classList.remove('active-scene'));
+            }
+          });
+          document.querySelectorAll('.active-p-scroll').forEach(p => p.classList.remove('active-p', 'active-p-scroll'));
+          
+          const p = activeEntry.target;
+          const sceneId = p.getAttribute('data-scene');
+          if (!sceneId) return;
+          const img = document.getElementById('img-' + sceneId);
+          if (img) {
+            const grid = img.closest('.bento-grid');
+            grid.classList.add('has-active', 'scroll-active');
+            img.classList.add('active-scene');
+            p.classList.add('active-p', 'active-p-scroll');
+          }
+        }
+      }, {
+        rootMargin: '-30% 0px -50% 0px', // Trigger when paragraph is near center of screen
+        threshold: [0, 0.5, 1]
+      });
+
+      // Only enable scroll spy on mobile to avoid fighting with desktop hovers
+      if (window.innerWidth <= 800) {
+        paragraphs.forEach(p => observer.observe(p));
+      }
+    });
+  </script>
 </body>
+
 </html>
 `;
 
