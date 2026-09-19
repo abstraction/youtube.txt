@@ -7,6 +7,7 @@ export interface Paragraph {
   seconds: number;
   text: string;
   sceneTimestamp?: string;
+  sceneTimestamps?: string[];
 }
 
 interface RawCue {
@@ -20,7 +21,7 @@ export async function parseVtt(vttFile: string): Promise<Paragraph[]> {
   const fileStream = fs.createReadStream(vttFile);
   const rl = readline.createInterface({
     input: fileStream,
-    crlfDelay: Infinity
+    crlfDelay: Infinity,
   });
 
   const rawCues: RawCue[] = [];
@@ -28,40 +29,60 @@ export async function parseVtt(vttFile: string): Promise<Paragraph[]> {
   let currentSeconds = 0;
   let currentEndSeconds = 0;
   let timestampSeen = false;
-  
+
   const slidingWindow: string[] = [];
   const WINDOW_SIZE = 5;
 
   for await (const line of rl) {
     const trimmed = line.trim();
     if (!trimmed) continue;
-    
+
     if (!timestampSeen && !trimmed.match(/^\d{2}:\d{2}/)) continue;
     timestampSeen = true;
 
-    const timeMatch = trimmed.match(/^(\d{2}:)?(\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:)?(\d{2}:\d{2}\.\d{3})/);
+    const timeMatch = trimmed.match(
+      /^(\d{2}:)?(\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:)?(\d{2}:\d{2}\.\d{3})/
+    );
     if (timeMatch) {
-      const startStr = timeMatch[1] ? `${timeMatch[1]}${timeMatch[2]}` : `00:${timeMatch[2]}`;
-      const endStr = timeMatch[3] ? `${timeMatch[3]}${timeMatch[4]}` : `00:${timeMatch[4]}`;
+      const startStr = timeMatch[1]
+        ? `${timeMatch[1]}${timeMatch[2]}`
+        : `00:${timeMatch[2]}`;
+      const endStr = timeMatch[3]
+        ? `${timeMatch[3]}${timeMatch[4]}`
+        : `00:${timeMatch[4]}`;
       currentTimestamp = startStr;
-      
+
       const parseTime = (ts: string) => {
         const parts = ts.split(':');
         const h = parseInt(parts[0] ?? '0', 10);
         const m = parseInt(parts[1] ?? '0', 10);
         const s = parseFloat(parts[2] ?? '0');
-        return (h * 3600) + (m * 60) + s;
+        return h * 3600 + m * 60 + s;
       };
-      
+
       currentSeconds = parseTime(startStr);
       currentEndSeconds = parseTime(endStr);
       continue;
     }
 
-    if (trimmed.match(/^\d+$/)) continue;
+    let cleanText = trimmed;
+    if (cleanText.startsWith('>> ') || cleanText.startsWith('&gt;&gt; ')) {
+      cleanText =
+        '[New Speaker]: ' + cleanText.replace(/^(>>|&gt;&gt;)\s*/, '');
+    }
 
-    const cleanText = trimmed.replace(/<[^>]+>/g, '').trim();
+    // Decode safe HTML entities first
+    cleanText = cleanText
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+
+    // Strip WebVTT formatting tags (<c>, <b>, <v>, etc.)
+    cleanText = cleanText.replace(/<[^>]+>/g, '').trim();
     if (!cleanText) continue;
+
+    // Re-escape angle brackets to prevent stored XSS injection in HTML templates
+    cleanText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     if (currentTimestamp) {
       if (!slidingWindow.includes(cleanText)) {
@@ -69,9 +90,9 @@ export async function parseVtt(vttFile: string): Promise<Paragraph[]> {
           timestamp: currentTimestamp,
           seconds: currentSeconds,
           endSeconds: currentEndSeconds,
-          text: cleanText
+          text: cleanText,
         });
-        
+
         slidingWindow.push(cleanText);
         if (slidingWindow.length > WINDOW_SIZE) slidingWindow.shift();
       }
@@ -79,73 +100,55 @@ export async function parseVtt(vttFile: string): Promise<Paragraph[]> {
   }
 
   const paragraphs: Paragraph[] = [];
-  let buffer: RawCue[] = [];
+  if (rawCues.length === 0) return paragraphs;
 
-  const processBuffer = (cues: RawCue[]) => {
-    if (cues.length === 0) return;
-    const combinedText = cues.map(c => c.text).join(' ');
-    const doc = nlp(combinedText);
-    const sentences = doc.sentences().out('array') as string[];
+  // 1. Join all text first to give NLP full context
+  const combinedText = rawCues.map((c) => c.text).join(' ');
 
-    let currentParagraphSentences: string[] = [];
-    let charCount = 0;
-    let thisParagraphCue: RawCue | null = null;
-
-    for (let i = 0; i < sentences.length; i++) {
-      const sentence = sentences[i] as string;
-      
-      // When starting a new paragraph, accurately map the character offset back to the original Cue
-      if (currentParagraphSentences.length === 0) {
-         let currentLen = 0;
-         let matchedCue = cues[0] as RawCue;
-         for (const c of cues) {
-           if (currentLen + c.text.length >= charCount) {
-             matchedCue = c;
-             break;
-           }
-           currentLen += c.text.length + 1; // +1 for the space
-         }
-         thisParagraphCue = matchedCue;
-      }
-
-      currentParagraphSentences.push(sentence);
-      charCount += sentence.length + 1;
-      
-      if (currentParagraphSentences.length >= 3 || i === sentences.length - 1) {
-        paragraphs.push({
-          timestamp: thisParagraphCue!.timestamp,
-          seconds: thisParagraphCue!.seconds,
-          text: currentParagraphSentences.join(' ')
-        });
-        currentParagraphSentences = [];
-      }
-    }
-  };
-
-  for (let i = 0; i < rawCues.length; i++) {
-    const cue = rawCues[i] as RawCue;
-    const prev = i > 0 ? (rawCues[i - 1] as RawCue) : null;
-    let shouldBreak = false;
-
-    if (buffer.length > 0 && prev) {
-      const pauseDuration = cue.seconds - prev.endSeconds;
-      const bufferDuration = cue.seconds - (buffer[0] as RawCue).seconds;
-      
-      if (pauseDuration > 1.5) {
-        shouldBreak = true;
-      } else if (bufferDuration > 30) {
-        shouldBreak = true;
-      }
-    }
-
-    if (shouldBreak) {
-      processBuffer(buffer);
-      buffer = [];
-    }
-    
-    buffer.push(cue);
+  // 2. Track offsets so we can map sentences back to timestamps
+  const cueOffsets: { cue: RawCue; startChar: number; endChar: number }[] = [];
+  let offset = 0;
+  for (const cue of rawCues) {
+    const len = cue.text.length;
+    cueOffsets.push({ cue, startChar: offset, endChar: offset + len });
+    offset += len + 1; // +1 for the space
   }
-  processBuffer(buffer);
+
+  // 3. Let NLP parse the full text with complete context
+  const doc = nlp(combinedText);
+  const sentences = doc.sentences().out('array') as string[];
+
+  // 4. Reconstruct paragraphs cleanly
+  let currentParagraphSentences: string[] = [];
+  let paragraphStartCue: RawCue | null = null;
+  let charTracker = 0;
+
+  for (let i = 0; i < sentences.length; i++) {
+    const sentence = sentences[i] as string;
+
+    // Find the cue corresponding to the start of this sentence
+    const matchedCueObj =
+      cueOffsets.find((c) => c.endChar > charTracker) ||
+      cueOffsets[cueOffsets.length - 1];
+    if (!matchedCueObj) continue;
+    const matchedCue = matchedCueObj.cue;
+
+    if (currentParagraphSentences.length === 0) {
+      paragraphStartCue = matchedCue;
+    }
+
+    currentParagraphSentences.push(sentence);
+    charTracker += sentence.length + 1;
+
+    if (currentParagraphSentences.length >= 3 || i === sentences.length - 1) {
+      paragraphs.push({
+        timestamp: paragraphStartCue!.timestamp,
+        seconds: paragraphStartCue!.seconds,
+        text: currentParagraphSentences.join(' '),
+      });
+      currentParagraphSentences = [];
+    }
+  }
 
   return paragraphs;
 }
