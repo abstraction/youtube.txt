@@ -169,7 +169,9 @@ export async function extractFrames(
       for (let x = 0; x < 8; x++) {
         const left = buf[y * 9 + x];
         const right = buf[y * 9 + x + 1];
-        hash += left > right ? '1' : '0';
+        if (left !== undefined && right !== undefined) {
+          hash += left > right ? '1' : '0';
+        }
       }
     }
     return hash;
@@ -183,31 +185,57 @@ export async function extractFrames(
     return diff;
   }
 
+  // Parallelize hash calculation across workers
+  const hashes = new Map<number, string>();
+  let hashIdx = 0;
+  const hashWorker = async (): Promise<void> => {
+    while (hashIdx < timestampsToExtract.length) {
+      if (signal?.aborted) throw new Error('Frame extraction aborted by user');
+      const idx = hashIdx++;
+      const ts = timestampsToExtract[idx];
+      if (ts === undefined) break;
+      try {
+        const h = await computeDHash(ts);
+        hashes.set(ts, h);
+      } catch {
+        // If hash generation fails, leave unset so it won't be deleted
+      }
+    }
+  };
+
+  const hashPool = Math.max(
+    1,
+    Math.min(concurrency, timestampsToExtract.length)
+  );
+  await Promise.all(Array.from({ length: hashPool }, () => hashWorker()));
+
   let lastKeptTs: number | null = null;
   let lastKeptHash: string | null = null;
   const remapping = new Map<number, number>();
 
   for (const ts of timestampsToExtract) {
-    if (signal?.aborted) throw new Error('Frame extraction aborted by user');
-    try {
-      const hash = await computeDHash(ts);
-      if (lastKeptTs !== null && lastKeptHash !== null) {
-        const dist = hammingDistance(lastKeptHash, hash);
-        if (dist <= 3) {
-          // It's a duplicate
-          remapping.set(ts, lastKeptTs);
-          // Try deleting it
-          fs.unlinkSync(`images/${ts}.jpg`);
-          continue;
-        }
-      }
-      lastKeptTs = ts;
-      lastKeptHash = hash;
+    const hash = hashes.get(ts);
+    if (!hash) {
       remapping.set(ts, ts);
-    } catch (err) {
-      // If image doesn't exist or fails, just keep mapping to self
-      remapping.set(ts, ts);
+      continue;
     }
+
+    if (lastKeptTs !== null && lastKeptHash !== null) {
+      const dist = hammingDistance(lastKeptHash, hash);
+      if (dist <= 3) {
+        // It's a duplicate
+        remapping.set(ts, lastKeptTs);
+        try {
+          fs.unlinkSync(`images/${ts}.jpg`);
+        } catch {
+          // Keep deduplication mapping even if physical deletion fails
+        }
+        continue;
+      }
+    }
+    lastKeptTs = ts;
+    lastKeptHash = hash;
+    remapping.set(ts, ts);
   }
 
   // Cleanup temp dir

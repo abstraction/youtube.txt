@@ -17,6 +17,7 @@ const TEMPLATE = `<!DOCTYPE html>
       --text: #1a1a1a;
       --link: #065fd4;
       --link-hover: #00368a;
+      --accent: #065fd4;
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -24,6 +25,7 @@ const TEMPLATE = `<!DOCTYPE html>
         --text: #e5e5e5;
         --link: #3ea6ff;
         --link-hover: #83c6ff;
+        --accent: #3ea6ff;
       }
     }
     body {
@@ -94,6 +96,8 @@ const TEMPLATE = `<!DOCTYPE html>
       position: sticky;
       top: 2rem;
       max-height: calc(100vh - 4rem);
+      overflow-y: auto;
+      scrollbar-width: thin;
       display: flex;
       flex-direction: column;
       justify-content: start;
@@ -118,20 +122,21 @@ const TEMPLATE = `<!DOCTYPE html>
     
     .bento-grid[data-count="5"] { grid-template-columns: repeat(6, 1fr); }
     .bento-grid[data-count="5"] > div:first-child { grid-column: span 4; grid-row: span 2; }
-    .bento-grid[data-count="5"] > div:nth-child(2),
-    .bento-grid[data-count="5"] > div:nth-child(3) { grid-column: span 2; }
-    .bento-grid[data-count="5"] > div:nth-child(4),
-    .bento-grid[data-count="5"] > div:nth-child(5) { grid-column: span 3; }
     
     .bento-grid[data-count="6"] { grid-template-columns: repeat(6, 1fr); }
     .bento-grid[data-count="6"] > div:first-child { grid-column: span 4; grid-row: span 2; }
-    .bento-grid[data-count="6"] > div:not(:first-child) { grid-column: span 2; }
+    .bento-grid[data-count="6"] > div:nth-child(2) { grid-column: span 2; }
+    .bento-grid[data-count="6"] > div:nth-child(3) { grid-column: span 2; }
+    .bento-grid[data-count="6"] > div:nth-child(4) { grid-column: span 2; }
+    .bento-grid[data-count="6"] > div:nth-child(5) { grid-column: span 2; }
+    .bento-grid[data-count="6"] > div:nth-child(6) { grid-column: span 2; }
     
     button.lightbox-trigger {
       background: none;
       border: none;
       padding: 0;
       width: 100%;
+      height: 100%;
       text-align: left;
     }
     
@@ -200,13 +205,14 @@ const TEMPLATE = `<!DOCTYPE html>
         gap: 1.5rem;
       }
       .visuals-column {
-        position: sticky;
-        top: 0;
-        margin-bottom: 0.5rem;
-        padding-top: 1rem;
-        background: var(--bg); /* To cover text scrolling underneath */
+        position: relative;
+        top: auto;
+        margin-bottom: 1.5rem;
+        padding-top: 0.5rem;
         padding-bottom: 0.5rem;
         max-height: none;
+        overflow: visible;
+        order: -1;
         border-bottom: 1px solid rgba(128,128,128,0.1);
       }
       /* Horizontal scrolling for bento grid on mobile */
@@ -405,12 +411,10 @@ const TEMPLATE = `<!DOCTYPE html>
         });
         
         if (activeEntry) {
-          // Clear previous scroll-active
+          // Clear previous scroll-active highlights
           document.querySelectorAll('.bento-grid.scroll-active').forEach(g => {
-            if (!g.matches(':hover') && !g.closest('.scene').matches(':hover')) {
-               g.classList.remove('has-active', 'scroll-active');
-               g.querySelectorAll('.active-scene').forEach(img => img.classList.remove('active-scene'));
-            }
+            g.classList.remove('has-active', 'scroll-active');
+            g.querySelectorAll('.active-scene').forEach(img => img.classList.remove('active-scene'));
           });
           document.querySelectorAll('.active-p-scroll').forEach(p => p.classList.remove('active-p', 'active-p-scroll'));
           
@@ -420,11 +424,19 @@ const TEMPLATE = `<!DOCTYPE html>
           const img = document.getElementById('img-' + sceneId);
           if (img) {
             const grid = img.closest('.bento-grid');
-            grid.classList.add('has-active', 'scroll-active');
-            img.classList.add('active-scene');
-            p.classList.add('active-p', 'active-p-scroll');
-            if (window.innerWidth <= 800) {
-              img.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            if (grid) {
+              grid.classList.add('has-active', 'scroll-active');
+              img.classList.add('active-scene');
+              p.classList.add('active-p', 'active-p-scroll');
+              if (window.innerWidth <= 800) {
+                const imgLeft = img.offsetLeft;
+                const gridWidth = grid.clientWidth;
+                const imgWidth = img.clientWidth;
+                grid.scrollTo({
+                  left: imgLeft - (gridWidth / 2) + (imgWidth / 2),
+                  behavior: 'smooth'
+                });
+              }
             }
           }
         }
@@ -444,12 +456,14 @@ const TEMPLATE = `<!DOCTYPE html>
 </html>
 `;
 
-export async function generateHtml(
-  url: string,
-  paragraphs: Paragraph[],
-  title: string = 'YouTube Transcript'
-): Promise<void> {
-  const chapters: { uniqueScenes: string[]; paragraphs: Paragraph[] }[] = [];
+export interface Chapter {
+  uniqueScenes: string[];
+  paragraphs: Paragraph[];
+}
+
+export function chunkParagraphs(paragraphs: Paragraph[]): Chapter[] {
+  const chapters: Chapter[] = [];
+  if (paragraphs.length === 0) return chapters;
 
   let currentChunk: Paragraph[] = [];
   let currentScenes = new Set<string>();
@@ -461,28 +475,32 @@ export async function generateHtml(
       currentScenes.add(p.sceneTimestamp);
     }
 
-    // Check if we should split
     const nextP = paragraphs[i + 1];
     if (nextP) {
       const isNewScene = nextP.sceneTimestamp !== p.sceneTimestamp;
       const nextScene = nextP.sceneTimestamp;
 
-      let shouldSplit = false;
-      if (isNewScene) {
-        if (
-          currentScenes.size >= 6 &&
-          nextScene &&
-          !currentScenes.has(nextScene)
-        ) {
-          shouldSplit = true;
-        } else if (currentChunk.length >= 6) {
-          shouldSplit = true;
-        } else if (p.seconds - currentChunk[0]!.seconds > 120) {
-          shouldSplit = true;
-        }
-      }
+      const chunkDuration = p.seconds - currentChunk[0]!.seconds;
+      const reachedMaxScenes =
+        isNewScene &&
+        currentScenes.size >= 6 &&
+        nextScene !== undefined &&
+        !currentScenes.has(nextScene);
 
-      if (shouldSplit) {
+      // Hard limits: prevent never-ending chapters even if the scene never changes
+      const exceededMaxParagraphs = currentChunk.length >= 14;
+      const exceededMaxDuration = chunkDuration > 180;
+
+      // Natural limits: split at scene boundaries if we have sufficient content
+      const naturalSceneBreak =
+        isNewScene && (currentChunk.length >= 6 || chunkDuration > 60);
+
+      if (
+        reachedMaxScenes ||
+        exceededMaxParagraphs ||
+        exceededMaxDuration ||
+        naturalSceneBreak
+      ) {
         chapters.push({
           uniqueScenes: Array.from(currentScenes),
           paragraphs: currentChunk,
@@ -500,6 +518,15 @@ export async function generateHtml(
     });
   }
 
+  return chapters;
+}
+
+export async function generateHtml(
+  url: string,
+  paragraphs: Paragraph[],
+  title: string = 'YouTube Transcript'
+): Promise<void> {
+  const chapters = chunkParagraphs(paragraphs);
   const html = ejs.render(TEMPLATE, { url, chapters, title });
   fs.writeFileSync('index.html', html, 'utf-8');
 }

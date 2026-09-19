@@ -64,21 +64,24 @@ export async function parseVtt(vttFile: string): Promise<Paragraph[]> {
       continue;
     }
 
-    if (trimmed.match(/^\d+$/)) continue;
+    let cleanText = trimmed;
+    if (cleanText.startsWith('>> ') || cleanText.startsWith('&gt;&gt; ')) {
+      cleanText =
+        '[New Speaker]: ' + cleanText.replace(/^(>>|&gt;&gt;)\s*/, '');
+    }
 
-    let cleanText = trimmed.replace(/<[^>]+>/g, '').trim();
-    if (!cleanText) continue;
-
+    // Decode safe HTML entities first
     cleanText = cleanText
       .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'");
 
-    if (cleanText.startsWith('>> ')) {
-      cleanText = '[New Speaker]: ' + cleanText.substring(3);
-    }
+    // Strip WebVTT formatting tags (<c>, <b>, <v>, etc.)
+    cleanText = cleanText.replace(/<[^>]+>/g, '').trim();
+    if (!cleanText) continue;
+
+    // Re-escape angle brackets to prevent stored XSS injection in HTML templates
+    cleanText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     if (currentTimestamp) {
       if (!slidingWindow.includes(cleanText)) {
@@ -126,6 +129,7 @@ export async function parseVtt(vttFile: string): Promise<Paragraph[]> {
     const matchedCueObj =
       cueOffsets.find((c) => c.endChar > charTracker) ||
       cueOffsets[cueOffsets.length - 1];
+    if (!matchedCueObj) continue;
     const matchedCue = matchedCueObj.cue;
 
     if (currentParagraphSentences.length === 0) {
