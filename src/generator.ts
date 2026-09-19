@@ -95,13 +95,11 @@ const TEMPLATE = `<!DOCTYPE html>
     .visuals-column {
       position: sticky;
       top: 2rem;
-      max-height: calc(100vh - 4rem);
-      overflow-y: auto;
-      scrollbar-width: thin;
       display: flex;
       flex-direction: column;
       justify-content: start;
       z-index: 10;
+      overflow: visible;
     }
     .text-column {
       max-width: 65ch;
