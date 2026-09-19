@@ -7,6 +7,7 @@ export interface Paragraph {
   seconds: number;
   text: string;
   sceneTimestamp?: string;
+  sceneTimestamps?: string[];
 }
 
 interface RawCue {

@@ -65,6 +65,29 @@ describe('chunkParagraphs', () => {
     expect(chapters[0]!.uniqueScenes.length).toBeLessThanOrEqual(6);
     expect(chapters.length).toBeGreaterThan(1);
   });
+
+  it('captures mid-paragraph scenes in chapter uniqueScenes', () => {
+    const paragraphs: Paragraph[] = [
+      {
+        seconds: 46.4,
+        timestamp: '00:46',
+        text: 'This product called Daily Greens is one of the most requested products',
+        sceneTimestamp: '39.92',
+        sceneTimestamps: ['39.92', '55.8'],
+      },
+      {
+        seconds: 64.6,
+        timestamp: '01:04',
+        text: 'And then a few weeks ago...',
+        sceneTimestamp: '64.6',
+        sceneTimestamps: ['64.6'],
+      },
+    ];
+
+    const chapters = chunkParagraphs(paragraphs);
+    expect(chapters[0]!.uniqueScenes).toContain('55.8');
+    expect(chapters[0]!.uniqueScenes).toEqual(['39.92', '55.8', '64.6']);
+  });
 });
 
 describe('generateHtml', () => {

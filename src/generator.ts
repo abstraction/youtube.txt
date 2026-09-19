@@ -117,19 +117,13 @@ const TEMPLATE = `<!DOCTYPE html>
     .bento-grid[data-count="3"] { grid-template-columns: repeat(2, 1fr); }
     .bento-grid[data-count="3"] > div:first-child { grid-column: span 2; }
     
-    .bento-grid[data-count="4"] { grid-template-columns: repeat(3, 1fr); }
-    .bento-grid[data-count="4"] > div:first-child { grid-column: span 3; }
+    .bento-grid[data-count="4"] { grid-template-columns: repeat(2, 1fr); }
     
     .bento-grid[data-count="5"] { grid-template-columns: repeat(6, 1fr); }
-    .bento-grid[data-count="5"] > div:first-child { grid-column: span 4; grid-row: span 2; }
+    .bento-grid[data-count="5"] > div:nth-child(-n+2) { grid-column: span 3; }
+    .bento-grid[data-count="5"] > div:nth-child(n+3) { grid-column: span 2; }
     
-    .bento-grid[data-count="6"] { grid-template-columns: repeat(6, 1fr); }
-    .bento-grid[data-count="6"] > div:first-child { grid-column: span 4; grid-row: span 2; }
-    .bento-grid[data-count="6"] > div:nth-child(2) { grid-column: span 2; }
-    .bento-grid[data-count="6"] > div:nth-child(3) { grid-column: span 2; }
-    .bento-grid[data-count="6"] > div:nth-child(4) { grid-column: span 2; }
-    .bento-grid[data-count="6"] > div:nth-child(5) { grid-column: span 2; }
-    .bento-grid[data-count="6"] > div:nth-child(6) { grid-column: span 2; }
+    .bento-grid[data-count="6"] { grid-template-columns: repeat(2, 1fr); }
     
     button.lightbox-trigger {
       background: none;
@@ -244,20 +238,23 @@ const TEMPLATE = `<!DOCTYPE html>
       }
     }
   
-    /* Active scene highlights */
+    /* Active scene highlights with dynamic zoom */
     .bento-grid img {
-      transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.25s ease, filter 0.25s ease, outline-color 0.25s ease;
+      will-change: transform;
     }
     .bento-grid.has-active img:not(.active-scene) {
-      opacity: 0.4;
-      filter: grayscale(0.5);
+      opacity: 0.35;
+      filter: grayscale(0.4);
     }
     .bento-grid.has-active img.active-scene {
       opacity: 1;
-      transform: scale(1.03);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transform: scale(1.08);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
       border-color: var(--accent);
-      z-index: 10;
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+      z-index: 30;
       position: relative;
     }
     .transcript-p {
@@ -289,8 +286,9 @@ const TEMPLATE = `<!DOCTYPE html>
                const timestampUrl = \`\${url}\${linkChar}t=\${Math.floor(p.seconds)}\`;
                let timeLabel = p.timestamp.replace(/^\d{2}:/, '');
                timeLabel = timeLabel.split('.')[0];
+               const scenesAttr = (p.sceneTimestamps && p.sceneTimestamps.length > 0 ? p.sceneTimestamps : [p.sceneTimestamp]).filter(Boolean).join(',');
           %>
-            <p data-scene="<%= p.sceneTimestamp %>" class="transcript-p"><%- p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
+            <p data-scenes="<%= scenesAttr %>" data-scene="<%= p.sceneTimestamp %>" class="transcript-p"><%- p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
           <% }) %>
         </div>
         <div class="visuals-column">
@@ -350,20 +348,24 @@ const TEMPLATE = `<!DOCTYPE html>
     document.addEventListener('DOMContentLoaded', () => {
       const paragraphs = document.querySelectorAll('.transcript-p');
       
-      // Hover logic
+      // Hover logic: Image hover illuminates matching paragraph(s)
       document.querySelectorAll('.bento-grid img').forEach(img => {
+        const sceneId = img.id.replace('img-', '');
+        
         img.addEventListener('mouseenter', () => {
-          const sceneId = img.id.replace('img-', '');
-          document.querySelectorAll('.transcript-p[data-scene="' + sceneId + '"]').forEach(p => {
-            p.classList.add('active-p');
+          document.querySelectorAll('.transcript-p').forEach(p => {
+            const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',');
+            if (scenes.includes(sceneId)) {
+              p.classList.add('active-p');
+            }
           });
           img.classList.add('active-scene');
           const grid = img.closest('.bento-grid');
           if (grid) grid.classList.add('has-active');
         });
+        
         img.addEventListener('mouseleave', () => {
-          const sceneId = img.id.replace('img-', '');
-          document.querySelectorAll('.transcript-p[data-scene="' + sceneId + '"]').forEach(p => {
+          document.querySelectorAll('.transcript-p').forEach(p => {
             p.classList.remove('active-p');
           });
           img.classList.remove('active-scene');
@@ -372,36 +374,40 @@ const TEMPLATE = `<!DOCTYPE html>
         });
       });
 
+      // Hover logic: Paragraph hover illuminates all active scene frames with dynamic zoom
       paragraphs.forEach(p => {
         p.addEventListener('mouseenter', () => {
-          const sceneId = p.getAttribute('data-scene');
-          if (!sceneId) return;
-          const img = document.getElementById('img-' + sceneId);
-          if (img) {
-            const grid = img.closest('.bento-grid');
-            grid.classList.add('has-active');
-            img.classList.add('active-scene');
-            p.classList.add('active-p');
-          }
+          const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',').filter(Boolean);
+          if (scenes.length === 0) return;
+          
+          p.classList.add('active-p');
+          scenes.forEach(sceneId => {
+            const img = document.getElementById('img-' + sceneId);
+            if (img) {
+              img.classList.add('active-scene');
+              const grid = img.closest('.bento-grid');
+              if (grid) grid.classList.add('has-active');
+            }
+          });
         });
         
         p.addEventListener('mouseleave', () => {
-          const sceneId = p.getAttribute('data-scene');
-          if (!sceneId) return;
-          const img = document.getElementById('img-' + sceneId);
-          if (img) {
-            const grid = img.closest('.bento-grid');
-            grid.classList.remove('has-active');
-            img.classList.remove('active-scene');
-            p.classList.remove('active-p');
-          }
+          p.classList.remove('active-p');
+          const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',').filter(Boolean);
+          scenes.forEach(sceneId => {
+            const img = document.getElementById('img-' + sceneId);
+            if (img) {
+              img.classList.remove('active-scene');
+              const grid = img.closest('.bento-grid');
+              if (grid) grid.classList.remove('has-active');
+            }
+          });
         });
       });
 
-      // Scroll observer logic (optional but good for mobile)
+      // Scroll observer logic (optimized for mobile)
       const observer = new IntersectionObserver((entries) => {
         let activeEntry = null;
-        // Find the most visible intersecting entry
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             if (!activeEntry || entry.intersectionRatio > activeEntry.intersectionRatio) {
@@ -419,29 +425,38 @@ const TEMPLATE = `<!DOCTYPE html>
           document.querySelectorAll('.active-p-scroll').forEach(p => p.classList.remove('active-p', 'active-p-scroll'));
           
           const p = activeEntry.target;
-          const sceneId = p.getAttribute('data-scene');
-          if (!sceneId) return;
-          const img = document.getElementById('img-' + sceneId);
-          if (img) {
-            const grid = img.closest('.bento-grid');
-            if (grid) {
-              grid.classList.add('has-active', 'scroll-active');
-              img.classList.add('active-scene');
-              p.classList.add('active-p', 'active-p-scroll');
-              if (window.innerWidth <= 800) {
-                const imgLeft = img.offsetLeft;
-                const gridWidth = grid.clientWidth;
-                const imgWidth = img.clientWidth;
-                grid.scrollTo({
-                  left: imgLeft - (gridWidth / 2) + (imgWidth / 2),
-                  behavior: 'smooth'
-                });
+          const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',').filter(Boolean);
+          if (scenes.length === 0) return;
+          
+          p.classList.add('active-p', 'active-p-scroll');
+          let firstImg = null;
+          scenes.forEach(sceneId => {
+            const img = document.getElementById('img-' + sceneId);
+            if (img) {
+              const grid = img.closest('.bento-grid');
+              if (grid) {
+                grid.classList.add('has-active', 'scroll-active');
+                img.classList.add('active-scene');
+                if (!firstImg) firstImg = img;
               }
+            }
+          });
+          
+          if (firstImg && window.innerWidth <= 800) {
+            const grid = firstImg.closest('.bento-grid');
+            if (grid) {
+              const imgLeft = firstImg.offsetLeft;
+              const gridWidth = grid.clientWidth;
+              const imgWidth = firstImg.clientWidth;
+              grid.scrollTo({
+                left: imgLeft - (gridWidth / 2) + (imgWidth / 2),
+                behavior: 'smooth'
+              });
             }
           }
         }
       }, {
-        rootMargin: '-30% 0px -50% 0px', // Trigger when paragraph is near center of screen
+        rootMargin: '-30% 0px -50% 0px',
         threshold: [0, 0.5, 1]
       });
 
@@ -471,21 +486,26 @@ export function chunkParagraphs(paragraphs: Paragraph[]): Chapter[] {
   for (let i = 0; i < paragraphs.length; i++) {
     const p = paragraphs[i]!;
     currentChunk.push(p);
-    if (p.sceneTimestamp) {
+    if (p.sceneTimestamps && p.sceneTimestamps.length > 0) {
+      for (const st of p.sceneTimestamps) {
+        currentScenes.add(st);
+      }
+    } else if (p.sceneTimestamp) {
       currentScenes.add(p.sceneTimestamp);
     }
 
     const nextP = paragraphs[i + 1];
     if (nextP) {
-      const isNewScene = nextP.sceneTimestamp !== p.sceneTimestamp;
-      const nextScene = nextP.sceneTimestamp;
+      const nextScenes =
+        nextP.sceneTimestamps && nextP.sceneTimestamps.length > 0
+          ? nextP.sceneTimestamps
+          : nextP.sceneTimestamp
+            ? [nextP.sceneTimestamp]
+            : [];
+      const isNewScene = nextScenes.some((st) => !currentScenes.has(st));
 
       const chunkDuration = p.seconds - currentChunk[0]!.seconds;
-      const reachedMaxScenes =
-        isNewScene &&
-        currentScenes.size >= 6 &&
-        nextScene !== undefined &&
-        !currentScenes.has(nextScene);
+      const reachedMaxScenes = isNewScene && currentScenes.size >= 6;
 
       // Hard limits: prevent never-ending chapters even if the scene never changes
       const exceededMaxParagraphs = currentChunk.length >= 14;
@@ -502,7 +522,9 @@ export function chunkParagraphs(paragraphs: Paragraph[]): Chapter[] {
         naturalSceneBreak
       ) {
         chapters.push({
-          uniqueScenes: Array.from(currentScenes),
+          uniqueScenes: Array.from(currentScenes).sort(
+            (a, b) => parseFloat(a) - parseFloat(b)
+          ),
           paragraphs: currentChunk,
         });
         currentChunk = [];
@@ -513,7 +535,9 @@ export function chunkParagraphs(paragraphs: Paragraph[]): Chapter[] {
 
   if (currentChunk.length > 0) {
     chapters.push({
-      uniqueScenes: Array.from(currentScenes),
+      uniqueScenes: Array.from(currentScenes).sort(
+        (a, b) => parseFloat(a) - parseFloat(b)
+      ),
       paragraphs: currentChunk,
     });
   }

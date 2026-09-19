@@ -57,34 +57,55 @@ export async function extractFrames(
 
   sceneTimes.sort((a, b) => a - b);
 
-  // Phase B: Map paragraphs to scene times
+  // Phase B: Collect all detected scene cuts and map paragraphs
   const uniqueScenes = new Set<number>();
-  for (const p of paragraphs) {
-    let matchedScene = sceneTimes[0] as number;
-    for (const st of sceneTimes) {
+  for (const st of sceneTimes) {
+    uniqueScenes.add(st);
+  }
+
+  // Phase B2: 5-second span-based fallback for long continuous takes
+  const FALLBACK_THRESHOLD = 5;
+  for (let i = 0; i < paragraphs.length; i++) {
+    const p = paragraphs[i]!;
+    const nextP = paragraphs[i + 1];
+    const pEnd = nextP ? nextP.seconds : p.seconds + 10;
+
+    // Ensure we sample intermediate frames every 5s if no scene cut exists
+    for (let t = p.seconds; t < pEnd; t += FALLBACK_THRESHOLD) {
+      const roundedT = Math.round(t * 100) / 100;
+      const hasNearbyScene = Array.from(uniqueScenes).some(
+        (s) => Math.abs(s - roundedT) < 2.5
+      );
+      if (!hasNearbyScene) {
+        uniqueScenes.add(roundedT);
+      }
+    }
+  }
+
+  // Map each paragraph to its base scene and any scenes occurring during its speech
+  const sortedUniqueScenes = Array.from(uniqueScenes).sort((a, b) => a - b);
+  for (let i = 0; i < paragraphs.length; i++) {
+    const p = paragraphs[i]!;
+    const nextP = paragraphs[i + 1];
+    const pEnd = nextP ? nextP.seconds : p.seconds + 10;
+
+    let baseScene = sortedUniqueScenes[0] ?? 0;
+    const midScenes: number[] = [];
+
+    for (const st of sortedUniqueScenes) {
       if (st <= p.seconds) {
-        matchedScene = st;
+        baseScene = st;
+      } else if (st < pEnd) {
+        midScenes.push(st);
       } else {
         break;
       }
     }
-    p.sceneTimestamp = String(matchedScene);
-    uniqueScenes.add(matchedScene);
-  }
 
-  // Phase B2: Fallback frames for paragraphs far from their scene
-  const FALLBACK_THRESHOLD = 8;
-  const fallbackTimestamps = new Set<number>();
-  for (const p of paragraphs) {
-    let sceneTs = p.sceneTimestamp ? parseFloat(p.sceneTimestamp) : NaN;
-    if (isNaN(sceneTs) || Math.abs(p.seconds - sceneTs) > FALLBACK_THRESHOLD) {
-      fallbackTimestamps.add(p.seconds);
-      p.sceneTimestamp = String(p.seconds);
-    }
-  }
-  // Merge fallbacks into the extraction set
-  for (const ts of fallbackTimestamps) {
-    uniqueScenes.add(ts);
+    p.sceneTimestamp = String(baseScene);
+    p.sceneTimestamps = Array.from(new Set([baseScene, ...midScenes])).map(
+      String
+    );
   }
 
   // Phase C: Extract frames
@@ -248,6 +269,13 @@ export async function extractFrames(
       if (remapping.has(oldTs)) {
         p.sceneTimestamp = String(remapping.get(oldTs));
       }
+    }
+    if (p.sceneTimestamps) {
+      const remappedList = p.sceneTimestamps.map((tsStr) => {
+        const oldTs = parseFloat(tsStr);
+        return remapping.has(oldTs) ? String(remapping.get(oldTs)) : tsStr;
+      });
+      p.sceneTimestamps = Array.from(new Set(remappedList));
     }
   }
 }

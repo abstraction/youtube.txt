@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import{Command as ge}from"commander";import C from"chalk";import{execa as J}from"execa";import pe from"ora";import q from"fs";import Q from"path";import{execa as re}from"execa";import B from"fs";async function V(d,a={}){let s=a.signal?{cancelSignal:a.signal}:{},{stdout:n}=await re("yt-dlp",["--write-auto-subs","--write-subs",d,"--no-simulate","--print","after_move:filepath"],s),c=n.split(`
-`).map(o=>o.trim()).filter(Boolean),r=c.find(o=>o.match(/\.(webm|mp4|mkv|m4a|weba|flv)$/i))||c[c.length-1],l=B.readdirSync(".").find(o=>o.endsWith(".vtt"));if(!r||!B.existsSync(r))throw new Error(`Failed to locate downloaded video file. Output was: ${n}`);if(!l)throw new Error("Failed to locate downloaded VTT subtitles (video might not have captions).");return{videoFile:r,vttFile:l}}import U from"path";import ne from"os";import A from"fs";import{execa as R}from"execa";async function Y(d,a,s={}){let{concurrency:n=4,threadsPerWorker:c=1,signal:r,onProgress:u,sceneThreshold:l=.15}=s;if(a.length===0)return;let o=[0];try{let e=r?{cancelSignal:r}:{},{stderr:t}=await R("ffmpeg",["-i",d,"-filter:v",`select='gt(scene,${l})',showinfo`,"-f","null","-"],e),h=/pts_time:([0-9.]+)/g,w;for(;(w=h.exec(t))!==null;)o.push(parseFloat(w[1]))}catch{if(r?.aborted)throw new Error("Frame extraction aborted by user")}o.sort((e,t)=>e-t);let v=new Set;for(let e of a){let t=o[0];for(let h of o)if(h<=e.seconds)t=h;else break;e.sceneTimestamp=String(t),v.add(t)}let i=8,p=new Set;for(let e of a){let t=e.sceneTimestamp?parseFloat(e.sceneTimestamp):NaN;(isNaN(t)||Math.abs(e.seconds-t)>i)&&(p.add(e.seconds),e.sceneTimestamp=String(e.seconds))}for(let e of p)v.add(e);let g=Array.from(v),x=g.length,F=0,k=0,S=async()=>{for(;k<g.length;){if(r?.aborted)throw new Error("Frame extraction aborted by user");let e=k++,t=g[e],h=`images/${t}.jpg`;if(!A.existsSync(h)){let w=r?{cancelSignal:r}:{};await R("ffmpeg",["-y","-ss",String(t),"-nostdin","-threads",String(c),"-i",d,"-frames:v","1","-q:v","2","-vf","scale=1024:-1",h],w)}F++,u&&u(F,x)}},E=Math.max(1,Math.min(n,g.length)),I=Array.from({length:E},()=>S());await Promise.all(I),g.sort((e,t)=>e-t);let f=await A.promises.mkdtemp(U.join(ne.tmpdir(),"yt-dhash-"));async function y(e){let t=`images/${e}.jpg`,h=U.join(f,`${e}.raw`);await R("ffmpeg",["-i",t,"-vf","scale=1024:1024:force_original_aspect_ratio=decrease,pad=1024:1024:-1:-1:color=black,scale=9:8,format=gray","-f","rawvideo","-y",h]);let w=await A.promises.readFile(h),H="";for(let W=0;W<8;W++)for(let O=0;O<8;O++){let N=w[W*9+O],_=w[W*9+O+1];N!==void 0&&_!==void 0&&(H+=N>_?"1":"0")}return H}function b(e,t){let h=0;for(let w=0;w<64;w++)e[w]!==t[w]&&h++;return h}let m=new Map,T=0,D=async()=>{for(;T<g.length;){if(r?.aborted)throw new Error("Frame extraction aborted by user");let e=T++,t=g[e];if(t===void 0)break;try{let h=await y(t);m.set(t,h)}catch{}}},$=Math.max(1,Math.min(n,g.length));await Promise.all(Array.from({length:$},()=>D()));let M=null,P=null,L=new Map;for(let e of g){let t=m.get(e);if(!t){L.set(e,e);continue}if(M!==null&&P!==null&&b(P,t)<=3){L.set(e,M);try{A.unlinkSync(`images/${e}.jpg`)}catch{}continue}M=e,P=t,L.set(e,e)}await A.promises.rm(f,{recursive:!0,force:!0});for(let e of a)if(e.sceneTimestamp){let t=parseFloat(e.sceneTimestamp);L.has(t)&&(e.sceneTimestamp=String(L.get(t)))}}import oe from"fs";import ie from"readline";import se from"compromise";async function G(d){let a=oe.createReadStream(d),s=ie.createInterface({input:a,crlfDelay:1/0}),n=[],c=null,r=0,u=0,l=!1,o=[],v=5;for await(let f of s){let y=f.trim();if(!y||!l&&!y.match(/^\d{2}:\d{2}/))continue;l=!0;let b=y.match(/^(\d{2}:)?(\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:)?(\d{2}:\d{2}\.\d{3})/);if(b){let T=b[1]?`${b[1]}${b[2]}`:`00:${b[2]}`,D=b[3]?`${b[3]}${b[4]}`:`00:${b[4]}`;c=T;let $=M=>{let P=M.split(":"),L=parseInt(P[0]??"0",10),e=parseInt(P[1]??"0",10),t=parseFloat(P[2]??"0");return L*3600+e*60+t};r=$(T),u=$(D);continue}let m=y;(m.startsWith(">> ")||m.startsWith("&gt;&gt; "))&&(m="[New Speaker]: "+m.replace(/^(>>|&gt;&gt;)\s*/,"")),m=m.replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'"),m=m.replace(/<[^>]+>/g,"").trim(),m&&(m=m.replace(/</g,"&lt;").replace(/>/g,"&gt;"),c&&(o.includes(m)||(n.push({timestamp:c,seconds:r,endSeconds:u,text:m}),o.push(m),o.length>v&&o.shift())))}let i=[];if(n.length===0)return i;let p=n.map(f=>f.text).join(" "),g=[],x=0;for(let f of n){let y=f.text.length;g.push({cue:f,startChar:x,endChar:x+y}),x+=y+1}let k=se(p).sentences().out("array"),S=[],E=null,I=0;for(let f=0;f<k.length;f++){let y=k[f],b=g.find(T=>T.endChar>I)||g[g.length-1];if(!b)continue;let m=b.cue;S.length===0&&(E=m),S.push(y),I+=y.length+1,(S.length>=3||f===k.length-1)&&(i.push({timestamp:E.timestamp,seconds:E.seconds,text:S.join(" ")}),S=[])}return i}import ae from"fs";import ce from"ejs";var le=`<!DOCTYPE html>
+import{Command as pe}from"commander";import F from"chalk";import{execa as J}from"execa";import ge from"ora";import D from"fs";import Q from"path";import{execa as re}from"execa";import N from"fs";async function V(m,n={}){let i=n.signal?{cancelSignal:n.signal}:{},{stdout:o}=await re("yt-dlp",["--write-auto-subs","--write-subs",m,"--no-simulate","--print","after_move:filepath"],i),a=o.split(`
+`).map(c=>c.trim()).filter(Boolean),r=a.find(c=>c.match(/\.(webm|mp4|mkv|m4a|weba|flv)$/i))||a[a.length-1],d=N.readdirSync(".").find(c=>c.endsWith(".vtt"));if(!r||!N.existsSync(r))throw new Error(`Failed to locate downloaded video file. Output was: ${o}`);if(!d)throw new Error("Failed to locate downloaded VTT subtitles (video might not have captions).");return{videoFile:r,vttFile:d}}import U from"path";import ne from"os";import W from"fs";import{execa as H}from"execa";async function Y(m,n,i={}){let{concurrency:o=4,threadsPerWorker:a=1,signal:r,onProgress:f,sceneThreshold:d=.15}=i;if(n.length===0)return;let c=[0];try{let e=r?{cancelSignal:r}:{},{stderr:t}=await H("ffmpeg",["-i",m,"-filter:v",`select='gt(scene,${d})',showinfo`,"-f","null","-"],e),l=/pts_time:([0-9.]+)/g,g;for(;(g=l.exec(t))!==null;)c.push(parseFloat(g[1]))}catch{if(r?.aborted)throw new Error("Frame extraction aborted by user")}c.sort((e,t)=>e-t);let b=new Set;for(let e of c)b.add(e);let s=5;for(let e=0;e<n.length;e++){let t=n[e],l=n[e+1],g=l?l.seconds:t.seconds+10;for(let E=t.seconds;E<g;E+=s){let k=Math.round(E*100)/100;Array.from(b).some(q=>Math.abs(q-k)<2.5)||b.add(k)}}let u=Array.from(b).sort((e,t)=>e-t);for(let e=0;e<n.length;e++){let t=n[e],l=n[e+1],g=l?l.seconds:t.seconds+10,E=u[0]??0,k=[];for(let P of u)if(P<=t.seconds)E=P;else if(P<g)k.push(P);else break;t.sceneTimestamp=String(E),t.sceneTimestamps=Array.from(new Set([E,...k])).map(String)}let h=Array.from(b),y=h.length,A=0,S=0,T=async()=>{for(;S<h.length;){if(r?.aborted)throw new Error("Frame extraction aborted by user");let e=S++,t=h[e],l=`images/${t}.jpg`;if(!W.existsSync(l)){let g=r?{cancelSignal:r}:{};await H("ffmpeg",["-y","-ss",String(t),"-nostdin","-threads",String(a),"-i",m,"-frames:v","1","-q:v","2","-vf","scale=1024:-1",l],g)}A++,f&&f(A,y)}},I=Math.max(1,Math.min(o,h.length)),$=Array.from({length:I},()=>T());await Promise.all($),h.sort((e,t)=>e-t);let v=await W.promises.mkdtemp(U.join(ne.tmpdir(),"yt-dhash-"));async function w(e){let t=`images/${e}.jpg`,l=U.join(v,`${e}.raw`);await H("ffmpeg",["-i",t,"-vf","scale=1024:1024:force_original_aspect_ratio=decrease,pad=1024:1024:-1:-1:color=black,scale=9:8,format=gray","-f","rawvideo","-y",l]);let g=await W.promises.readFile(l),E="";for(let k=0;k<8;k++)for(let P=0;P<8;P++){let q=g[k*9+P],_=g[k*9+P+1];q!==void 0&&_!==void 0&&(E+=q>_?"1":"0")}return E}function x(e,t){let l=0;for(let g=0;g<64;g++)e[g]!==t[g]&&l++;return l}let p=new Map,C=0,B=async()=>{for(;C<h.length;){if(r?.aborted)throw new Error("Frame extraction aborted by user");let e=C++,t=h[e];if(t===void 0)break;try{let l=await w(t);p.set(t,l)}catch{}}},j=Math.max(1,Math.min(o,h.length));await Promise.all(Array.from({length:j},()=>B()));let z=null,M=null,L=new Map;for(let e of h){let t=p.get(e);if(!t){L.set(e,e);continue}if(z!==null&&M!==null&&x(M,t)<=3){L.set(e,z);try{W.unlinkSync(`images/${e}.jpg`)}catch{}continue}z=e,M=t,L.set(e,e)}await W.promises.rm(v,{recursive:!0,force:!0});for(let e of n){if(e.sceneTimestamp){let t=parseFloat(e.sceneTimestamp);L.has(t)&&(e.sceneTimestamp=String(L.get(t)))}if(e.sceneTimestamps){let t=e.sceneTimestamps.map(l=>{let g=parseFloat(l);return L.has(g)?String(L.get(g)):l});e.sceneTimestamps=Array.from(new Set(t))}}}import oe from"fs";import se from"readline";import ie from"compromise";async function G(m){let n=oe.createReadStream(m),i=se.createInterface({input:n,crlfDelay:1/0}),o=[],a=null,r=0,f=0,d=!1,c=[],b=5;for await(let v of i){let w=v.trim();if(!w||!d&&!w.match(/^\d{2}:\d{2}/))continue;d=!0;let x=w.match(/^(\d{2}:)?(\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:)?(\d{2}:\d{2}\.\d{3})/);if(x){let C=x[1]?`${x[1]}${x[2]}`:`00:${x[2]}`,B=x[3]?`${x[3]}${x[4]}`:`00:${x[4]}`;a=C;let j=z=>{let M=z.split(":"),L=parseInt(M[0]??"0",10),e=parseInt(M[1]??"0",10),t=parseFloat(M[2]??"0");return L*3600+e*60+t};r=j(C),f=j(B);continue}let p=w;(p.startsWith(">> ")||p.startsWith("&gt;&gt; "))&&(p="[New Speaker]: "+p.replace(/^(>>|&gt;&gt;)\s*/,"")),p=p.replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'"),p=p.replace(/<[^>]+>/g,"").trim(),p&&(p=p.replace(/</g,"&lt;").replace(/>/g,"&gt;"),a&&(c.includes(p)||(o.push({timestamp:a,seconds:r,endSeconds:f,text:p}),c.push(p),c.length>b&&c.shift())))}let s=[];if(o.length===0)return s;let u=o.map(v=>v.text).join(" "),h=[],y=0;for(let v of o){let w=v.text.length;h.push({cue:v,startChar:y,endChar:y+w}),y+=w+1}let S=ie(u).sentences().out("array"),T=[],I=null,$=0;for(let v=0;v<S.length;v++){let w=S[v],x=h.find(C=>C.endChar>$)||h[h.length-1];if(!x)continue;let p=x.cue;T.length===0&&(I=p),T.push(w),$+=w.length+1,(T.length>=3||v===S.length-1)&&(s.push({timestamp:I.timestamp,seconds:I.seconds,text:T.join(" ")}),T=[])}return s}import ae from"fs";import ce from"ejs";var le=`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -115,19 +115,13 @@ import{Command as ge}from"commander";import C from"chalk";import{execa as J}from
     .bento-grid[data-count="3"] { grid-template-columns: repeat(2, 1fr); }
     .bento-grid[data-count="3"] > div:first-child { grid-column: span 2; }
     
-    .bento-grid[data-count="4"] { grid-template-columns: repeat(3, 1fr); }
-    .bento-grid[data-count="4"] > div:first-child { grid-column: span 3; }
+    .bento-grid[data-count="4"] { grid-template-columns: repeat(2, 1fr); }
     
     .bento-grid[data-count="5"] { grid-template-columns: repeat(6, 1fr); }
-    .bento-grid[data-count="5"] > div:first-child { grid-column: span 4; grid-row: span 2; }
+    .bento-grid[data-count="5"] > div:nth-child(-n+2) { grid-column: span 3; }
+    .bento-grid[data-count="5"] > div:nth-child(n+3) { grid-column: span 2; }
     
-    .bento-grid[data-count="6"] { grid-template-columns: repeat(6, 1fr); }
-    .bento-grid[data-count="6"] > div:first-child { grid-column: span 4; grid-row: span 2; }
-    .bento-grid[data-count="6"] > div:nth-child(2) { grid-column: span 2; }
-    .bento-grid[data-count="6"] > div:nth-child(3) { grid-column: span 2; }
-    .bento-grid[data-count="6"] > div:nth-child(4) { grid-column: span 2; }
-    .bento-grid[data-count="6"] > div:nth-child(5) { grid-column: span 2; }
-    .bento-grid[data-count="6"] > div:nth-child(6) { grid-column: span 2; }
+    .bento-grid[data-count="6"] { grid-template-columns: repeat(2, 1fr); }
     
     button.lightbox-trigger {
       background: none;
@@ -242,20 +236,23 @@ import{Command as ge}from"commander";import C from"chalk";import{execa as J}from
       }
     }
   
-    /* Active scene highlights */
+    /* Active scene highlights with dynamic zoom */
     .bento-grid img {
-      transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.25s ease, filter 0.25s ease, outline-color 0.25s ease;
+      will-change: transform;
     }
     .bento-grid.has-active img:not(.active-scene) {
-      opacity: 0.4;
-      filter: grayscale(0.5);
+      opacity: 0.35;
+      filter: grayscale(0.4);
     }
     .bento-grid.has-active img.active-scene {
       opacity: 1;
-      transform: scale(1.03);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transform: scale(1.08);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
       border-color: var(--accent);
-      z-index: 10;
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+      z-index: 30;
       position: relative;
     }
     .transcript-p {
@@ -287,8 +284,9 @@ import{Command as ge}from"commander";import C from"chalk";import{execa as J}from
                const timestampUrl = \`\${url}\${linkChar}t=\${Math.floor(p.seconds)}\`;
                let timeLabel = p.timestamp.replace(/^d{2}:/, '');
                timeLabel = timeLabel.split('.')[0];
+               const scenesAttr = (p.sceneTimestamps && p.sceneTimestamps.length > 0 ? p.sceneTimestamps : [p.sceneTimestamp]).filter(Boolean).join(',');
           %>
-            <p data-scene="<%= p.sceneTimestamp %>" class="transcript-p"><%- p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
+            <p data-scenes="<%= scenesAttr %>" data-scene="<%= p.sceneTimestamp %>" class="transcript-p"><%- p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
           <% }) %>
         </div>
         <div class="visuals-column">
@@ -348,20 +346,24 @@ import{Command as ge}from"commander";import C from"chalk";import{execa as J}from
     document.addEventListener('DOMContentLoaded', () => {
       const paragraphs = document.querySelectorAll('.transcript-p');
       
-      // Hover logic
+      // Hover logic: Image hover illuminates matching paragraph(s)
       document.querySelectorAll('.bento-grid img').forEach(img => {
+        const sceneId = img.id.replace('img-', '');
+        
         img.addEventListener('mouseenter', () => {
-          const sceneId = img.id.replace('img-', '');
-          document.querySelectorAll('.transcript-p[data-scene="' + sceneId + '"]').forEach(p => {
-            p.classList.add('active-p');
+          document.querySelectorAll('.transcript-p').forEach(p => {
+            const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',');
+            if (scenes.includes(sceneId)) {
+              p.classList.add('active-p');
+            }
           });
           img.classList.add('active-scene');
           const grid = img.closest('.bento-grid');
           if (grid) grid.classList.add('has-active');
         });
+        
         img.addEventListener('mouseleave', () => {
-          const sceneId = img.id.replace('img-', '');
-          document.querySelectorAll('.transcript-p[data-scene="' + sceneId + '"]').forEach(p => {
+          document.querySelectorAll('.transcript-p').forEach(p => {
             p.classList.remove('active-p');
           });
           img.classList.remove('active-scene');
@@ -370,36 +372,40 @@ import{Command as ge}from"commander";import C from"chalk";import{execa as J}from
         });
       });
 
+      // Hover logic: Paragraph hover illuminates all active scene frames with dynamic zoom
       paragraphs.forEach(p => {
         p.addEventListener('mouseenter', () => {
-          const sceneId = p.getAttribute('data-scene');
-          if (!sceneId) return;
-          const img = document.getElementById('img-' + sceneId);
-          if (img) {
-            const grid = img.closest('.bento-grid');
-            grid.classList.add('has-active');
-            img.classList.add('active-scene');
-            p.classList.add('active-p');
-          }
+          const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',').filter(Boolean);
+          if (scenes.length === 0) return;
+          
+          p.classList.add('active-p');
+          scenes.forEach(sceneId => {
+            const img = document.getElementById('img-' + sceneId);
+            if (img) {
+              img.classList.add('active-scene');
+              const grid = img.closest('.bento-grid');
+              if (grid) grid.classList.add('has-active');
+            }
+          });
         });
         
         p.addEventListener('mouseleave', () => {
-          const sceneId = p.getAttribute('data-scene');
-          if (!sceneId) return;
-          const img = document.getElementById('img-' + sceneId);
-          if (img) {
-            const grid = img.closest('.bento-grid');
-            grid.classList.remove('has-active');
-            img.classList.remove('active-scene');
-            p.classList.remove('active-p');
-          }
+          p.classList.remove('active-p');
+          const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',').filter(Boolean);
+          scenes.forEach(sceneId => {
+            const img = document.getElementById('img-' + sceneId);
+            if (img) {
+              img.classList.remove('active-scene');
+              const grid = img.closest('.bento-grid');
+              if (grid) grid.classList.remove('has-active');
+            }
+          });
         });
       });
 
-      // Scroll observer logic (optional but good for mobile)
+      // Scroll observer logic (optimized for mobile)
       const observer = new IntersectionObserver((entries) => {
         let activeEntry = null;
-        // Find the most visible intersecting entry
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             if (!activeEntry || entry.intersectionRatio > activeEntry.intersectionRatio) {
@@ -417,29 +423,38 @@ import{Command as ge}from"commander";import C from"chalk";import{execa as J}from
           document.querySelectorAll('.active-p-scroll').forEach(p => p.classList.remove('active-p', 'active-p-scroll'));
           
           const p = activeEntry.target;
-          const sceneId = p.getAttribute('data-scene');
-          if (!sceneId) return;
-          const img = document.getElementById('img-' + sceneId);
-          if (img) {
-            const grid = img.closest('.bento-grid');
-            if (grid) {
-              grid.classList.add('has-active', 'scroll-active');
-              img.classList.add('active-scene');
-              p.classList.add('active-p', 'active-p-scroll');
-              if (window.innerWidth <= 800) {
-                const imgLeft = img.offsetLeft;
-                const gridWidth = grid.clientWidth;
-                const imgWidth = img.clientWidth;
-                grid.scrollTo({
-                  left: imgLeft - (gridWidth / 2) + (imgWidth / 2),
-                  behavior: 'smooth'
-                });
+          const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',').filter(Boolean);
+          if (scenes.length === 0) return;
+          
+          p.classList.add('active-p', 'active-p-scroll');
+          let firstImg = null;
+          scenes.forEach(sceneId => {
+            const img = document.getElementById('img-' + sceneId);
+            if (img) {
+              const grid = img.closest('.bento-grid');
+              if (grid) {
+                grid.classList.add('has-active', 'scroll-active');
+                img.classList.add('active-scene');
+                if (!firstImg) firstImg = img;
               }
+            }
+          });
+          
+          if (firstImg && window.innerWidth <= 800) {
+            const grid = firstImg.closest('.bento-grid');
+            if (grid) {
+              const imgLeft = firstImg.offsetLeft;
+              const gridWidth = grid.clientWidth;
+              const imgWidth = firstImg.clientWidth;
+              grid.scrollTo({
+                left: imgLeft - (gridWidth / 2) + (imgWidth / 2),
+                behavior: 'smooth'
+              });
             }
           }
         }
       }, {
-        rootMargin: '-30% 0px -50% 0px', // Trigger when paragraph is near center of screen
+        rootMargin: '-30% 0px -50% 0px',
         threshold: [0, 0.5, 1]
       });
 
@@ -452,6 +467,6 @@ import{Command as ge}from"commander";import C from"chalk";import{execa as J}from
 </body>
 
 </html>
-`;function de(d){let a=[];if(d.length===0)return a;let s=[],n=new Set;for(let c=0;c<d.length;c++){let r=d[c];s.push(r),r.sceneTimestamp&&n.add(r.sceneTimestamp);let u=d[c+1];if(u){let l=u.sceneTimestamp!==r.sceneTimestamp,o=u.sceneTimestamp,v=r.seconds-s[0].seconds,i=l&&n.size>=6&&o!==void 0&&!n.has(o),p=s.length>=14,g=v>180,x=l&&(s.length>=6||v>60);(i||p||g||x)&&(a.push({uniqueScenes:Array.from(n),paragraphs:s}),s=[],n=new Set)}}return s.length>0&&a.push({uniqueScenes:Array.from(n),paragraphs:s}),a}async function K(d,a,s="YouTube Transcript"){let n=de(a),c=ce.render(le,{url:d,chapters:n,title:s});ae.writeFileSync("index.html",c,"utf-8")}import j from"os";import{execa as me}from"execa";async function Z(d){let s=j.cpus().length||1,n=Math.floor(j.freemem()/(1024*1024)),c=Math.floor(j.totalmem()/(1024*1024)),r=j.loadavg()[0]??0,u=Math.max(1,Math.min(8,Math.floor(s*.35))),l=Math.max(1,Math.floor(n/250)),o=r>s*.7?.5:1,v=Math.max(1,Math.floor(Math.min(u,l)*o));d&&d>0&&(v=d);let i=null;try{let{stdout:p}=await me("ffmpeg",["-hwaccels"]);p.includes("cuda")?i="cuda":p.includes("vaapi")?i="vaapi":p.includes("qsv")&&(i="qsv")}catch{i=null}return{cpuCount:s,freeMemoryMb:n,totalMemoryMb:c,loadAverage:r,recommendedConcurrency:v,threadsPerWorker:1,hwaccel:i}}var z=new AbortController,X=!1,ee=()=>{X&&process.exit(130),X=!0,process.stderr.write(`
-`+C.yellow("Aborting and cleaning up (press Ctrl-C again to force quit)...")+`
-`),z.abort()};process.on("SIGINT",ee);process.on("SIGTERM",ee);var te=new ge;te.name("youtube.txt").description("Create a webpage from a Youtube video with a transcript paired with screenshots").requiredOption("-u, --url <url>","URL of the YouTube video").requiredOption("-o, --out <projectName>","Name of the output project folder").option("-c, --concurrency <number>","Number of parallel extraction workers (default: dynamic auto-tuning)").option("-t, --threads <number>","FFmpeg threads per worker instance (default: 1)").option("-s, --scene-threshold <number>","FFmpeg scene detection sensitivity 0-1, lower = more scenes (default: 0.15)").action(async d=>{let{out:a,url:s,concurrency:n,threads:c,sceneThreshold:r}=d;try{await J("yt-dlp",["--version"])}catch{console.error(C.red("Error: yt-dlp is not installed or not in PATH.")),process.exit(1)}try{await J("ffmpeg",["-version"])}catch{console.error(C.red("Error: ffmpeg is not installed or not in PATH.")),process.exit(1)}let u=n?parseInt(n,10):void 0,l=await Z(u),o=c?parseInt(c,10):l.threadsPerWorker,v=r?parseFloat(r):.15;console.log(C.blue(`Initializing project: ${a}...`)),console.log(C.dim(`System: ${l.cpuCount} CPU cores | ${l.freeMemoryMb} MB free RAM | Load avg: ${l.loadAverage.toFixed(2)}`)),console.log(C.dim(`Dynamic allocation: ${l.recommendedConcurrency} worker pool (${o} thread/worker)`)),q.existsSync(a)||q.mkdirSync(a,{recursive:!0}),process.chdir(a),q.existsSync("images")||q.mkdirSync("images");let i=pe("Downloading video and captions...").start();try{let{videoFile:p,vttFile:g}=await V(s,{signal:z.signal});i.succeed(`Downloaded video and captions: ${p}`),i.start("Parsing captions...");let x=await G(g);i.succeed(`Parsed ${x.length} paragraphs.`),i.start("Extracting frames (0%)..."),await Y(p,x,{concurrency:l.recommendedConcurrency,threadsPerWorker:o,signal:z.signal,sceneThreshold:v,onProgress:(S,E)=>{let I=Math.floor(S/E*100);i.text=`Extracting frames: ${S}/${E} (${I}%) [${l.recommendedConcurrency} workers, ${o} th/w]`}}),i.succeed(`Extracted frames successfully (${x.length} paragraphs).`),i.start("Generating HTML...");let k=Q.parse(p).name.replace(/\s\[[a-zA-Z0-9_-]+\]$/,"");await K(s,x,k),i.succeed(`Done! View your webpage at ${Q.join(process.cwd(),"index.html")}`)}catch(p){z.signal.aborted&&(i.fail("Process aborted."),process.exit(130)),i.fail("An error occurred during processing."),p instanceof Error&&console.error(C.red(p.message)),process.exit(1)}});te.parse(process.argv);
+`;function de(m){let n=[];if(m.length===0)return n;let i=[],o=new Set;for(let a=0;a<m.length;a++){let r=m[a];if(i.push(r),r.sceneTimestamps&&r.sceneTimestamps.length>0)for(let d of r.sceneTimestamps)o.add(d);else r.sceneTimestamp&&o.add(r.sceneTimestamp);let f=m[a+1];if(f){let c=(f.sceneTimestamps&&f.sceneTimestamps.length>0?f.sceneTimestamps:f.sceneTimestamp?[f.sceneTimestamp]:[]).some(A=>!o.has(A)),b=r.seconds-i[0].seconds,s=c&&o.size>=6,u=i.length>=14,h=b>180,y=c&&(i.length>=6||b>60);(s||u||h||y)&&(n.push({uniqueScenes:Array.from(o).sort((A,S)=>parseFloat(A)-parseFloat(S)),paragraphs:i}),i=[],o=new Set)}}return i.length>0&&n.push({uniqueScenes:Array.from(o).sort((a,r)=>parseFloat(a)-parseFloat(r)),paragraphs:i}),n}async function K(m,n,i="YouTube Transcript"){let o=de(n),a=ce.render(le,{url:m,chapters:o,title:i});ae.writeFileSync("index.html",a,"utf-8")}import O from"os";import{execa as me}from"execa";async function Z(m){let i=O.cpus().length||1,o=Math.floor(O.freemem()/(1024*1024)),a=Math.floor(O.totalmem()/(1024*1024)),r=O.loadavg()[0]??0,f=Math.max(1,Math.min(8,Math.floor(i*.35))),d=Math.max(1,Math.floor(o/250)),c=r>i*.7?.5:1,b=Math.max(1,Math.floor(Math.min(f,d)*c));m&&m>0&&(b=m);let s=null;try{let{stdout:u}=await me("ffmpeg",["-hwaccels"]);u.includes("cuda")?s="cuda":u.includes("vaapi")?s="vaapi":u.includes("qsv")&&(s="qsv")}catch{s=null}return{cpuCount:i,freeMemoryMb:o,totalMemoryMb:a,loadAverage:r,recommendedConcurrency:b,threadsPerWorker:1,hwaccel:s}}var R=new AbortController,X=!1,ee=()=>{X&&process.exit(130),X=!0,process.stderr.write(`
+`+F.yellow("Aborting and cleaning up (press Ctrl-C again to force quit)...")+`
+`),R.abort()};process.on("SIGINT",ee);process.on("SIGTERM",ee);var te=new pe;te.name("youtube.txt").description("Create a webpage from a Youtube video with a transcript paired with screenshots").requiredOption("-u, --url <url>","URL of the YouTube video").requiredOption("-o, --out <projectName>","Name of the output project folder").option("-c, --concurrency <number>","Number of parallel extraction workers (default: dynamic auto-tuning)").option("-t, --threads <number>","FFmpeg threads per worker instance (default: 1)").option("-s, --scene-threshold <number>","FFmpeg scene detection sensitivity 0-1, lower = more scenes (default: 0.15)").action(async m=>{let{out:n,url:i,concurrency:o,threads:a,sceneThreshold:r}=m;try{await J("yt-dlp",["--version"])}catch{console.error(F.red("Error: yt-dlp is not installed or not in PATH.")),process.exit(1)}try{await J("ffmpeg",["-version"])}catch{console.error(F.red("Error: ffmpeg is not installed or not in PATH.")),process.exit(1)}let f=o?parseInt(o,10):void 0,d=await Z(f),c=a?parseInt(a,10):d.threadsPerWorker,b=r?parseFloat(r):.15;console.log(F.blue(`Initializing project: ${n}...`)),console.log(F.dim(`System: ${d.cpuCount} CPU cores | ${d.freeMemoryMb} MB free RAM | Load avg: ${d.loadAverage.toFixed(2)}`)),console.log(F.dim(`Dynamic allocation: ${d.recommendedConcurrency} worker pool (${c} thread/worker)`)),D.existsSync(n)||D.mkdirSync(n,{recursive:!0}),process.chdir(n),D.existsSync("images")||D.mkdirSync("images");let s=ge("Downloading video and captions...").start();try{let{videoFile:u,vttFile:h}=await V(i,{signal:R.signal});s.succeed(`Downloaded video and captions: ${u}`),s.start("Parsing captions...");let y=await G(h);s.succeed(`Parsed ${y.length} paragraphs.`),s.start("Extracting frames (0%)..."),await Y(u,y,{concurrency:d.recommendedConcurrency,threadsPerWorker:c,signal:R.signal,sceneThreshold:b,onProgress:(T,I)=>{let $=Math.floor(T/I*100);s.text=`Extracting frames: ${T}/${I} (${$}%) [${d.recommendedConcurrency} workers, ${c} th/w]`}}),s.succeed(`Extracted frames successfully (${y.length} paragraphs).`),s.start("Generating HTML...");let S=Q.parse(u).name.replace(/\s\[[a-zA-Z0-9_-]+\]$/,"");await K(i,y,S),s.succeed(`Done! View your webpage at ${Q.join(process.cwd(),"index.html")}`)}catch(u){R.signal.aborted&&(s.fail("Process aborted."),process.exit(130)),s.fail("An error occurred during processing."),u instanceof Error&&console.error(F.red(u.message)),process.exit(1)}});te.parse(process.argv);
