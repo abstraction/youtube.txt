@@ -73,7 +73,7 @@ export async function extractFrames(
   }
 
   // Phase B2: Fallback frames for paragraphs far from their scene
-  const FALLBACK_THRESHOLD = 8;
+  const FALLBACK_THRESHOLD = 15;
   const fallbackTimestamps = new Set<number>();
   for (const p of paragraphs) {
     let sceneTs = p.sceneTimestamp ? parseFloat(p.sceneTimestamp) : NaN;
