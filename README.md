@@ -9,8 +9,6 @@
 Convert YouTube videos into static, readable HTML with transcripts and scene-detected frames.
 </div>
 
----
-
 <div align="center" style="margin: 2rem 0;">
   <video src="https://github.com/user-attachments/assets/012bb00d-2e57-4b40-a8d7-e7bacccf8d88" width="600"></video>
   <p>
@@ -18,22 +16,18 @@ Convert YouTube videos into static, readable HTML with transcripts and scene-det
   </p>
 </div>
 
----
-
 ## Features
 
-- **Static HTML output.** Produces a single file with zero client-side JavaScript libraries. It loads instantly and works offline.
-- **Asymmetric layout.** Keeps text measure at 65ch on the left with a sticky 1 to 6 frame image grid on the right.
-- **Timestamp badges.** Prints a monospace timestamp tag on each frame for easy cross-referencing with text.
-- **Intentional focus.** A 750ms dwell over a frame highlights its matching paragraph. Scrolling clears the highlight.
-- **Scroll-to-dismiss lightbox.** Click any image to enlarge it. Scroll to close it and resume reading.
-- **Perceptual deduplication.** 64-bit dHash with Hamming distance threshold 4 prunes repetitive talking-head shots while keeping slide changes and product reveals.
-- **Mid-paragraph scene capture.** Saves cuts and B-roll that appear while a sentence is being spoken.
-- **Periodic fallback sampling.** Takes a frame every 5 seconds during continuous uninterrupted speech.
-- **Clean VTT parsing.** Removes rolling caption duplicates, decodes HTML entities, and marks speaker changes.
-- **Mobile layout.** Drops to a single column with horizontal scroll-snap carousels on viewports under 800px.
-
----
+- Produces a single, self-contained HTML file with zero runtime JavaScript libraries. It loads instantly and works offline.
+- Keeps text measure at 65ch on the left with a sticky 1 to 6 frame image grid on the right.
+- Shows monospace timestamp tags on each frame for quick cross-referencing with text.
+- Pausing over a frame for 750ms highlights its matching paragraph. Scrolling clears the highlight.
+- Click any image to enlarge it; scroll to dismiss.
+- Perceptual difference hashing (dHash) prunes repetitive talking-head shots while keeping slide changes and product reveals.
+- Saves cuts and B-roll that appear while a sentence is being spoken.
+- Takes a frame every 5 seconds during continuous uninterrupted speech.
+- Removes rolling caption duplicates, decodes HTML entities, and marks speaker changes.
+- Switches to a single column with horizontal scroll-snap carousels on viewports under 800px.
 
 ## Requirements
 
@@ -51,8 +45,6 @@ sudo apt install ffmpeg
 sudo wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp
 sudo chmod a+rx /usr/local/bin/yt-dlp
 ```
-
----
 
 ## Usage
 
@@ -91,8 +83,6 @@ pnpm install
 pnpm run dev -u "https://www.youtube.com/watch?v=..." -o "output-folder"
 ```
 
----
-
 ## CLI options
 
 ```
@@ -127,8 +117,6 @@ More frequent scene captures:
 youtube.txt -u "https://www.youtube.com/watch?v=..." -o "tutorial" -s 0.08
 ```
 
----
-
 ## Pipeline
 
 ```mermaid
@@ -149,10 +137,10 @@ flowchart TD
     I --> |Semantic chunking| J[index.html]
 ```
 
-1. **Downloader.** `src/downloader.ts` runs `yt-dlp` in a single pass to fetch video and subtitles together.
-2. **Parser.** `src/parser.ts` cleans rolling caption duplicates, decodes entities, and groups sentences into paragraphs.
-3. **Extractor.** `src/extractor.ts` runs parallel frame extraction, 5s fallback sampling, and 64-bit dHash deduplication.
-4. **Generator.** `src/generator.ts` chunks content into chapters and renders standalone static HTML.
+1. `src/downloader.ts` runs `yt-dlp` in a single pass to fetch video and subtitles together.
+2. `src/parser.ts` cleans rolling caption duplicates, decodes entities, and groups sentences into paragraphs.
+3. `src/extractor.ts` runs parallel frame extraction, 5s fallback sampling, and 64-bit dHash deduplication.
+4. `src/generator.ts` chunks content into chapters and renders standalone static HTML.
 
 ---
 
