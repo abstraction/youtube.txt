@@ -157,7 +157,7 @@ export async function extractFrames(
       '-i',
       imagePath,
       '-vf',
-      'scale=9:8,format=gray',
+      'scale=1024:1024:force_original_aspect_ratio=decrease,pad=1024:1024:-1:-1:color=black,scale=9:8,format=gray',
       '-f',
       'rawvideo',
       '-y',
@@ -193,7 +193,7 @@ export async function extractFrames(
       const hash = await computeDHash(ts);
       if (lastKeptTs !== null && lastKeptHash !== null) {
         const dist = hammingDistance(lastKeptHash, hash);
-        if (dist <= 10) {
+        if (dist <= 3) {
           // It's a duplicate
           remapping.set(ts, lastKeptTs);
           // Try deleting it
