@@ -236,9 +236,9 @@ const TEMPLATE = `<!DOCTYPE html>
       }
     }
   
-    /* Active scene highlights with dynamic zoom */
+    /* Active scene highlights with subtle elevation */
     .bento-grid img {
-      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.25s ease, filter 0.25s ease, outline-color 0.25s ease;
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.25s ease, filter 0.25s ease;
       will-change: transform;
     }
     .bento-grid.has-active img:not(.active-scene) {
@@ -247,11 +247,8 @@ const TEMPLATE = `<!DOCTYPE html>
     }
     .bento-grid.has-active img.active-scene {
       opacity: 1;
-      transform: scale(1.08);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-      border-color: var(--accent);
-      outline: 2px solid var(--accent);
-      outline-offset: -1px;
+      transform: scale(1.04);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
       z-index: 30;
       position: relative;
     }
