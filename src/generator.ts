@@ -326,11 +326,25 @@ export async function generateHtml(
     const nextP = paragraphs[i + 1];
     if (nextP) {
       const isNewScene = nextP.sceneTimestamp !== p.sceneTimestamp;
-      const hasEnoughParagraphs = currentChunk.length >= 2;
-      const chapterStart = currentChunk[0]!.seconds;
-      const exceededTimeLimit = p.seconds - chapterStart > 30;
+      const nextScene = nextP.sceneTimestamp;
 
-      if ((hasEnoughParagraphs && isNewScene) || exceededTimeLimit) {
+      const wouldExceedMaxScenes =
+        isNewScene &&
+        currentScenes.size >= 6 &&
+        nextScene &&
+        !currentScenes.has(nextScene);
+      const naturalBreak = currentChunk.length >= 6 && isNewScene;
+      const tooManyParagraphs = currentChunk.length >= 12;
+
+      const chapterStart = currentChunk[0]!.seconds;
+      const timeLimitReached = p.seconds - chapterStart > 120;
+
+      if (
+        wouldExceedMaxScenes ||
+        naturalBreak ||
+        tooManyParagraphs ||
+        timeLimitReached
+      ) {
         chapters.push({
           uniqueScenes: Array.from(currentScenes),
           paragraphs: currentChunk,

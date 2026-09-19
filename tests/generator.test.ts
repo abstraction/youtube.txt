@@ -5,7 +5,7 @@ import fs from 'node:fs';
 vi.mock('node:fs');
 
 describe('generateHtml', () => {
-  it('should split chapters correctly based on 30s limit and >=2 paragraphs', async () => {
+  it('should split chapters correctly based on time limit and paragraph count', async () => {
     const paragraphs = [
       { seconds: 0, timestamp: '00:00', text: 'P1', sceneTimestamp: '0' },
       { seconds: 10, timestamp: '00:10', text: 'P2', sceneTimestamp: '0' },
