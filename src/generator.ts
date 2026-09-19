@@ -48,7 +48,7 @@ const TEMPLATE = `<!DOCTYPE html>
     }
     
     .header-container {
-      max-width: calc(65ch + 450px + 3rem);
+      max-width: calc(65ch + 600px + 3rem);
       margin: 0 auto;
       padding: 0 2rem;
       margin-bottom: 2rem;
@@ -67,7 +67,7 @@ const TEMPLATE = `<!DOCTYPE html>
     }
 
     .footer-container {
-      max-width: calc(65ch + 450px + 3rem);
+      max-width: calc(65ch + 600px + 3rem);
       margin: 0 auto;
       padding: 0 2rem;
       margin-top: 2rem;
@@ -83,7 +83,7 @@ const TEMPLATE = `<!DOCTYPE html>
 
     .scene {
       display: grid;
-      grid-template-columns: min(65ch, 100%) minmax(300px, 450px);
+      grid-template-columns: min(65ch, 100%) minmax(400px, 600px);
       gap: 3rem;
       justify-content: center;
       align-items: start;
@@ -107,14 +107,25 @@ const TEMPLATE = `<!DOCTYPE html>
       gap: 0.5rem;
     }
     .bento-grid[data-count="1"] { grid-template-columns: 1fr; }
-    .bento-grid[data-count="2"] { grid-template-columns: 1fr 1fr; }
-    .bento-grid[data-count="3"] { grid-template-columns: 1fr 1fr; }
+    
+    .bento-grid[data-count="2"] { grid-template-columns: repeat(2, 1fr); }
+    
+    .bento-grid[data-count="3"] { grid-template-columns: repeat(2, 1fr); }
     .bento-grid[data-count="3"] > div:first-child { grid-column: span 2; }
-    .bento-grid[data-count="4"] { grid-template-columns: 1fr 1fr; }
-    .bento-grid[data-count="5"] { grid-template-columns: 1fr 1fr 1fr; }
+    
+    .bento-grid[data-count="4"] { grid-template-columns: repeat(3, 1fr); }
+    .bento-grid[data-count="4"] > div:first-child { grid-column: span 3; }
+    
+    .bento-grid[data-count="5"] { grid-template-columns: repeat(6, 1fr); }
+    .bento-grid[data-count="5"] > div:first-child { grid-column: span 4; grid-row: span 2; }
+    .bento-grid[data-count="5"] > div:nth-child(2),
+    .bento-grid[data-count="5"] > div:nth-child(3) { grid-column: span 2; }
     .bento-grid[data-count="5"] > div:nth-child(4),
-    .bento-grid[data-count="5"] > div:nth-child(5) { /* Last two items span the remaining row, centered */ }
-    .bento-grid[data-count="6"] { grid-template-columns: 1fr 1fr 1fr; }
+    .bento-grid[data-count="5"] > div:nth-child(5) { grid-column: span 3; }
+    
+    .bento-grid[data-count="6"] { grid-template-columns: repeat(6, 1fr); }
+    .bento-grid[data-count="6"] > div:first-child { grid-column: span 4; grid-row: span 2; }
+    .bento-grid[data-count="6"] > div:not(:first-child) { grid-column: span 2; }
     
     button.lightbox-trigger {
       background: none;
@@ -273,7 +284,7 @@ const TEMPLATE = `<!DOCTYPE html>
                let timeLabel = p.timestamp.replace(/^\d{2}:/, '');
                timeLabel = timeLabel.split('.')[0];
           %>
-            <p data-scene="<%= p.sceneTimestamp %>" class="transcript-p"><%= p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
+            <p data-scene="<%= p.sceneTimestamp %>" class="transcript-p"><%- p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
           <% }) %>
         </div>
         <div class="visuals-column">
