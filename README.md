@@ -13,7 +13,7 @@ Youtube you can skim.
 
 ### Overview
 
-Converts Youtube videos into clean, side-by-side reading documents with deduplicated transcripts and scene-detected frames.
+Convert Youtube videos into clean reading documents with transcripts and scene-detected frames.
 
 <div align="center" style="margin: 2rem 0;">
   <video src="https://github.com/user-attachments/assets/012bb00d-2e57-4b40-a8d7-e7bacccf8d88" width="600"></video>

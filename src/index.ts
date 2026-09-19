@@ -16,6 +16,7 @@ interface CliOptions {
   url: string;
   concurrency?: string;
   threads?: string;
+  sceneThreshold?: string;
 }
 
 const abortController = new AbortController();
@@ -26,7 +27,13 @@ const handleSignal = () => {
     process.exit(130);
   }
   aborting = true;
-  process.stderr.write('\n' + chalk.yellow('Aborting and cleaning up (press Ctrl-C again to force quit)...') + '\n');
+  process.stderr.write(
+    '\n' +
+      chalk.yellow(
+        'Aborting and cleaning up (press Ctrl-C again to force quit)...'
+      ) +
+      '\n'
+  );
   abortController.abort();
 };
 
@@ -37,31 +44,63 @@ const program = new Command();
 
 program
   .name('youtube.txt')
-  .description('Create a webpage from a Youtube video with a transcript paired with screenshots')
+  .description(
+    'Create a webpage from a Youtube video with a transcript paired with screenshots'
+  )
   .requiredOption('-u, --url <url>', 'URL of the YouTube video')
-  .requiredOption('-o, --out <projectName>', 'Name of the output project folder')
-  .option('-c, --concurrency <number>', 'Number of parallel extraction workers (default: dynamic auto-tuning)')
-  .option('-t, --threads <number>', 'FFmpeg threads per worker instance (default: 1)')
+  .requiredOption(
+    '-o, --out <projectName>',
+    'Name of the output project folder'
+  )
+  .option(
+    '-c, --concurrency <number>',
+    'Number of parallel extraction workers (default: dynamic auto-tuning)'
+  )
+  .option(
+    '-t, --threads <number>',
+    'FFmpeg threads per worker instance (default: 1)'
+  )
+  .option(
+    '-s, --scene-threshold <number>',
+    'FFmpeg scene detection sensitivity 0-1, lower = more scenes (default: 0.15)'
+  )
   .action(async (options: CliOptions) => {
-    const { out: projectName, url, concurrency: concurrencyOpt, threads: threadsOpt } = options;
+    const {
+      out: projectName,
+      url,
+      concurrency: concurrencyOpt,
+      threads: threadsOpt,
+      sceneThreshold: sceneThresholdOpt,
+    } = options;
 
     try {
       await execa('yt-dlp', ['--version']);
     } catch {
-      console.error(chalk.red('Error: yt-dlp is not installed or not in PATH.'));
+      console.error(
+        chalk.red('Error: yt-dlp is not installed or not in PATH.')
+      );
       process.exit(1);
     }
 
     try {
       await execa('ffmpeg', ['-version']);
     } catch {
-      console.error(chalk.red('Error: ffmpeg is not installed or not in PATH.'));
+      console.error(
+        chalk.red('Error: ffmpeg is not installed or not in PATH.')
+      );
       process.exit(1);
     }
 
-    const concurrencyParsed = concurrencyOpt ? parseInt(concurrencyOpt, 10) : undefined;
+    const concurrencyParsed = concurrencyOpt
+      ? parseInt(concurrencyOpt, 10)
+      : undefined;
     const profile = await resolveResourceProfile(concurrencyParsed);
-    const threadsPerWorker = threadsOpt ? parseInt(threadsOpt, 10) : profile.threadsPerWorker;
+    const threadsPerWorker = threadsOpt
+      ? parseInt(threadsOpt, 10)
+      : profile.threadsPerWorker;
+    const sceneThresholdParsed = sceneThresholdOpt
+      ? parseFloat(sceneThresholdOpt)
+      : 0.15;
 
     console.log(chalk.blue(`Initializing project: ${projectName}...`));
     console.log(
@@ -89,7 +128,7 @@ program
     const spinner = ora('Downloading video and captions...').start();
     try {
       const { videoFile, vttFile } = await downloadVideoAndCaptions(url, {
-        signal: abortController.signal
+        signal: abortController.signal,
       });
       spinner.succeed(`Downloaded video and captions: ${videoFile}`);
 
@@ -102,18 +141,23 @@ program
         concurrency: profile.recommendedConcurrency,
         threadsPerWorker,
         signal: abortController.signal,
+        sceneThreshold: sceneThresholdParsed,
         onProgress: (completed, total) => {
           const percent = Math.floor((completed / total) * 100);
           spinner.text = `Extracting frames: ${completed}/${total} (${percent}%) [${profile.recommendedConcurrency} workers, ${threadsPerWorker} th/w]`;
-        }
+        },
       });
-      spinner.succeed(`Extracted frames successfully (${paragraphs.length} paragraphs).`);
+      spinner.succeed(
+        `Extracted frames successfully (${paragraphs.length} paragraphs).`
+      );
 
       spinner.start('Generating HTML...');
       const filename = path.parse(videoFile).name;
       const title = filename.replace(/\s\[[a-zA-Z0-9_-]+\]$/, '');
       await generateHtml(url, paragraphs, title);
-      spinner.succeed(`Done! View your webpage at ${path.join(process.cwd(), 'index.html')}`);
+      spinner.succeed(
+        `Done! View your webpage at ${path.join(process.cwd(), 'index.html')}`
+      );
     } catch (err: unknown) {
       if (abortController.signal.aborted) {
         spinner.fail('Process aborted.');

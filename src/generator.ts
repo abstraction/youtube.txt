@@ -8,6 +8,9 @@ const TEMPLATE = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #fcfcfc;
@@ -26,14 +29,15 @@ const TEMPLATE = `<!DOCTYPE html>
     body {
       margin: 0;
       padding: 1rem 0 3rem 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       font-size: 18px;
-      line-height: 1.6;
+      line-height: 1.65;
       background-color: var(--bg);
       color: var(--text);
       letter-spacing: -0.01em;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
     a {
       color: var(--link);
@@ -44,18 +48,16 @@ const TEMPLATE = `<!DOCTYPE html>
     }
     
     .header-container {
-      display: grid;
-      grid-template-columns: minmax(0, 800px) min(65ch, 100%);
-      gap: 3rem;
-      justify-content: end;
-      padding-left: 2rem;
-      padding-right: max(2rem, calc(50vw - 480px));
+      max-width: calc(65ch + 450px + 3rem);
+      margin: 0 auto;
+      padding: 0 2rem;
       margin-bottom: 2rem;
+      display: flex;
     }
     .header-content {
-      grid-column: 2;
       font-size: 0.9rem;
       opacity: 0.8;
+      width: 100%;
     }
     .video-title {
       font-weight: 600;
@@ -65,19 +67,15 @@ const TEMPLATE = `<!DOCTYPE html>
     }
 
     .footer-container {
-      display: grid;
-      grid-template-columns: minmax(0, 800px) min(65ch, 100%);
-      gap: 3rem;
-      justify-content: end;
-      padding-left: 2rem;
-      padding-right: max(2rem, calc(50vw - 480px));
+      max-width: calc(65ch + 450px + 3rem);
+      margin: 0 auto;
+      padding: 0 2rem;
       margin-top: 2rem;
       margin-bottom: 4rem;
       border-top: 1px solid rgba(128,128,128,0.2);
       padding-top: 2rem;
     }
     .footer-content {
-      grid-column: 2;
       font-size: 0.85rem;
       opacity: 0.5;
       text-align: right;
@@ -85,13 +83,12 @@ const TEMPLATE = `<!DOCTYPE html>
 
     .scene {
       display: grid;
-      grid-template-columns: minmax(0, 800px) min(65ch, 100%);
+      grid-template-columns: min(65ch, 100%) minmax(300px, 450px);
       gap: 3rem;
-      justify-content: end;
+      justify-content: center;
       align-items: start;
-      padding-left: 2rem;
-      padding-right: max(2rem, calc(50vw - 480px));
-      margin-bottom: 5rem;
+      padding: 0 2rem;
+      margin-bottom: 4rem;
     }
     .visuals-column {
       position: sticky;
@@ -99,30 +96,25 @@ const TEMPLATE = `<!DOCTYPE html>
       max-height: calc(100vh - 4rem);
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: start;
+      z-index: 10;
     }
     .text-column {
       max-width: 65ch;
     }
     .bento-grid {
       display: grid;
-      gap: 0.75rem;
+      gap: 0.5rem;
     }
-    .bento-grid[data-count="1"] {
-      grid-template-columns: 1fr;
-    }
-    .bento-grid[data-count="2"] {
-      grid-template-columns: 1fr 1fr;
-    }
-    .bento-grid[data-count="3"] {
-      grid-template-columns: 1fr 1fr;
-    }
-    .bento-grid[data-count="3"] > div:first-child {
-      grid-column: span 2;
-    }
-    .bento-grid[data-count="4"] {
-      grid-template-columns: 1fr 1fr;
-    }
+    .bento-grid[data-count="1"] { grid-template-columns: 1fr; }
+    .bento-grid[data-count="2"] { grid-template-columns: 1fr 1fr; }
+    .bento-grid[data-count="3"] { grid-template-columns: 1fr 1fr; }
+    .bento-grid[data-count="3"] > div:first-child { grid-column: span 2; }
+    .bento-grid[data-count="4"] { grid-template-columns: 1fr 1fr; }
+    .bento-grid[data-count="5"] { grid-template-columns: 1fr 1fr 1fr; }
+    .bento-grid[data-count="5"] > div:nth-child(4),
+    .bento-grid[data-count="5"] > div:nth-child(5) { /* Last two items span the remaining row, centered */ }
+    .bento-grid[data-count="6"] { grid-template-columns: 1fr 1fr 1fr; }
     
     button.lightbox-trigger {
       background: none;
@@ -138,18 +130,21 @@ const TEMPLATE = `<!DOCTYPE html>
       aspect-ratio: 16 / 9;
       object-fit: cover;
       display: block;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: zoom-in;
-      transition: transform 0.2s;
-      border: 1px solid rgba(128,128,128,0.2);
+      transition: transform 0.2s, opacity 0.2s;
+      border: 1px solid rgba(128,128,128,0.12);
+      opacity: 0.85;
     }
-    .bento-grid button.lightbox-trigger:hover img {
+    .bento-grid button.lightbox-trigger:hover img,
+    .bento-grid button.lightbox-trigger:focus img {
       transform: scale(1.02);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      opacity: 1;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     }
 
     .prose p {
-      margin: 0 0 1.5rem 0;
+      margin: 0 0 2rem 0;
       text-wrap: pretty;
     }
     .anchor {
@@ -187,17 +182,48 @@ const TEMPLATE = `<!DOCTYPE html>
       border-radius: 8px;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 800px) {
       .scene, .header-container, .footer-container {
         grid-template-columns: 1fr;
-      }
-      .header-content, .footer-content {
-        grid-column: 1;
+        padding: 0 1.25rem;
+        gap: 1.5rem;
       }
       .visuals-column {
-        position: relative;
+        position: sticky;
         top: 0;
-        margin-bottom: 2rem;
+        margin-bottom: 0.5rem;
+        padding-top: 1rem;
+        background: var(--bg); /* To cover text scrolling underneath */
+        padding-bottom: 0.5rem;
+        max-height: none;
+        border-bottom: 1px solid rgba(128,128,128,0.1);
+      }
+      /* Horizontal scrolling for bento grid on mobile */
+      .bento-grid {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 0.75rem;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+      }
+      .bento-grid::-webkit-scrollbar {
+        display: none;
+      }
+      .bento-grid > div {
+        flex: 0 0 85%;
+        scroll-snap-align: center;
+      }
+      /* The first item doesn't need to be spanning if it's horizontal */
+      .bento-grid[data-count="3"] > div:first-child { grid-column: auto; }
+      
+      body {
+        font-size: 17px;
+        line-height: 1.7;
+      }
+      .prose p {
+        margin: 0 0 1.75rem 0;
       }
     }
   </style>
@@ -210,9 +236,19 @@ const TEMPLATE = `<!DOCTYPE html>
   </header>
   <main>
     <% chapters.forEach(chapter => { 
-         const sceneImages = chapter.uniqueScenes.slice(0, 4);
+         const sceneImages = chapter.uniqueScenes.slice(0, 6);
     %>
       <div class="scene">
+        <div class="text-column prose">
+          <% chapter.paragraphs.forEach(p => { 
+               const linkChar = url.includes('?') ? '&' : '?';
+               const timestampUrl = \`\${url}\${linkChar}t=\${Math.floor(p.seconds)}\`;
+               let timeLabel = p.timestamp.replace(/^\d{2}:/, '');
+               timeLabel = timeLabel.split('.')[0];
+          %>
+            <p><%= p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
+          <% }) %>
+        </div>
         <div class="visuals-column">
           <div class="bento-container">
             <div class="bento-grid" data-count="<%= sceneImages.length %>">
@@ -225,16 +261,6 @@ const TEMPLATE = `<!DOCTYPE html>
               <% }) %>
             </div>
           </div>
-        </div>
-        <div class="text-column prose">
-          <% chapter.paragraphs.forEach(p => { 
-               const linkChar = url.includes('?') ? '&' : '?';
-               const timestampUrl = \`\${url}\${linkChar}t=\${Math.floor(p.seconds)}\`;
-               let timeLabel = p.timestamp.replace(/^\\d{2}:/, '');
-               timeLabel = timeLabel.split('.')[0];
-          %>
-            <p><%= p.text %> <a href="<%= timestampUrl %>" target="_blank" class="anchor" title="Jump to <%= p.timestamp %>"><%= timeLabel %></a></p>
-          <% }) %>
         </div>
       </div>
     <% }) %>
@@ -279,42 +305,46 @@ const TEMPLATE = `<!DOCTYPE html>
 </html>
 `;
 
-export async function generateHtml(url: string, paragraphs: Paragraph[], title: string = 'YouTube Transcript'): Promise<void> {
-  const chapters: { uniqueScenes: string[], paragraphs: Paragraph[] }[] = [];
-  
+export async function generateHtml(
+  url: string,
+  paragraphs: Paragraph[],
+  title: string = 'YouTube Transcript'
+): Promise<void> {
+  const chapters: { uniqueScenes: string[]; paragraphs: Paragraph[] }[] = [];
+
   let currentChunk: Paragraph[] = [];
   let currentScenes = new Set<string>();
 
   for (let i = 0; i < paragraphs.length; i++) {
-    const p = paragraphs[i];
+    const p = paragraphs[i]!;
     currentChunk.push(p);
     if (p.sceneTimestamp) {
       currentScenes.add(p.sceneTimestamp);
     }
-    
+
     // Check if we should split
     const nextP = paragraphs[i + 1];
     if (nextP) {
-      // We only split if the scene is visibly changing to a NEW scene
       const isNewScene = nextP.sceneTimestamp !== p.sceneTimestamp;
-      // Ensure the text block has enough vertical height to roughly match the images
-      const meetsMinLength = currentChunk.length >= 4;
-      
-      if (meetsMinLength && isNewScene) {
+      const hasEnoughParagraphs = currentChunk.length >= 2;
+      const chapterStart = currentChunk[0]!.seconds;
+      const exceededTimeLimit = p.seconds - chapterStart > 30;
+
+      if ((hasEnoughParagraphs && isNewScene) || exceededTimeLimit) {
         chapters.push({
           uniqueScenes: Array.from(currentScenes),
-          paragraphs: currentChunk
+          paragraphs: currentChunk,
         });
         currentChunk = [];
         currentScenes = new Set<string>();
       }
     }
   }
-  
+
   if (currentChunk.length > 0) {
     chapters.push({
       uniqueScenes: Array.from(currentScenes),
-      paragraphs: currentChunk
+      paragraphs: currentChunk,
     });
   }
 

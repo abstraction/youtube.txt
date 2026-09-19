@@ -7,6 +7,7 @@ export interface ExtractFramesOptions {
   threadsPerWorker?: number;
   signal?: AbortSignal;
   onProgress?: (completed: number, total: number) => void;
+  sceneThreshold?: number;
 }
 
 export async function extractFrames(
@@ -18,7 +19,8 @@ export async function extractFrames(
     concurrency = 4,
     threadsPerWorker = 1,
     signal,
-    onProgress
+    onProgress,
+    sceneThreshold = 0.15,
   } = options;
 
   if (paragraphs.length === 0) return;
@@ -27,13 +29,20 @@ export async function extractFrames(
   let sceneTimes: number[] = [0];
   try {
     const execOptions = signal ? { cancelSignal: signal } : {};
-    const { stderr } = await execa('ffmpeg', [
-      '-i', videoFile,
-      '-filter:v', "select='gt(scene,0.2)',showinfo",
-      '-f', 'null',
-      '-'
-    ], execOptions);
-    
+    const { stderr } = await execa(
+      'ffmpeg',
+      [
+        '-i',
+        videoFile,
+        '-filter:v',
+        `select='gt(scene,${sceneThreshold})',showinfo`,
+        '-f',
+        'null',
+        '-',
+      ],
+      execOptions
+    );
+
     const regex = /pts_time:([0-9.]+)/g;
     let match;
     while ((match = regex.exec(stderr)) !== null) {
@@ -61,6 +70,21 @@ export async function extractFrames(
     uniqueScenes.add(matchedScene);
   }
 
+  // Phase B2: Fallback frames for paragraphs far from their scene
+  const FALLBACK_THRESHOLD = 8;
+  const fallbackTimestamps = new Set<number>();
+  for (const p of paragraphs) {
+    let sceneTs = p.sceneTimestamp ? parseFloat(p.sceneTimestamp) : NaN;
+    if (isNaN(sceneTs) || Math.abs(p.seconds - sceneTs) > FALLBACK_THRESHOLD) {
+      fallbackTimestamps.add(p.seconds);
+      p.sceneTimestamp = String(p.seconds);
+    }
+  }
+  // Merge fallbacks into the extraction set
+  for (const ts of fallbackTimestamps) {
+    uniqueScenes.add(ts);
+  }
+
   // Phase C: Extract frames
   const timestampsToExtract = Array.from(uniqueScenes);
   const total = timestampsToExtract.length;
@@ -79,17 +103,27 @@ export async function extractFrames(
 
       if (!fs.existsSync(outPath)) {
         const execOptions = signal ? { cancelSignal: signal } : {};
-        await execa('ffmpeg', [
-          '-y',
-          '-ss', String(ts),
-          '-nostdin',
-          '-threads', String(threadsPerWorker),
-          '-i', videoFile,
-          '-frames:v', '1',
-          '-q:v', '2',
-          '-vf', 'scale=1024:-1',
-          outPath
-        ], execOptions);
+        await execa(
+          'ffmpeg',
+          [
+            '-y',
+            '-ss',
+            String(ts),
+            '-nostdin',
+            '-threads',
+            String(threadsPerWorker),
+            '-i',
+            videoFile,
+            '-frames:v',
+            '1',
+            '-q:v',
+            '2',
+            '-vf',
+            'scale=1024:-1',
+            outPath,
+          ],
+          execOptions
+        );
       }
 
       completed++;
@@ -99,7 +133,10 @@ export async function extractFrames(
     }
   };
 
-  const poolSize = Math.max(1, Math.min(concurrency, timestampsToExtract.length));
+  const poolSize = Math.max(
+    1,
+    Math.min(concurrency, timestampsToExtract.length)
+  );
   const workers = Array.from({ length: poolSize }, () => worker());
 
   await Promise.all(workers);

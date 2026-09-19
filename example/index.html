@@ -1,961 +1,2961 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iPhone 18 Pro⧸Duo Impressions： Mogged</title>
-  <style>
-    :root {
-      --bg: #fcfcfc;
-      --text: #1a1a1a;
-      --link: #065fd4;
-      --link-hover: #00368a;
-    }
-    @media (prefers-color-scheme: dark) {
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube Transcript</title>
+    <style>
       :root {
-        --bg: #111111;
-        --text: #e5e5e5;
-        --link: #3ea6ff;
-        --link-hover: #83c6ff;
+        --bg: #fcfcfc;
+        --text: #1a1a1a;
+        --link: #065fd4;
+        --link-hover: #00368a;
       }
-    }
-    body {
-      margin: 0;
-      padding: 1rem 0 3rem 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      font-size: 18px;
-      line-height: 1.6;
-      background-color: var(--bg);
-      color: var(--text);
-      letter-spacing: -0.01em;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    a {
-      color: var(--link);
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    
-    .header-container {
-      display: grid;
-      grid-template-columns: minmax(0, 800px) min(65ch, 100%);
-      gap: 3rem;
-      justify-content: end;
-      padding-left: 2rem;
-      padding-right: max(2rem, calc(50vw - 480px));
-      margin-bottom: 2rem;
-    }
-    .header-content {
-      grid-column: 2;
-      font-size: 0.9rem;
-      opacity: 0.8;
-    }
-    .video-title {
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .footer-container {
-      display: grid;
-      grid-template-columns: minmax(0, 800px) min(65ch, 100%);
-      gap: 3rem;
-      justify-content: end;
-      padding-left: 2rem;
-      padding-right: max(2rem, calc(50vw - 480px));
-      margin-top: 2rem;
-      margin-bottom: 4rem;
-      border-top: 1px solid rgba(128,128,128,0.2);
-      padding-top: 2rem;
-    }
-    .footer-content {
-      grid-column: 2;
-      font-size: 0.85rem;
-      opacity: 0.5;
-      text-align: right;
-    }
-
-    .scene {
-      display: grid;
-      grid-template-columns: minmax(0, 800px) min(65ch, 100%);
-      gap: 3rem;
-      justify-content: end;
-      align-items: start;
-      padding-left: 2rem;
-      padding-right: max(2rem, calc(50vw - 480px));
-      margin-bottom: 5rem;
-    }
-    .visuals-column {
-      position: sticky;
-      top: 2rem;
-      max-height: calc(100vh - 4rem);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .text-column {
-      max-width: 65ch;
-    }
-    .bento-grid {
-      display: grid;
-      gap: 0.75rem;
-    }
-    .bento-grid[data-count="1"] {
-      grid-template-columns: 1fr;
-    }
-    .bento-grid[data-count="2"] {
-      grid-template-columns: 1fr 1fr;
-    }
-    .bento-grid[data-count="3"] {
-      grid-template-columns: 1fr 1fr;
-    }
-    .bento-grid[data-count="3"] > div:first-child {
-      grid-column: span 2;
-    }
-    .bento-grid[data-count="4"] {
-      grid-template-columns: 1fr 1fr;
-    }
-    
-    button.lightbox-trigger {
-      background: none;
-      border: none;
-      padding: 0;
-      width: 100%;
-      text-align: left;
-    }
-    
-    .bento-grid img {
-      width: 100%;
-      height: 100%;
-      aspect-ratio: 16 / 9;
-      object-fit: cover;
-      display: block;
-      border-radius: 8px;
-      cursor: zoom-in;
-      transition: transform 0.2s;
-      border: 1px solid rgba(128,128,128,0.2);
-    }
-    .bento-grid button.lightbox-trigger:hover img {
-      transform: scale(1.02);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .prose p {
-      margin: 0 0 1.5rem 0;
-      text-wrap: pretty;
-    }
-    .anchor {
-      color: inherit;
-      margin-left: 0.5rem;
-      opacity: 0;
-      transition: opacity 0.2s;
-      font-size: 0.85em;
-      text-decoration: none;
-    }
-    .prose p:hover .anchor, .anchor:focus {
-      opacity: 0.5;
-    }
-    .anchor:hover {
-      opacity: 1 !important;
-      text-decoration: underline;
-    }
-    
-    .lightbox {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      cursor: zoom-out;
-    }
-    .lightbox.active {
-      display: flex;
-    }
-    .lightbox img {
-      max-width: 90%;
-      max-height: 90vh;
-      border-radius: 8px;
-    }
-
-    @media (max-width: 600px) {
-      .scene, .header-container, .footer-container {
-        grid-template-columns: 1fr;
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #111111;
+          --text: #e5e5e5;
+          --link: #3ea6ff;
+          --link-hover: #83c6ff;
+        }
       }
-      .header-content, .footer-content {
-        grid-column: 1;
+      body {
+        margin: 0;
+        padding: 1rem 0 3rem 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+          Arial, sans-serif;
+        font-size: 18px;
+        line-height: 1.6;
+        background-color: var(--bg);
+        color: var(--text);
+        letter-spacing: -0.01em;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
-      .visuals-column {
-        position: relative;
-        top: 0;
+      a {
+        color: var(--link);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .header-container {
+        display: grid;
+        grid-template-columns: minmax(0, 800px) min(65ch, 100%);
+        gap: 3rem;
+        justify-content: end;
+        padding-left: 2rem;
+        padding-right: max(2rem, calc(50vw - 480px));
         margin-bottom: 2rem;
       }
-    }
-  </style>
-</head>
-<body>
-  <header class="header-container">
-    <div class="header-content">
-      <div class="video-title" title="iPhone 18 Pro⧸Duo Impressions： Mogged"><a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ" target="_blank" style="color: inherit;">iPhone 18 Pro⧸Duo Impressions： Mogged</a></div>
-    </div>
-  </header>
-  <main>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="4">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 1.235s">
-                    <img src="images/1.235.jpg" alt="Video frame at 1.235s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 8.909s">
-                    <img src="images/8.909.jpg" alt="Video frame at 8.909s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 10.677s">
-                    <img src="images/10.677.jpg" alt="Video frame at 10.677s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 32.799s">
-                    <img src="images/32.799.jpg" alt="Video frame at 32.799s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>Well, well, well. We are right back in Techtember. And today Apple had their annual fall event where they reveal all their new iPhones. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=2" target="_blank" class="anchor" title="Jump to 00:00:02.438">00:02</a></p>
-          
-            <p>Except they didn&#39;t unveil all the newest iPhones today... They had to make room for the big important folding thing. So with this event we just got the new iPhone 18 Pro and Pro Max... and the new folding one. And so the new base iPhone and probably the new Air and the new SE are going to be early next year. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=10" target="_blank" class="anchor" title="Jump to 00:00:10.661">00:10</a></p>
-          
-            <p>Honestly, welcome new cycle. So welcome to your hands-on and first look at the brand new Pro iPhones... <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=27" target="_blank" class="anchor" title="Jump to 00:00:27.550">00:27</a></p>
-          
-            <p>and the long-awaited folding one. Now the 18 Pro, these are pretty easy because... they look the same. The designs and the sizes and all the fundamentals are still the same. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=33" target="_blank" class="anchor" title="Jump to 00:00:33.199">00:33</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="3">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 40.274s">
-                    <img src="images/40.274.jpg" alt="Video frame at 40.274s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 55.923s">
-                    <img src="images/55.923.jpg" alt="Video frame at 55.923s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 72.205s">
-                    <img src="images/72.205.jpg" alt="Video frame at 72.205s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>And basically... everything new here on the inside is things that I think will require some testing to see if they&#39;re actually big difference makers or not. Like there&#39;s a new A20 Pro chip in there, which is awesome. It&#39;s now a 2 nanometer chip and has 50% more memory bandwidth, which is also sick. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=42" target="_blank" class="anchor" title="Jump to 00:00:42.760">00:42</a></p>
-          
-            <p>Now how much of a performance increase will it translate to? Or how many efficiency gains will we actually see? <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=58" target="_blank" class="anchor" title="Jump to 00:00:58.612">00:58</a></p>
-          
-            <p>That&#39;s yet to be determined. But there&#39;s a few bullet points from the keynote that are giving me hope, like these really big battery life boost claims. They&#39;re saying the new 18 Pro will have the same battery life as the 17 Pro Max, and the new 18 Pro Max will have the best battery life ever in an iPhone. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=64" target="_blank" class="anchor" title="Jump to 00:01:04.678">01:04</a></p>
-          
-            <p>Which, you know, you&#39;d hope it gets better year after year, but the capacities don&#39;t look all that different, so... that should be good. And then there&#39;s also a new variable aperture lens... on the main camera, which we&#39;d heard the rumors about. So instead of just being locked wide open all the time, <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=79" target="_blank" class="anchor" title="Jump to 00:01:19.241">01:19</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="4">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 90.991s">
-                    <img src="images/90.991.jpg" alt="Video frame at 90.991s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 103.537s">
-                    <img src="images/103.537.jpg" alt="Video frame at 103.537s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 118.485s">
-                    <img src="images/118.485.jpg" alt="Video frame at 118.485s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 132.899s">
-                    <img src="images/132.899.jpg" alt="Video frame at 132.899s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>it can actually stop down with manual control. Which yes, before you type, your comment is just like what we saw eight years ago with the Samsung Galaxy S9, except that was two apertures that was wide open... or stopped down. It was f/1.5 or f/2.4. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=95" target="_blank" class="anchor" title="Jump to 00:01:35.785">01:35</a></p>
-          
-            <p>This one in the camera app actually has four stops that you can cycle between... on demand. And yes, just like Samsung&#39;s phones from back in the day, you can actually see the physical aperture opening and closing with those blades with that manual control if you get enough light on it. And this is also... <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=111" target="_blank" class="anchor" title="Jump to 00:01:51.010">01:51</a></p>
-          
-            <p>a much larger sensor than what Samsung was working with back in those S9 days. So there&#39;s potentially maybe more of a difference between wide open and stopped down. But again, that&#39;s gonna require some testing. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=126" target="_blank" class="anchor" title="Jump to 00:02:06.272">02:06</a></p>
-          
-            <p>But I just, you know, I respect and appreciate new hardware features, so I am willing to give this a try... chance. The Dynamic Island at the top is 25% smaller, thanks to them specifically moving the Face ID infrared camera out. But it&#39;s now behind the display all the way in the left hand corner... So there&#39;s a slightly different pixel matrix up in the top left. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=136" target="_blank" class="anchor" title="Jump to 00:02:16.668">02:16</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="3">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 149.149s">
-                    <img src="images/149.149.jpg" alt="Video frame at 149.149s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 173.94s">
-                    <img src="images/173.94.jpg" alt="Video frame at 173.94s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 189.122s">
-                    <img src="images/189.122.jpg" alt="Video frame at 189.122s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>You honestly cannot tell 99% of the time with the naked eye. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=155" target="_blank" class="anchor" title="Jump to 00:02:35.638">02:35</a></p>
-          
-            <p>And now that smaller cutout in the middle means there&#39;s more room so you can have up to three Live Activities instead of just two... It&#39;s welcome. And then, yeah, pretty much the only other real new thing here is the new colors. So we can enjoy... the new Burgundy, which kind of seems to be the flagship color, but there&#39;s also... Glacier, which is a light blue. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=159" target="_blank" class="anchor" title="Jump to 00:02:39.410">02:39</a></p>
-          
-            <p>There&#39;s a new silver, which is kind of boring, but it&#39;s also a little more uniform than the last one, which had a different color for the glass versus the metal. And then there&#39;s finally, finally, finally a fully matte black <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=176" target="_blank" class="anchor" title="Jump to 00:02:56.841">02:56</a></p>
-          
-            <p>18 Pro. And I think that&#39;s the one that&#39;s really calling my name. I think the logical thing to do right now is just to make sure you get subscribed so you can be the first to see the... the stuff that gets tested and see if it&#39;s actually good or not in the full reviews of these phones. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=190" target="_blank" class="anchor" title="Jump to 00:03:10.591">03:10</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="1">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 194.461s">
-                    <img src="images/194.461.jpg" alt="Video frame at 194.461s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>So just hit the subscribe button down there. Just click that. Just click it. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=203" target="_blank" class="anchor" title="Jump to 00:03:23.630">03:23</a></p>
-          
-            <p>Okay, great. So the new Pro phones are $1,199 to start, and the new Pro Maxes are $1,299 to start. So, yes, that is 100 bucks more again than last year... The price increases are hitting everyone, obviously. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=207" target="_blank" class="anchor" title="Jump to 00:03:27.851">03:27</a></p>
-          
-            <p>And Apple&#39;s also quietly increased the prices of older iPhones that they&#39;re still selling too. So 100 bucks more... for a 16 or a 17e. That stuff is all on their site. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=220" target="_blank" class="anchor" title="Jump to 00:03:40.685">03:40</a></p>
-          
-            <p>You can check it out. But it&#39;s not the top of the lineup anymore. The new top of the lineup... is the one more thing that we all saw coming... The first genuinely... new form factor of the iPhone since we first saw it launch back in 2007. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=230" target="_blank" class="anchor" title="Jump to 00:03:50.496">03:50</a></p>
-          
-            <p>The first folding... iPhone. This is the iPhone... Duo. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=245" target="_blank" class="anchor" title="Jump to 00:04:05.860">04:05</a></p>
-          
+      .header-content {
+        grid-column: 2;
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+      .video-title {
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .footer-container {
+        display: grid;
+        grid-template-columns: minmax(0, 800px) min(65ch, 100%);
+        gap: 3rem;
+        justify-content: end;
+        padding-left: 2rem;
+        padding-right: max(2rem, calc(50vw - 480px));
+        margin-top: 2rem;
+        margin-bottom: 4rem;
+        border-top: 1px solid rgba(128, 128, 128, 0.2);
+        padding-top: 2rem;
+      }
+      .footer-content {
+        grid-column: 2;
+        font-size: 0.85rem;
+        opacity: 0.5;
+        text-align: right;
+      }
+
+      .scene {
+        display: grid;
+        grid-template-columns: minmax(0, 800px) min(65ch, 100%);
+        gap: 3rem;
+        justify-content: end;
+        align-items: start;
+        padding-left: 2rem;
+        padding-right: max(2rem, calc(50vw - 480px));
+        margin-bottom: 5rem;
+      }
+      .visuals-column {
+        position: sticky;
+        top: 2rem;
+        max-height: calc(100vh - 4rem);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .text-column {
+        max-width: 65ch;
+      }
+      .bento-grid {
+        display: grid;
+        gap: 0.75rem;
+      }
+      .bento-grid[data-count='1'] {
+        grid-template-columns: 1fr;
+      }
+      .bento-grid[data-count='2'] {
+        grid-template-columns: 1fr 1fr;
+      }
+      .bento-grid[data-count='3'] {
+        grid-template-columns: 1fr 1fr;
+      }
+      .bento-grid[data-count='3'] > div:first-child {
+        grid-column: span 2;
+      }
+      .bento-grid[data-count='4'] {
+        grid-template-columns: 1fr 1fr;
+      }
+      .bento-grid[data-count='5'] {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+      .bento-grid[data-count='5'] > div:nth-child(4),
+      .bento-grid[data-count='5'] > div:nth-child(5) {
+        /* Last two items span the remaining row, centered */
+      }
+      .bento-grid[data-count='6'] {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      button.lightbox-trigger {
+        background: none;
+        border: none;
+        padding: 0;
+        width: 100%;
+        text-align: left;
+      }
+
+      .bento-grid img {
+        width: 100%;
+        height: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        display: block;
+        border-radius: 8px;
+        cursor: zoom-in;
+        transition: transform 0.2s;
+        border: 1px solid rgba(128, 128, 128, 0.2);
+      }
+      .bento-grid button.lightbox-trigger:hover img {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .prose p {
+        margin: 0 0 1.5rem 0;
+        text-wrap: pretty;
+      }
+      .anchor {
+        color: inherit;
+        margin-left: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+        font-size: 0.85em;
+        text-decoration: none;
+      }
+      .prose p:hover .anchor,
+      .anchor:focus {
+        opacity: 0.5;
+      }
+      .anchor:hover {
+        opacity: 1 !important;
+        text-decoration: underline;
+      }
+
+      .lightbox {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        cursor: zoom-out;
+      }
+      .lightbox.active {
+        display: flex;
+      }
+      .lightbox img {
+        max-width: 90%;
+        max-height: 90vh;
+        border-radius: 8px;
+      }
+
+      @media (max-width: 600px) {
+        .scene,
+        .header-container,
+        .footer-container {
+          grid-template-columns: 1fr;
+        }
+        .header-content,
+        .footer-content {
+          grid-column: 1;
+        }
+        .visuals-column {
+          position: relative;
+          top: 0;
+          margin-bottom: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header-container">
+      <div class="header-content">
+        <div class="video-title" title="YouTube Transcript">
+          <a
+            href="https://www.youtube.com/watch?v=Od6M0AXpcxQ"
+            target="_blank"
+            style="color: inherit"
+            >YouTube Transcript</a
+          >
         </div>
       </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="4">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 246.446s">
-                    <img src="images/246.446.jpg" alt="Video frame at 246.446s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 261.428s">
-                    <img src="images/261.428.jpg" alt="Video frame at 261.428s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 267.534s">
-                    <img src="images/267.534.jpg" alt="Video frame at 267.534s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 284.851s">
-                    <img src="images/284.851.jpg" alt="Video frame at 284.851s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>And, man, this phone is so interesting. So this is what I want to focus this video mostly on, since we&#39;ll cover all the rest of this stuff in more videos later. And it&#39;s funny, we knew what to expect. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=252" target="_blank" class="anchor" title="Jump to 00:04:12.540">04:12</a></p>
-          
-            <p>We saw all the rumors. We knew this is what it would look like, but I was just still so excited to hold it and actually use it. And feel the crease and the weight and the shape and everything... So first of all, the fundamentals, right? <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=262" target="_blank" class="anchor" title="Jump to 00:04:22.900">04:22</a></p>
-          
-            <p>This is a passport-shaped, book-style foldable. 5.4-inch display on the front, kind of on the small side, but high refresh rate, corner hole-punch cutout. The frame is titanium, and the rails are rounded to grip to open. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=273" target="_blank" class="anchor" title="Jump to 00:04:33.421">04:33</a></p>
-          
-            <p>So that when you open it up, we have a 7.6- inch display. Also high refresh rate and plenty bright, uniform bezels all the way around. But this one has a few more interesting traits. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=286" target="_blank" class="anchor" title="Jump to 00:04:46.299">04:46</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="3">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 297.03s">
-                    <img src="images/297.03.jpg" alt="Video frame at 297.03s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 312.078s">
-                    <img src="images/312.078.jpg" alt="Video frame at 312.078s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 322.489s">
-                    <img src="images/322.489.jpg" alt="Video frame at 322.489s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>So the way you can think of it basically is it&#39;s an iPhone when it&#39;s closed and it&#39;s like an iPad mini when it&#39;s open. Like that&#39;s the basic value prop, right? You can&#39;t, you can&#39;t take an iPad mini everywhere with you &#39;cause it doesn&#39;t fit in your pocket. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=297" target="_blank" class="anchor" title="Jump to 00:04:57.030">04:57</a></p>
-          
-            <p>But what if it could? It folds in half... That&#39;s what this could look like. So yeah, when it&#39;s closed, more or less, it&#39;s a squat iPhone, but with some adjustments. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=308" target="_blank" class="anchor" title="Jump to 00:05:08.729">05:08</a></p>
-          
-            <p>It&#39;s obviously a bit thicker since it&#39;s a foldable. And I&#39;ll talk about the competition in a second. But there&#39;s also no Face ID, you&#39;ll notice. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=316" target="_blank" class="anchor" title="Jump to 00:05:16.816">05:16</a></p>
-          
-            <p>And that&#39;s because the power button on the right is also a Touch ID fingerprint reader on that right-hand rail. And then the software interestingly weights a lot of these UI elements over to the right-hand... side for reachability. So I personally, I find the smaller display already mostly pretty reachable already. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=324" target="_blank" class="anchor" title="Jump to 00:05:24.890">05:24</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="3">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 339.873s">
-                    <img src="images/339.873.jpg" alt="Video frame at 339.873s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 363.63s">
-                    <img src="images/363.63.jpg" alt="Video frame at 363.63s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 379.479s">
-                    <img src="images/379.479.jpg" alt="Video frame at 379.479s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>But they put a whole dock over here to the right-hand side... instead of the bottom. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=341" target="_blank" class="anchor" title="Jump to 00:05:41.901">05:41</a></p>
-          
-            <p>And then when you open it, it does this sweet animation, this, this kind of progressive fade-out of the screen that you&#39;re on... to the screen that you&#39;re switching to. And then you&#39;re on this inside display, this big 7.6-inch screen. So you can kind of think of this as two of that outside screen stapled together side-by-side, and they&#39;re actually mirrored. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=346" target="_blank" class="anchor" title="Jump to 00:05:46.892">05:46</a></p>
-          
-            <p>So like a... other foldables, if you change your home screen layout on the outside screen, that also reflects on the inside screen. If you add pages to one, it adds pages to the other. And then this inside screen you&#39;ll actually notice is <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=365" target="_blank" class="anchor" title="Jump to 00:06:05.781">06:05</a></p>
-          
-            <p>corner-to-corner seamless, because they have hidden the selfie camera... behind the glass. It&#39;s up here in the middle of the right-hand side. And you mostly don&#39;t see it whenever there&#39;s anything on the screen, but it&#39;s there. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=379" target="_blank" class="anchor" title="Jump to 00:06:19.825">06:19</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="4">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 387.721s">
-                    <img src="images/387.721.jpg" alt="Video frame at 387.721s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 397.864s">
-                    <img src="images/397.864.jpg" alt="Video frame at 397.864s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 442.375s">
-                    <img src="images/442.375.jpg" alt="Video frame at 442.375s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 465.131s">
-                    <img src="images/465.131.jpg" alt="Video frame at 465.131s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>And then the entire display has this nano-texture sort of matte coating on the top layer, which does a few things: it really effectively cuts down on reflections. Like, I can verify that just being in bright environments, no matter how I&#39;m holding it, the lights never become an issue. But also because it cuts reflections so much, <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=392" target="_blank" class="anchor" title="Jump to 00:06:32.720">06:32</a></p>
-          
-            <p>it actually does a great job hiding the crease, which is already... pretty minimal... I honestly found this right around the same level as the Oppo Find N6... as basically the least crease... I&#39;ve ever seen... on a folding phone. It&#39;s definitely not gone. But between this hinge design, which has, you know, carbon-fiber support plates... and the top layer of ultra-thin glass being pretty stiff, and the anti-glare finish, the only time you realistically perceive this crease is when you&#39;re really looking for it or running your finger over it, which doesn&#39;t really happen much. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=411" target="_blank" class="anchor" title="Jump to 00:06:51.614">06:51</a></p>
-          
-            <p>The iPhone Duo also... does have MagSafe, does have the A20 Pro chip inside. It has a new C2 cellular modem, which is faster and adds 5G millimeter-wave... And it has dual cameras on the back: a new 48-megapixel primary, which... without any testing I have to assume is probably on the smaller side versus the flagships, and then actually the same ultrawide camera as the 18 Pro. And this software has a lot to it. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=442" target="_blank" class="anchor" title="Jump to 00:07:22.416">07:22</a></p>
-          
-            <p>I was first seeing it, just trying to figure out, like, is this iOS... or is it iPadOS, or neither, or both? <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=467" target="_blank" class="anchor" title="Jump to 00:07:47.309">07:47</a></p>
-          
-            <p>Like, what is it really? I think what I&#39;ve landed on is it&#39;s like, it&#39;s like iOS plus a little, like with a little sauce. Obviously the reachability stuff and the dock on the side are new. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=474" target="_blank" class="anchor" title="Jump to 00:07:54.308">07:54</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="3">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 481.081s">
-                    <img src="images/481.081.jpg" alt="Video frame at 481.081s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 491.224s">
-                    <img src="images/491.224.jpg" alt="Video frame at 491.224s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 527.761s">
-                    <img src="images/527.761.jpg" alt="Video frame at 527.761s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>Like, you won&#39;t find that on a regular iPhone. And then the continuity also between the inside screen and the outside screen, like, that&#39;s pretty standard stuff, but it&#39;s executed very smoothly. Like, this animation... is... so good... between open and closed. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=484" target="_blank" class="anchor" title="Jump to 00:08:04.953">08:04</a></p>
-          
-            <p>It&#39;s obviously really cool-looking, but it also... <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=502" target="_blank" class="anchor" title="Jump to 00:08:22.190">08:22</a></p>
-          
-            <p>opens really quickly to whatever&#39;s on the right-hand side of the interior screen... The apps, when you&#39;re using them open, are all... pretty much iPad apps. The way they behave with multiple columns... And then, of course, you can multitask a bit by throwing two apps side-by-side next to each other with some gestures that I&#39;ll dive more into... in the full review, but generally they&#39;re pretty intuitive and things flow the way you expect them to. Now, the elephant in the room, at least in my world, is... this thing right here: the Samsung Galaxy Z Fold 8. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=504" target="_blank" class="anchor" title="Jump to 00:08:24.840">08:24</a></p>
-          
-            <p>This came out a few months ago, and it&#39;s been pretty hot... <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=534" target="_blank" class="anchor" title="Jump to 00:08:54.674">08:54</a></p>
-          
-            <p>People love this thing. I love this thing. And it&#39;s basically... the same... idea as a product. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=537" target="_blank" class="anchor" title="Jump to 00:08:57.994">08:57</a></p>
-          
-            <p>It&#39;s a small, squat, passport-shaped foldable. It&#39;s got the dual cameras on the back, flagship chip, super-thin. So you&#39;re probably wondering, &#34;All right, Marques, how do these compare?&#34; And my take is: functionally- they&#39;re... very similar. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=544" target="_blank" class="anchor" title="Jump to 00:09:04.208">09:04</a></p>
-          
-            <p>They&#39;re really not that different from each other. They both have dual cameras, like I said, one main and one ultrawide. They both have the flagship chip available to them. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=561" target="_blank" class="anchor" title="Jump to 00:09:21.234">09:21</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="3">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 566.933s">
-                    <img src="images/566.933.jpg" alt="Video frame at 566.933s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 576.776s">
-                    <img src="images/576.776.jpg" alt="Video frame at 576.776s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 607.807s">
-                    <img src="images/607.807.jpg" alt="Video frame at 607.807s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>The- they both have... solid battery, despite being barely thicker than a USB Type-C port. They both have a fingerprint reader on the power button. But! <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=569" target="_blank" class="anchor" title="Jump to 00:09:29.486">09:29</a></p>
-          
-            <p>just in my... scattered couple hours of using the iPhone Duo today, the iPhone... has a bunch... of... these tiny, frankly unnecessary, but also very awesome... quality-of-life things... that make it feel... like a more fun phone to use. I forget the specs and numbers and like raw horsepower and megapixels and stuff, but just, <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=577" target="_blank" class="anchor" title="Jump to 00:09:37.862">09:37</a></p>
-          
-            <p>just the... fit and finish and the little animations and stuff like that. And the... feel of it. I feel like the iPhone kind of mogs the Samsung. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=600" target="_blank" class="anchor" title="Jump to 00:10:00.298">10:00</a></p>
-          
-            <p>Like, it really all starts with that animation... switching between the inner and outer display. It&#39;s... really clean and it&#39;s fast. I&#39;m used to having at least a tiny bit of delay when I slap a folding phone shut before the outside screen lights up... But this one had no delay. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=607" target="_blank" class="anchor" title="Jump to 00:10:07.848">10:07</a></p>
-          
-            <p>This was exceptionally fast every single time. And even while doing that animation and all the other little animations, <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=624" target="_blank" class="anchor" title="Jump to 00:10:24.591">10:24</a></p>
-          
-            <p>like when closing the camera app on the inner screen, where it goes from those blacked out pixels that the camera can see through... back to all the pixels from your wallpaper... That&#39;s so clean... Also expanding your quick settings on the right, they kind of fall out of the corner as you swipe down. That also felt very nice. The interior display, this coating on it, like I said, it&#39;s really smart. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=630" target="_blank" class="anchor" title="Jump to 00:10:30.845">10:30</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="4">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 647.614s">
-                    <img src="images/647.614.jpg" alt="Video frame at 647.614s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 660.426s">
-                    <img src="images/660.426.jpg" alt="Video frame at 660.426s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 671.104s">
-                    <img src="images/671.104.jpg" alt="Video frame at 671.104s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 680.28s">
-                    <img src="images/680.28.jpg" alt="Video frame at 680.28s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>It blocks reflections extremely well, so it hides the crease visually quite nicely... And it&#39;s also kind of smooth to the touch, kind of like the Oppo Find N6 was. So your finger just glides over it. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=651" target="_blank" class="anchor" title="Jump to 00:10:51.014">10:51</a></p>
-          
-            <p>And... somehow later this year it&#39;s going to support the USB Type-C Apple Pencil on both the inner and outer screens. The volume buttons, interestingly, are not on the side of the phone next to the power button. They&#39;re at the top, which is... maybe a little weird. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=662" target="_blank" class="anchor" title="Jump to 00:11:02.810">11:02</a></p>
-          
-            <p>At first I didn&#39;t know how to feel about that, but what I do know is it means that the volume always follows the direction of the buttons. Right to go up, left to go down, and the speakers, I would say, are objectively in the best spot they can be for a foldable. So at the top it&#39;s at the front <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=679" target="_blank" class="anchor" title="Jump to 00:11:19.071">11:19</a></p>
-          
-            <p>and at the bottom it&#39;s on the back. So when you open it, you still have a speaker on the left and the right half. So you can still do a solid stereo sound. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=692" target="_blank" class="anchor" title="Jump to 00:11:32.842">11:32</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="4">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 694.46s">
-                    <img src="images/694.46.jpg" alt="Video frame at 694.46s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 700.333s">
-                    <img src="images/700.333.jpg" alt="Video frame at 700.333s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 716.583s">
-                    <img src="images/716.583.jpg" alt="Video frame at 716.583s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 733.066s">
-                    <img src="images/733.066.jpg" alt="Video frame at 733.066s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>And also unexpectedly, the whole thing is IP68... water and dust resistance rated. You can theoretically submerge it, pour water on it, it should be fine. I think the only other foldable that can say it does that is the Pixel 10 Pro Fold. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=700" target="_blank" class="anchor" title="Jump to 00:11:40.299">11:40</a></p>
-          
-            <p>So that&#39;s promising for durability. And then the ability to use the phone half open in a couple different ways, that&#39;s also nice. There are some foldables with too stiff of a spring weight, <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=714" target="_blank" class="anchor" title="Jump to 00:11:54.080">11:54</a></p>
-          
-            <p>like Samsung&#39;s Fold 8 doesn&#39;t really do this so well. But with the iPhone Duo, you can use it half open if you want. And a lot of apps are responsive enough to take advantage of this too. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=724" target="_blank" class="anchor" title="Jump to 00:12:04.229">12:04</a></p>
-          
-            <p>And you can even put it in standby mode by locking it while in tent mode, it&#39;ll show you a clock or your alarm. It&#39;ll wake you up with a soft, gentle glow... All these little super nice, clever things. So it&#39;s got, it&#39;s stacking up like a bunch of really, really nice, clever things. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=733" target="_blank" class="anchor" title="Jump to 00:12:13.658">12:13</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="3">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 743.743s">
-                    <img src="images/743.743.jpg" alt="Video frame at 743.743s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 759.359s">
-                    <img src="images/759.359.jpg" alt="Video frame at 759.359s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 772.472s">
-                    <img src="images/772.472.jpg" alt="Video frame at 772.472s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>Neat animations, clean stuff. But also I&#39;ve reviewed a lot of other foldables on this channel. You might have watched a bunch of those other videos. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=748" target="_blank" class="anchor" title="Jump to 00:12:28.013">12:28</a></p>
-          
-            <p>And this thing also definitely has its downsides. I think the most obvious downside is... the visual one. At least I think so. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=756" target="_blank" class="anchor" title="Jump to 00:12:36.060">12:36</a></p>
-          
-            <p>The fact that this display on the cover screen is rounded on the right... and then squared up on the left. So totally asymmetrical, it doesn&#39;t functionally make a huge difference. But some people are never gonna let that go. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=765" target="_blank" class="anchor" title="Jump to 00:12:45.290">12:45</a></p>
-          
-            <p>And you know, maybe that&#39;s why they call it Duo, because the screen looks like the letter D. I don&#39;t know. Maybe more functionally important though is that the phone basically has to be held in your right hand <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=776" target="_blank" class="anchor" title="Jump to 00:12:56.851">12:56</a></p>
-          
-            <p>like a lot of other folds, but then doubly so since all the UI elements like the dock... move to the right-hand side, and I don&#39;t see any settings to move that stuff to the left. And then speaking of that dock, only four items in the dock. I tried adding one, it didn&#39;t let me. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=787" target="_blank" class="anchor" title="Jump to 00:13:07.188">13:07</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="3">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 795.895s">
-                    <img src="images/795.895.jpg" alt="Video frame at 795.895s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 804.537s">
-                    <img src="images/804.537.jpg" alt="Video frame at 804.537s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 829.529s">
-                    <img src="images/829.529.jpg" alt="Video frame at 829.529s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>I could take stuff out, but I couldn&#39;t add a fifth item to the dock. And then the under-screen selfie camera on that big screen. It&#39;s cool that it&#39;s hidden but we used to have these in the past and there&#39;s a reason why we don&#39;t have them anymore... It&#39;s just because they&#39;re bad. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=801" target="_blank" class="anchor" title="Jump to 00:13:21.047">13:21</a></p>
-          
-            <p>They just look really bad quality-wise... <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=815" target="_blank" class="anchor" title="Jump to 00:13:35.860">13:35</a></p>
-          
-            <p>Samsung had these on a bunch of their older folds for a couple of years and they stopped doing it because we basically learned that people much prefer to just have a better quality camera... And a little hole-punch cutout is actually fine. This is what video looks like that I took from the Duo I was playing with from that under-display selfie camera. And yeah, this is like decent lighting. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=817" target="_blank" class="anchor" title="Jump to 00:13:37.930">13:37</a></p>
-          
-            <p>It&#39;s just pretty bad quality video. And then of course no silicon-carbon batteries, no ultrafast charging, no zoom camera. All the other downsides we already knew about that were obvious. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=837" target="_blank" class="anchor" title="Jump to 00:13:57.894">13:57</a></p>
-          
-        </div>
-      </div>
-    
-      <div class="scene">
-        <div class="visuals-column">
-          <div class="bento-container">
-            <div class="bento-grid" data-count="1">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 839.639s">
-                    <img src="images/839.639.jpg" alt="Video frame at 839.639s" loading="lazy">
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="text-column prose">
-          
-            <p>So... <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=847" target="_blank" class="anchor" title="Jump to 00:14:07.306">14:07</a></p>
-          
-            <p>yeah, I feel like my take on this is, it&#39;s, it&#39;s not perfect, but it&#39;s got a lot going for it. And I think this is gonna be a really fun phone for people to use who are thinking about maybe getting a folding one... But they were on the iPhone side of the fence so they couldn&#39;t get one before, but now they can. And if you&#39;re watching this on YouTube thinking, who is that person who was even asking for this, who wants foldables? <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=848" target="_blank" class="anchor" title="Jump to 00:14:08.218">14:08</a></p>
-          
-            <p>They&#39;re not so popular here, but in China they are popular. China actually bought more foldables than the entire rest of the world combined last year. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=870" target="_blank" class="anchor" title="Jump to 00:14:30.900">14:30</a></p>
-          
-            <p>So there are a lot of foldables out there. And Apple, of course, wants to play in that market and sell phones to those people too. Now there&#39;s an iPhone that folds. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=880" target="_blank" class="anchor" title="Jump to 00:14:40.487">14:40</a></p>
-          
-            <p>so it&#39;s $2,000. Starting two bands is the cheapest that you can get. This phone, which is obviously expensive, but it&#39;s actually a little bit, a little bit less than I was expecting going into this... Just for perspective, the... Fold 8 starts at 1,800 bucks... and a lot of these other foldables are very expensive. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=887" target="_blank" class="anchor" title="Jump to 00:14:47.970">14:47</a></p>
-          
-            <p>So I could see, you know, with the Apple tax and Ramageddon and just generally new things being expensive, <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=907" target="_blank" class="anchor" title="Jump to 00:15:07.060">15:07</a></p>
-          
-            <p>I could have seen this being more, so this is lower than I thought it could have been. But it&#39;s coming out in October, so we got a couple more weeks to think about it before the pre-orders open up. I also just want to say it is objectively hilarious... now that Apple... in 2026 is the company that has a product named... the Neo... and the Duo. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=913" target="_blank" class="anchor" title="Jump to 00:15:13.082">15:13</a></p>
-          
-            <p>If you know, you know. Let me know what you guys want to see in the full review and what else you&#39;re curious about... Plus, Apple did also release a couple other products... alongside these phones today, like the new AirPods 5 with better noise cancellation and a couple more features from the Pros for 129 bucks... and the new Apple Watch Series 12 which has some really freaky-sounding, always-listening features that I have some conspiracy theories about. So stay tuned for that. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=935" target="_blank" class="anchor" title="Jump to 00:15:35.612">15:35</a></p>
-          
-        </div>
-      </div>
-    
+    </header>
+    <main>
       <div class="scene">
         <div class="visuals-column">
           <div class="bento-container">
             <div class="bento-grid" data-count="2">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 960.426s">
-                    <img src="images/960.426.jpg" alt="Video frame at 960.426s" loading="lazy">
-                  </button>
-                </div>
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 994.594s">
-                    <img src="images/994.594.jpg" alt="Video frame at 994.594s" loading="lazy">
-                  </button>
-                </div>
-              
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 1.235s"
+                >
+                  <img
+                    src="images/1.235.jpg"
+                    alt="Video frame at 1.235s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 8.909s"
+                >
+                  <img
+                    src="images/8.909.jpg"
+                    alt="Video frame at 8.909s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
             </div>
           </div>
         </div>
         <div class="text-column prose">
-          
-            <p>It&#39;s September, baby. Buckle up, get subscribed!... and shoutout to Ridge for sponsoring this video. So channel sponsor Ridge has a bunch of accessories that will really cleanly match <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=960" target="_blank" class="anchor" title="Jump to 00:16:00.467">16:00</a></p>
-          
-            <p>the colors... of your iPhone, including the new iPhones. So their famous Power Bank offers five-in-one power delivery, so you can charge multiple items at once... and it&#39;s MagSafe compatible for easy charge-ups on the go... Ridge&#39;s Power Bank also works with the iPhone Duo, wired or MagSafe, because they didn&#39;t mention it during a presentation, but that phone does have it. There&#39;s also the Tracker Card that can help you track items in a credit-card-sized form... Just slip it into your wallet or any bag and it will play a loud ring whenever you need to locate it whenever you&#39;re close. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=970" target="_blank" class="anchor" title="Jump to 00:16:10.074">16:10</a></p>
-          
-            <p>And best of all, it&#39;s compatible with both iPhone and Android <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=997" target="_blank" class="anchor" title="Jump to 00:16:37.244">16:37</a></p>
-          
-            <p>now. Also available... in Basecamp Orange and lastly, the Ridge Wallet. Of course, Ridge has reworked the MagSafe version to sit flush on your phone, and it&#39;s now stronger and more secure. <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=1002" target="_blank" class="anchor" title="Jump to 00:16:42.393">16:42</a></p>
-          
+          <p>
+            Well, well, well. We are right back in Techtember. And today Apple
+            had their annual fall event where they reveal all their new iPhones.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=2"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:00:02.438"
+              >00:02</a
+            >
+          </p>
+
+          <p>
+            Except they didn&#39;t unveil all the newest iPhones today... They
+            had to make room for the big important folding thing. So with this
+            event we just got the new iPhone 18 Pro and Pro Max... and the new
+            folding one. And so the new base iPhone and probably the new Air and
+            the new SE are going to be early next year.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=10"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:00:10.661"
+              >00:10</a
+            >
+          </p>
         </div>
       </div>
-    
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 27.55s"
+                >
+                  <img
+                    src="images/27.55.jpg"
+                    alt="Video frame at 27.55s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 32.799s"
+                >
+                  <img
+                    src="images/32.799.jpg"
+                    alt="Video frame at 32.799s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            Honestly, welcome new cycle. So welcome to your hands-on and first
+            look at the brand new Pro iPhones...
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=27"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:00:27.550"
+              >00:27</a
+            >
+          </p>
+
+          <p>
+            and the long-awaited folding one. Now the 18 Pro, these are pretty
+            easy because... they look the same. The designs and the sizes and
+            all the fundamentals are still the same.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=33"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:00:33.199"
+              >00:33</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 40.274s"
+                >
+                  <img
+                    src="images/40.274.jpg"
+                    alt="Video frame at 40.274s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 55.923s"
+                >
+                  <img
+                    src="images/55.923.jpg"
+                    alt="Video frame at 55.923s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            And basically... everything new here on the inside is things that I
+            think will require some testing to see if they&#39;re actually big
+            difference makers or not. Like there&#39;s a new A20 Pro chip in
+            there, which is awesome. It&#39;s now a 2 nanometer chip and has 50%
+            more memory bandwidth, which is also sick.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=42"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:00:42.760"
+              >00:42</a
+            >
+          </p>
+
+          <p>
+            Now how much of a performance increase will it translate to? Or how
+            many efficiency gains will we actually see?
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=58"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:00:58.612"
+              >00:58</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 64.678s"
+                >
+                  <img
+                    src="images/64.678.jpg"
+                    alt="Video frame at 64.678s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 72.205s"
+                >
+                  <img
+                    src="images/72.205.jpg"
+                    alt="Video frame at 72.205s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            That&#39;s yet to be determined. But there&#39;s a few bullet points
+            from the keynote that are giving me hope, like these really big
+            battery life boost claims. They&#39;re saying the new 18 Pro will
+            have the same battery life as the 17 Pro Max, and the new 18 Pro Max
+            will have the best battery life ever in an iPhone.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=64"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:01:04.678"
+              >01:04</a
+            >
+          </p>
+
+          <p>
+            Which, you know, you&#39;d hope it gets better year after year, but
+            the capacities don&#39;t look all that different, so... that should
+            be good. And then there&#39;s also a new variable aperture lens...
+            on the main camera, which we&#39;d heard the rumors about. So
+            instead of just being locked wide open all the time,
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=79"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:01:19.241"
+              >01:19</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 90.991s"
+                >
+                  <img
+                    src="images/90.991.jpg"
+                    alt="Video frame at 90.991s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 103.537s"
+                >
+                  <img
+                    src="images/103.537.jpg"
+                    alt="Video frame at 103.537s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            it can actually stop down with manual control. Which yes, before you
+            type, your comment is just like what we saw eight years ago with the
+            Samsung Galaxy S9, except that was two apertures that was wide
+            open... or stopped down. It was f/1.5 or f/2.4.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=95"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:01:35.785"
+              >01:35</a
+            >
+          </p>
+
+          <p>
+            This one in the camera app actually has four stops that you can
+            cycle between... on demand. And yes, just like Samsung&#39;s phones
+            from back in the day, you can actually see the physical aperture
+            opening and closing with those blades with that manual control if
+            you get enough light on it. And this is also...
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=111"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:01:51.010"
+              >01:51</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 118.485s"
+                >
+                  <img
+                    src="images/118.485.jpg"
+                    alt="Video frame at 118.485s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 132.899s"
+                >
+                  <img
+                    src="images/132.899.jpg"
+                    alt="Video frame at 132.899s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            a much larger sensor than what Samsung was working with back in
+            those S9 days. So there&#39;s potentially maybe more of a difference
+            between wide open and stopped down. But again, that&#39;s gonna
+            require some testing.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=126"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:02:06.272"
+              >02:06</a
+            >
+          </p>
+
+          <p>
+            But I just, you know, I respect and appreciate new hardware
+            features, so I am willing to give this a try... chance. The Dynamic
+            Island at the top is 25% smaller, thanks to them specifically moving
+            the Face ID infrared camera out. But it&#39;s now behind the display
+            all the way in the left hand corner... So there&#39;s a slightly
+            different pixel matrix up in the top left.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=136"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:02:16.668"
+              >02:16</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 149.149s"
+                >
+                  <img
+                    src="images/149.149.jpg"
+                    alt="Video frame at 149.149s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 159.41s"
+                >
+                  <img
+                    src="images/159.41.jpg"
+                    alt="Video frame at 159.41s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            You honestly cannot tell 99% of the time with the naked eye.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=155"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:02:35.638"
+              >02:35</a
+            >
+          </p>
+
+          <p>
+            And now that smaller cutout in the middle means there&#39;s more
+            room so you can have up to three Live Activities instead of just
+            two... It&#39;s welcome. And then, yeah, pretty much the only other
+            real new thing here is the new colors. So we can enjoy... the new
+            Burgundy, which kind of seems to be the flagship color, but
+            there&#39;s also... Glacier, which is a light blue.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=159"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:02:39.410"
+              >02:39</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 173.94s"
+                >
+                  <img
+                    src="images/173.94.jpg"
+                    alt="Video frame at 173.94s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 189.122s"
+                >
+                  <img
+                    src="images/189.122.jpg"
+                    alt="Video frame at 189.122s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            There&#39;s a new silver, which is kind of boring, but it&#39;s also
+            a little more uniform than the last one, which had a different color
+            for the glass versus the metal. And then there&#39;s finally,
+            finally, finally a fully matte black
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=176"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:02:56.841"
+              >02:56</a
+            >
+          </p>
+
+          <p>
+            18 Pro. And I think that&#39;s the one that&#39;s really calling my
+            name. I think the logical thing to do right now is just to make sure
+            you get subscribed so you can be the first to see the... the stuff
+            that gets tested and see if it&#39;s actually good or not in the
+            full reviews of these phones.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=190"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:03:10.591"
+              >03:10</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 203.63s"
+                >
+                  <img
+                    src="images/203.63.jpg"
+                    alt="Video frame at 203.63s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 206.106s"
+                >
+                  <img
+                    src="images/206.106.jpg"
+                    alt="Video frame at 206.106s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            So just hit the subscribe button down there. Just click that. Just
+            click it.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=203"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:03:23.630"
+              >03:23</a
+            >
+          </p>
+
+          <p>
+            Okay, great. So the new Pro phones are $1,199 to start, and the new
+            Pro Maxes are $1,299 to start. So, yes, that is 100 bucks more again
+            than last year... The price increases are hitting everyone,
+            obviously.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=207"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:03:27.851"
+              >03:27</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 220.685s"
+                >
+                  <img
+                    src="images/220.685.jpg"
+                    alt="Video frame at 220.685s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 230.496s"
+                >
+                  <img
+                    src="images/230.496.jpg"
+                    alt="Video frame at 230.496s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            And Apple&#39;s also quietly increased the prices of older iPhones
+            that they&#39;re still selling too. So 100 bucks more... for a 16 or
+            a 17e. That stuff is all on their site.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=220"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:03:40.685"
+              >03:40</a
+            >
+          </p>
+
+          <p>
+            You can check it out. But it&#39;s not the top of the lineup
+            anymore. The new top of the lineup... is the one more thing that we
+            all saw coming... The first genuinely... new form factor of the
+            iPhone since we first saw it launch back in 2007.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=230"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:03:50.496"
+              >03:50</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 245.86s"
+                >
+                  <img
+                    src="images/245.86.jpg"
+                    alt="Video frame at 245.86s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 246.446s"
+                >
+                  <img
+                    src="images/246.446.jpg"
+                    alt="Video frame at 246.446s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            The first folding... iPhone. This is the iPhone... Duo.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=245"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:04:05.860"
+              >04:05</a
+            >
+          </p>
+
+          <p>
+            And, man, this phone is so interesting. So this is what I want to
+            focus this video mostly on, since we&#39;ll cover all the rest of
+            this stuff in more videos later. And it&#39;s funny, we knew what to
+            expect.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=252"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:04:12.540"
+              >04:12</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 261.428s"
+                >
+                  <img
+                    src="images/261.428.jpg"
+                    alt="Video frame at 261.428s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 267.534s"
+                >
+                  <img
+                    src="images/267.534.jpg"
+                    alt="Video frame at 267.534s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            We saw all the rumors. We knew this is what it would look like, but
+            I was just still so excited to hold it and actually use it. And feel
+            the crease and the weight and the shape and everything... So first
+            of all, the fundamentals, right?
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=262"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:04:22.900"
+              >04:22</a
+            >
+          </p>
+
+          <p>
+            This is a passport-shaped, book-style foldable. 5.4-inch display on
+            the front, kind of on the small side, but high refresh rate, corner
+            hole-punch cutout. The frame is titanium, and the rails are rounded
+            to grip to open.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=273"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:04:33.421"
+              >04:33</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 284.851s"
+                >
+                  <img
+                    src="images/284.851.jpg"
+                    alt="Video frame at 284.851s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 297.03s"
+                >
+                  <img
+                    src="images/297.03.jpg"
+                    alt="Video frame at 297.03s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            So that when you open it up, we have a 7.6- inch display. Also high
+            refresh rate and plenty bright, uniform bezels all the way around.
+            But this one has a few more interesting traits.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=286"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:04:46.299"
+              >04:46</a
+            >
+          </p>
+
+          <p>
+            So the way you can think of it basically is it&#39;s an iPhone when
+            it&#39;s closed and it&#39;s like an iPad mini when it&#39;s open.
+            Like that&#39;s the basic value prop, right? You can&#39;t, you
+            can&#39;t take an iPad mini everywhere with you &#39;cause it
+            doesn&#39;t fit in your pocket.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=297"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:04:57.030"
+              >04:57</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 308.729s"
+                >
+                  <img
+                    src="images/308.729.jpg"
+                    alt="Video frame at 308.729s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 312.078s"
+                >
+                  <img
+                    src="images/312.078.jpg"
+                    alt="Video frame at 312.078s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            But what if it could? It folds in half... That&#39;s what this could
+            look like. So yeah, when it&#39;s closed, more or less, it&#39;s a
+            squat iPhone, but with some adjustments.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=308"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:05:08.729"
+              >05:08</a
+            >
+          </p>
+
+          <p>
+            It&#39;s obviously a bit thicker since it&#39;s a foldable. And
+            I&#39;ll talk about the competition in a second. But there&#39;s
+            also no Face ID, you&#39;ll notice.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=316"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:05:16.816"
+              >05:16</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 322.489s"
+                >
+                  <img
+                    src="images/322.489.jpg"
+                    alt="Video frame at 322.489s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 339.873s"
+                >
+                  <img
+                    src="images/339.873.jpg"
+                    alt="Video frame at 339.873s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            And that&#39;s because the power button on the right is also a Touch
+            ID fingerprint reader on that right-hand rail. And then the software
+            interestingly weights a lot of these UI elements over to the
+            right-hand... side for reachability. So I personally, I find the
+            smaller display already mostly pretty reachable already.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=324"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:05:24.890"
+              >05:24</a
+            >
+          </p>
+
+          <p>
+            But they put a whole dock over here to the right-hand side...
+            instead of the bottom.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=341"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:05:41.901"
+              >05:41</a
+            >
+          </p>
+
+          <p>
+            And then when you open it, it does this sweet animation, this, this
+            kind of progressive fade-out of the screen that you&#39;re on... to
+            the screen that you&#39;re switching to. And then you&#39;re on this
+            inside display, this big 7.6-inch screen. So you can kind of think
+            of this as two of that outside screen stapled together side-by-side,
+            and they&#39;re actually mirrored.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=346"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:05:46.892"
+              >05:46</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 363.63s"
+                >
+                  <img
+                    src="images/363.63.jpg"
+                    alt="Video frame at 363.63s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 379.479s"
+                >
+                  <img
+                    src="images/379.479.jpg"
+                    alt="Video frame at 379.479s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            So like a... other foldables, if you change your home screen layout
+            on the outside screen, that also reflects on the inside screen. If
+            you add pages to one, it adds pages to the other. And then this
+            inside screen you&#39;ll actually notice is
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=365"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:06:05.781"
+              >06:05</a
+            >
+          </p>
+
+          <p>
+            corner-to-corner seamless, because they have hidden the selfie
+            camera... behind the glass. It&#39;s up here in the middle of the
+            right-hand side. And you mostly don&#39;t see it whenever
+            there&#39;s anything on the screen, but it&#39;s there.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=379"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:06:19.825"
+              >06:19</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 392.225s"
+                >
+                  <img
+                    src="images/392.225.jpg"
+                    alt="Video frame at 392.225s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 411.614s"
+                >
+                  <img
+                    src="images/411.614.jpg"
+                    alt="Video frame at 411.614s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            And then the entire display has this nano-texture sort of matte
+            coating on the top layer, which does a few things: it really
+            effectively cuts down on reflections. Like, I can verify that just
+            being in bright environments, no matter how I&#39;m holding it, the
+            lights never become an issue. But also because it cuts reflections
+            so much,
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=392"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:06:32.720"
+              >06:32</a
+            >
+          </p>
+
+          <p>
+            it actually does a great job hiding the crease, which is already...
+            pretty minimal... I honestly found this right around the same level
+            as the Oppo Find N6... as basically the least crease... I&#39;ve
+            ever seen... on a folding phone. It&#39;s definitely not gone. But
+            between this hinge design, which has, you know, carbon-fiber support
+            plates... and the top layer of ultra-thin glass being pretty stiff,
+            and the anti-glare finish, the only time you realistically perceive
+            this crease is when you&#39;re really looking for it or running your
+            finger over it, which doesn&#39;t really happen much.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=411"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:06:51.614"
+              >06:51</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 442.375s"
+                >
+                  <img
+                    src="images/442.375.jpg"
+                    alt="Video frame at 442.375s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 465.131s"
+                >
+                  <img
+                    src="images/465.131.jpg"
+                    alt="Video frame at 465.131s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            The iPhone Duo also... does have MagSafe, does have the A20 Pro chip
+            inside. It has a new C2 cellular modem, which is faster and adds 5G
+            millimeter-wave... And it has dual cameras on the back: a new
+            48-megapixel primary, which... without any testing I have to assume
+            is probably on the smaller side versus the flagships, and then
+            actually the same ultrawide camera as the 18 Pro. And this software
+            has a lot to it.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=442"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:07:22.416"
+              >07:22</a
+            >
+          </p>
+
+          <p>
+            I was first seeing it, just trying to figure out, like, is this
+            iOS... or is it iPadOS, or neither, or both?
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=467"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:07:47.309"
+              >07:47</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 474.308s"
+                >
+                  <img
+                    src="images/474.308.jpg"
+                    alt="Video frame at 474.308s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 481.081s"
+                >
+                  <img
+                    src="images/481.081.jpg"
+                    alt="Video frame at 481.081s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            Like, what is it really? I think what I&#39;ve landed on is it&#39;s
+            like, it&#39;s like iOS plus a little, like with a little sauce.
+            Obviously the reachability stuff and the dock on the side are new.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=474"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:07:54.308"
+              >07:54</a
+            >
+          </p>
+
+          <p>
+            Like, you won&#39;t find that on a regular iPhone. And then the
+            continuity also between the inside screen and the outside screen,
+            like, that&#39;s pretty standard stuff, but it&#39;s executed very
+            smoothly. Like, this animation... is... so good... between open and
+            closed.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=484"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:08:04.953"
+              >08:04</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 502.19s"
+                >
+                  <img
+                    src="images/502.19.jpg"
+                    alt="Video frame at 502.19s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 504.84s"
+                >
+                  <img
+                    src="images/504.84.jpg"
+                    alt="Video frame at 504.84s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            It&#39;s obviously really cool-looking, but it also...
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=502"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:08:22.190"
+              >08:22</a
+            >
+          </p>
+
+          <p>
+            opens really quickly to whatever&#39;s on the right-hand side of the
+            interior screen... The apps, when you&#39;re using them open, are
+            all... pretty much iPad apps. The way they behave with multiple
+            columns... And then, of course, you can multitask a bit by throwing
+            two apps side-by-side next to each other with some gestures that
+            I&#39;ll dive more into... in the full review, but generally
+            they&#39;re pretty intuitive and things flow the way you expect them
+            to. Now, the elephant in the room, at least in my world, is... this
+            thing right here: the Samsung Galaxy Z Fold 8.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=504"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:08:24.840"
+              >08:24</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 527.761s"
+                >
+                  <img
+                    src="images/527.761.jpg"
+                    alt="Video frame at 527.761s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 537.994s"
+                >
+                  <img
+                    src="images/537.994.jpg"
+                    alt="Video frame at 537.994s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            This came out a few months ago, and it&#39;s been pretty hot...
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=534"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:08:54.674"
+              >08:54</a
+            >
+          </p>
+
+          <p>
+            People love this thing. I love this thing. And it&#39;s basically...
+            the same... idea as a product.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=537"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:08:57.994"
+              >08:57</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 544.208s"
+                >
+                  <img
+                    src="images/544.208.jpg"
+                    alt="Video frame at 544.208s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 556.256s"
+                >
+                  <img
+                    src="images/556.256.jpg"
+                    alt="Video frame at 556.256s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            It&#39;s a small, squat, passport-shaped foldable. It&#39;s got the
+            dual cameras on the back, flagship chip, super-thin. So you&#39;re
+            probably wondering, &#34;All right, Marques, how do these
+            compare?&#34; And my take is: functionally- they&#39;re... very
+            similar.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=544"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:09:04.208"
+              >09:04</a
+            >
+          </p>
+
+          <p>
+            They&#39;re really not that different from each other. They both
+            have dual cameras, like I said, one main and one ultrawide. They
+            both have the flagship chip available to them.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=561"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:09:21.234"
+              >09:21</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 566.933s"
+                >
+                  <img
+                    src="images/566.933.jpg"
+                    alt="Video frame at 566.933s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 576.776s"
+                >
+                  <img
+                    src="images/576.776.jpg"
+                    alt="Video frame at 576.776s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            The- they both have... solid battery, despite being barely thicker
+            than a USB Type-C port. They both have a fingerprint reader on the
+            power button. But!
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=569"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:09:29.486"
+              >09:29</a
+            >
+          </p>
+
+          <p>
+            just in my... scattered couple hours of using the iPhone Duo today,
+            the iPhone... has a bunch... of... these tiny, frankly unnecessary,
+            but also very awesome... quality-of-life things... that make it
+            feel... like a more fun phone to use. I forget the specs and numbers
+            and like raw horsepower and megapixels and stuff, but just,
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=577"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:09:37.862"
+              >09:37</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 595.195s"
+                >
+                  <img
+                    src="images/595.195.jpg"
+                    alt="Video frame at 595.195s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 607.807s"
+                >
+                  <img
+                    src="images/607.807.jpg"
+                    alt="Video frame at 607.807s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            just the... fit and finish and the little animations and stuff like
+            that. And the... feel of it. I feel like the iPhone kind of mogs the
+            Samsung.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=600"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:10:00.298"
+              >10:00</a
+            >
+          </p>
+
+          <p>
+            Like, it really all starts with that animation... switching between
+            the inner and outer display. It&#39;s... really clean and it&#39;s
+            fast. I&#39;m used to having at least a tiny bit of delay when I
+            slap a folding phone shut before the outside screen lights up... But
+            this one had no delay.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=607"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:10:07.848"
+              >10:07</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 624.591s"
+                >
+                  <img
+                    src="images/624.591.jpg"
+                    alt="Video frame at 624.591s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 630.845s"
+                >
+                  <img
+                    src="images/630.845.jpg"
+                    alt="Video frame at 630.845s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            This was exceptionally fast every single time. And even while doing
+            that animation and all the other little animations,
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=624"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:10:24.591"
+              >10:24</a
+            >
+          </p>
+
+          <p>
+            like when closing the camera app on the inner screen, where it goes
+            from those blacked out pixels that the camera can see through...
+            back to all the pixels from your wallpaper... That&#39;s so clean...
+            Also expanding your quick settings on the right, they kind of fall
+            out of the corner as you swipe down. That also felt very nice. The
+            interior display, this coating on it, like I said, it&#39;s really
+            smart.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=630"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:10:30.845"
+              >10:30</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 647.614s"
+                >
+                  <img
+                    src="images/647.614.jpg"
+                    alt="Video frame at 647.614s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 660.426s"
+                >
+                  <img
+                    src="images/660.426.jpg"
+                    alt="Video frame at 660.426s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            It blocks reflections extremely well, so it hides the crease
+            visually quite nicely... And it&#39;s also kind of smooth to the
+            touch, kind of like the Oppo Find N6 was. So your finger just glides
+            over it.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=651"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:10:51.014"
+              >10:51</a
+            >
+          </p>
+
+          <p>
+            And... somehow later this year it&#39;s going to support the USB
+            Type-C Apple Pencil on both the inner and outer screens. The volume
+            buttons, interestingly, are not on the side of the phone next to the
+            power button. They&#39;re at the top, which is... maybe a little
+            weird.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=662"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:11:02.810"
+              >11:02</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 671.104s"
+                >
+                  <img
+                    src="images/671.104.jpg"
+                    alt="Video frame at 671.104s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 692.842s"
+                >
+                  <img
+                    src="images/692.842.jpg"
+                    alt="Video frame at 692.842s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            At first I didn&#39;t know how to feel about that, but what I do
+            know is it means that the volume always follows the direction of the
+            buttons. Right to go up, left to go down, and the speakers, I would
+            say, are objectively in the best spot they can be for a foldable. So
+            at the top it&#39;s at the front
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=679"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:11:19.071"
+              >11:19</a
+            >
+          </p>
+
+          <p>
+            and at the bottom it&#39;s on the back. So when you open it, you
+            still have a speaker on the left and the right half. So you can
+            still do a solid stereo sound.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=692"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:11:32.842"
+              >11:32</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 694.46s"
+                >
+                  <img
+                    src="images/694.46.jpg"
+                    alt="Video frame at 694.46s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 714.08s"
+                >
+                  <img
+                    src="images/714.08.jpg"
+                    alt="Video frame at 714.08s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            And also unexpectedly, the whole thing is IP68... water and dust
+            resistance rated. You can theoretically submerge it, pour water on
+            it, it should be fine. I think the only other foldable that can say
+            it does that is the Pixel 10 Pro Fold.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=700"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:11:40.299"
+              >11:40</a
+            >
+          </p>
+
+          <p>
+            So that&#39;s promising for durability. And then the ability to use
+            the phone half open in a couple different ways, that&#39;s also
+            nice. There are some foldables with too stiff of a spring weight,
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=714"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:11:54.080"
+              >11:54</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 716.583s"
+                >
+                  <img
+                    src="images/716.583.jpg"
+                    alt="Video frame at 716.583s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 733.066s"
+                >
+                  <img
+                    src="images/733.066.jpg"
+                    alt="Video frame at 733.066s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            like Samsung&#39;s Fold 8 doesn&#39;t really do this so well. But
+            with the iPhone Duo, you can use it half open if you want. And a lot
+            of apps are responsive enough to take advantage of this too.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=724"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:12:04.229"
+              >12:04</a
+            >
+          </p>
+
+          <p>
+            And you can even put it in standby mode by locking it while in tent
+            mode, it&#39;ll show you a clock or your alarm. It&#39;ll wake you
+            up with a soft, gentle glow... All these little super nice, clever
+            things. So it&#39;s got, it&#39;s stacking up like a bunch of
+            really, really nice, clever things.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=733"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:12:13.658"
+              >12:13</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 743.743s"
+                >
+                  <img
+                    src="images/743.743.jpg"
+                    alt="Video frame at 743.743s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 756.06s"
+                >
+                  <img
+                    src="images/756.06.jpg"
+                    alt="Video frame at 756.06s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            Neat animations, clean stuff. But also I&#39;ve reviewed a lot of
+            other foldables on this channel. You might have watched a bunch of
+            those other videos.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=748"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:12:28.013"
+              >12:28</a
+            >
+          </p>
+
+          <p>
+            And this thing also definitely has its downsides. I think the most
+            obvious downside is... the visual one. At least I think so.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=756"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:12:36.060"
+              >12:36</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 759.359s"
+                >
+                  <img
+                    src="images/759.359.jpg"
+                    alt="Video frame at 759.359s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 772.472s"
+                >
+                  <img
+                    src="images/772.472.jpg"
+                    alt="Video frame at 772.472s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            The fact that this display on the cover screen is rounded on the
+            right... and then squared up on the left. So totally asymmetrical,
+            it doesn&#39;t functionally make a huge difference. But some people
+            are never gonna let that go.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=765"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:12:45.290"
+              >12:45</a
+            >
+          </p>
+
+          <p>
+            And you know, maybe that&#39;s why they call it Duo, because the
+            screen looks like the letter D. I don&#39;t know. Maybe more
+            functionally important though is that the phone basically has to be
+            held in your right hand
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=776"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:12:56.851"
+              >12:56</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 787.188s"
+                >
+                  <img
+                    src="images/787.188.jpg"
+                    alt="Video frame at 787.188s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 795.895s"
+                >
+                  <img
+                    src="images/795.895.jpg"
+                    alt="Video frame at 795.895s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            like a lot of other folds, but then doubly so since all the UI
+            elements like the dock... move to the right-hand side, and I
+            don&#39;t see any settings to move that stuff to the left. And then
+            speaking of that dock, only four items in the dock. I tried adding
+            one, it didn&#39;t let me.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=787"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:13:07.188"
+              >13:07</a
+            >
+          </p>
+
+          <p>
+            I could take stuff out, but I couldn&#39;t add a fifth item to the
+            dock. And then the under-screen selfie camera on that big screen.
+            It&#39;s cool that it&#39;s hidden but we used to have these in the
+            past and there&#39;s a reason why we don&#39;t have them anymore...
+            It&#39;s just because they&#39;re bad.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=801"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:13:21.047"
+              >13:21</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 815.86s"
+                >
+                  <img
+                    src="images/815.86.jpg"
+                    alt="Video frame at 815.86s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 817.93s"
+                >
+                  <img
+                    src="images/817.93.jpg"
+                    alt="Video frame at 817.93s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            They just look really bad quality-wise...
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=815"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:13:35.860"
+              >13:35</a
+            >
+          </p>
+
+          <p>
+            Samsung had these on a bunch of their older folds for a couple of
+            years and they stopped doing it because we basically learned that
+            people much prefer to just have a better quality camera... And a
+            little hole-punch cutout is actually fine. This is what video looks
+            like that I took from the Duo I was playing with from that
+            under-display selfie camera. And yeah, this is like decent lighting.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=817"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:13:37.930"
+              >13:37</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 837.894s"
+                >
+                  <img
+                    src="images/837.894.jpg"
+                    alt="Video frame at 837.894s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 839.639s"
+                >
+                  <img
+                    src="images/839.639.jpg"
+                    alt="Video frame at 839.639s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            It&#39;s just pretty bad quality video. And then of course no
+            silicon-carbon batteries, no ultrafast charging, no zoom camera. All
+            the other downsides we already knew about that were obvious.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=837"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:13:57.894"
+              >13:57</a
+            >
+          </p>
+
+          <p>
+            So...
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=847"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:14:07.306"
+              >14:07</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 848.218s"
+                >
+                  <img
+                    src="images/848.218.jpg"
+                    alt="Video frame at 848.218s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 863.496s"
+                >
+                  <img
+                    src="images/863.496.jpg"
+                    alt="Video frame at 863.496s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            yeah, I feel like my take on this is, it&#39;s, it&#39;s not
+            perfect, but it&#39;s got a lot going for it. And I think this is
+            gonna be a really fun phone for people to use who are thinking about
+            maybe getting a folding one... But they were on the iPhone side of
+            the fence so they couldn&#39;t get one before, but now they can. And
+            if you&#39;re watching this on YouTube thinking, who is that person
+            who was even asking for this, who wants foldables?
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=848"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:14:08.218"
+              >14:08</a
+            >
+          </p>
+
+          <p>
+            They&#39;re not so popular here, but in China they are popular.
+            China actually bought more foldables than the entire rest of the
+            world combined last year.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=870"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:14:30.900"
+              >14:30</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 880.487s"
+                >
+                  <img
+                    src="images/880.487.jpg"
+                    alt="Video frame at 880.487s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 887.97s"
+                >
+                  <img
+                    src="images/887.97.jpg"
+                    alt="Video frame at 887.97s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            So there are a lot of foldables out there. And Apple, of course,
+            wants to play in that market and sell phones to those people too.
+            Now there&#39;s an iPhone that folds.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=880"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:14:40.487"
+              >14:40</a
+            >
+          </p>
+
+          <p>
+            so it&#39;s $2,000. Starting two bands is the cheapest that you can
+            get. This phone, which is obviously expensive, but it&#39;s actually
+            a little bit, a little bit less than I was expecting going into
+            this... Just for perspective, the... Fold 8 starts at 1,800 bucks...
+            and a lot of these other foldables are very expensive.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=887"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:14:47.970"
+              >14:47</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 907.06s"
+                >
+                  <img
+                    src="images/907.06.jpg"
+                    alt="Video frame at 907.06s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 913.082s"
+                >
+                  <img
+                    src="images/913.082.jpg"
+                    alt="Video frame at 913.082s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            So I could see, you know, with the Apple tax and Ramageddon and just
+            generally new things being expensive,
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=907"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:15:07.060"
+              >15:07</a
+            >
+          </p>
+
+          <p>
+            I could have seen this being more, so this is lower than I thought
+            it could have been. But it&#39;s coming out in October, so we got a
+            couple more weeks to think about it before the pre-orders open up. I
+            also just want to say it is objectively hilarious... now that
+            Apple... in 2026 is the company that has a product named... the
+            Neo... and the Duo.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=913"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:15:13.082"
+              >15:13</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 935.612s"
+                >
+                  <img
+                    src="images/935.612.jpg"
+                    alt="Video frame at 935.612s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 960.426s"
+                >
+                  <img
+                    src="images/960.426.jpg"
+                    alt="Video frame at 960.426s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            If you know, you know. Let me know what you guys want to see in the
+            full review and what else you&#39;re curious about... Plus, Apple
+            did also release a couple other products... alongside these phones
+            today, like the new AirPods 5 with better noise cancellation and a
+            couple more features from the Pros for 129 bucks... and the new
+            Apple Watch Series 12 which has some really freaky-sounding,
+            always-listening features that I have some conspiracy theories
+            about. So stay tuned for that.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=935"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:15:35.612"
+              >15:35</a
+            >
+          </p>
+
+          <p>
+            It&#39;s September, baby. Buckle up, get subscribed!... and shoutout
+            to Ridge for sponsoring this video. So channel sponsor Ridge has a
+            bunch of accessories that will really cleanly match
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=960"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:16:00.467"
+              >16:00</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="visuals-column">
+          <div class="bento-container">
+            <div class="bento-grid" data-count="2">
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 965.531s"
+                >
+                  <img
+                    src="images/965.531.jpg"
+                    alt="Video frame at 965.531s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 994.594s"
+                >
+                  <img
+                    src="images/994.594.jpg"
+                    alt="Video frame at 994.594s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-column prose">
+          <p>
+            the colors... of your iPhone, including the new iPhones. So their
+            famous Power Bank offers five-in-one power delivery, so you can
+            charge multiple items at once... and it&#39;s MagSafe compatible for
+            easy charge-ups on the go... Ridge&#39;s Power Bank also works with
+            the iPhone Duo, wired or MagSafe, because they didn&#39;t mention it
+            during a presentation, but that phone does have it. There&#39;s also
+            the Tracker Card that can help you track items in a
+            credit-card-sized form... Just slip it into your wallet or any bag
+            and it will play a loud ring whenever you need to locate it whenever
+            you&#39;re close.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=970"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:16:10.074"
+              >16:10</a
+            >
+          </p>
+
+          <p>
+            And best of all, it&#39;s compatible with both iPhone and Android
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=997"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:16:37.244"
+              >16:37</a
+            >
+          </p>
+
+          <p>
+            now. Also available... in Basecamp Orange and lastly, the Ridge
+            Wallet. Of course, Ridge has reworked the MagSafe version to sit
+            flush on your phone, and it&#39;s now stronger and more secure.
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=1002"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:16:42.393"
+              >16:42</a
+            >
+          </p>
+        </div>
+      </div>
+
       <div class="scene">
         <div class="visuals-column">
           <div class="bento-container">
             <div class="bento-grid" data-count="1">
-              
-                <div>
-                  <button type="button" class="lightbox-trigger" aria-haspopup="dialog" aria-label="Video frame at 1004.704s">
-                    <img src="images/1004.704.jpg" alt="Video frame at 1004.704s" loading="lazy">
-                  </button>
-                </div>
-              
+              <div>
+                <button
+                  type="button"
+                  class="lightbox-trigger"
+                  aria-haspopup="dialog"
+                  aria-label="Video frame at 1004.704s"
+                >
+                  <img
+                    src="images/1004.704.jpg"
+                    alt="Video frame at 1004.704s"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
             </div>
           </div>
         </div>
         <div class="text-column prose">
-          
-            <p>And best of all, just like their Power Banks, they&#39;ve got versions to color-match the new iPhones so everything looks sleek. Or if you&#39;re like me, I love the transparent versions like this one in Phantom. So check out everything by heading over to ridge.com/mkbhd thanks for watching!... and I&#39;ll catch you guys very soon... in the next one... Peace! <a href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=1011" target="_blank" class="anchor" title="Jump to 00:16:51.820">16:51</a></p>
-          
+          <p>
+            And best of all, just like their Power Banks, they&#39;ve got
+            versions to color-match the new iPhones so everything looks sleek.
+            Or if you&#39;re like me, I love the transparent versions like this
+            one in Phantom. So check out everything by heading over to
+            ridge.com/mkbhd thanks for watching!... and I&#39;ll catch you guys
+            very soon... in the next one... Peace!
+            <a
+              href="https://www.youtube.com/watch?v=Od6M0AXpcxQ&amp;t=1011"
+              target="_blank"
+              class="anchor"
+              title="Jump to 00:16:51.820"
+              >16:51</a
+            >
+          </p>
         </div>
       </div>
-    
-  </main>
+    </main>
 
-  <footer class="footer-container">
-    <div class="footer-content">
-      generated by <a href="https://github.com/abstraction/youtube.txt" target="_blank">youtube.txt</a>
+    <footer class="footer-container">
+      <div class="footer-content">
+        generated by
+        <a href="https://github.com/abstraction/youtube.txt" target="_blank"
+          >youtube.txt</a
+        >
+      </div>
+    </footer>
+
+    <div
+      class="lightbox"
+      id="lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Image fullscreen view"
+    >
+      <img src="" id="lightbox-img" />
     </div>
-  </footer>
 
-  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image fullscreen view">
-    <img src="" id="lightbox-img">
-  </div>
-  
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const lightbox = document.getElementById('lightbox');
-      const lightboxImg = document.getElementById('lightbox-img');
-      
-      document.querySelectorAll('.lightbox-trigger').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const img = btn.querySelector('img');
-          if (img) {
-            lightboxImg.src = img.src;
-            lightbox.classList.add('active');
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        document.querySelectorAll('.lightbox-trigger').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const img = btn.querySelector('img');
+            if (img) {
+              lightboxImg.src = img.src;
+              lightbox.classList.add('active');
+            }
+          });
+        });
+
+        lightbox.addEventListener('click', () => {
+          lightbox.classList.remove('active');
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+            lightbox.classList.remove('active');
           }
         });
       });
-      
-      lightbox.addEventListener('click', () => {
-        lightbox.classList.remove('active');
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-          lightbox.classList.remove('active');
-        }
-      });
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
