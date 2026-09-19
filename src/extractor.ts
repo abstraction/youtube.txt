@@ -10,6 +10,7 @@ export interface ExtractFramesOptions {
   signal?: AbortSignal;
   onProgress?: (completed: number, total: number) => void;
   sceneThreshold?: number;
+  dedupThreshold?: number;
 }
 
 export async function extractFrames(
@@ -23,6 +24,7 @@ export async function extractFrames(
     signal,
     onProgress,
     sceneThreshold = 0.15,
+    dedupThreshold = 4,
   } = options;
 
   if (paragraphs.length === 0) return;
@@ -243,7 +245,7 @@ export async function extractFrames(
 
     if (lastKeptTs !== null && lastKeptHash !== null) {
       const dist = hammingDistance(lastKeptHash, hash);
-      if (dist <= 3) {
+      if (dist <= dedupThreshold) {
         // It's a duplicate
         remapping.set(ts, lastKeptTs);
         try {
