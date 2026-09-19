@@ -345,6 +345,27 @@ const TEMPLATE = `<!DOCTYPE html>
       const paragraphs = document.querySelectorAll('.transcript-p');
       
       // Hover logic
+      document.querySelectorAll('.bento-grid img').forEach(img => {
+        img.addEventListener('mouseenter', () => {
+          const sceneId = img.id.replace('img-', '');
+          document.querySelectorAll('.transcript-p[data-scene="' + sceneId + '"]').forEach(p => {
+            p.classList.add('active-p');
+          });
+          img.classList.add('active-scene');
+          const grid = img.closest('.bento-grid');
+          if (grid) grid.classList.add('has-active');
+        });
+        img.addEventListener('mouseleave', () => {
+          const sceneId = img.id.replace('img-', '');
+          document.querySelectorAll('.transcript-p[data-scene="' + sceneId + '"]').forEach(p => {
+            p.classList.remove('active-p');
+          });
+          img.classList.remove('active-scene');
+          const grid = img.closest('.bento-grid');
+          if (grid) grid.classList.remove('has-active');
+        });
+      });
+
       paragraphs.forEach(p => {
         p.addEventListener('mouseenter', () => {
           const sceneId = p.getAttribute('data-scene');
@@ -446,23 +467,22 @@ export async function generateHtml(
       const isNewScene = nextP.sceneTimestamp !== p.sceneTimestamp;
       const nextScene = nextP.sceneTimestamp;
 
-      const wouldExceedMaxScenes =
-        isNewScene &&
-        currentScenes.size >= 6 &&
-        nextScene &&
-        !currentScenes.has(nextScene);
-      const naturalBreak = currentChunk.length >= 6 && isNewScene;
-      const tooManyParagraphs = currentChunk.length >= 12;
+      let shouldSplit = false;
+      if (isNewScene) {
+        if (
+          currentScenes.size >= 6 &&
+          nextScene &&
+          !currentScenes.has(nextScene)
+        ) {
+          shouldSplit = true;
+        } else if (currentChunk.length >= 6) {
+          shouldSplit = true;
+        } else if (p.seconds - currentChunk[0]!.seconds > 120) {
+          shouldSplit = true;
+        }
+      }
 
-      const chapterStart = currentChunk[0]!.seconds;
-      const timeLimitReached = p.seconds - chapterStart > 120;
-
-      if (
-        wouldExceedMaxScenes ||
-        naturalBreak ||
-        tooManyParagraphs ||
-        timeLimitReached
-      ) {
+      if (shouldSplit) {
         chapters.push({
           uniqueScenes: Array.from(currentScenes),
           paragraphs: currentChunk,

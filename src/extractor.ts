@@ -1,3 +1,5 @@
+import path from 'node:path';
+import os from 'node:os';
 import fs from 'node:fs';
 import { execa } from 'execa';
 import type { Paragraph } from './parser.js';
@@ -140,4 +142,84 @@ export async function extractFrames(
   const workers = Array.from({ length: poolSize }, () => worker());
 
   await Promise.all(workers);
+
+  // Phase D: Deduplication (dHash)
+  timestampsToExtract.sort((a, b) => a - b);
+
+  const tempDir = await fs.promises.mkdtemp(
+    path.join(os.tmpdir(), 'yt-dhash-')
+  );
+
+  async function computeDHash(ts: number): Promise<string> {
+    const imagePath = `images/${ts}.jpg`;
+    const tmpPath = path.join(tempDir, `${ts}.raw`);
+    await execa('ffmpeg', [
+      '-i',
+      imagePath,
+      '-vf',
+      'scale=9:8,format=gray',
+      '-f',
+      'rawvideo',
+      '-y',
+      tmpPath,
+    ]);
+    const buf = await fs.promises.readFile(tmpPath);
+    let hash = '';
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        const left = buf[y * 9 + x];
+        const right = buf[y * 9 + x + 1];
+        hash += left > right ? '1' : '0';
+      }
+    }
+    return hash;
+  }
+
+  function hammingDistance(hash1: string, hash2: string): number {
+    let diff = 0;
+    for (let i = 0; i < 64; i++) {
+      if (hash1[i] !== hash2[i]) diff++;
+    }
+    return diff;
+  }
+
+  let lastKeptTs: number | null = null;
+  let lastKeptHash: string | null = null;
+  const remapping = new Map<number, number>();
+
+  for (const ts of timestampsToExtract) {
+    if (signal?.aborted) throw new Error('Frame extraction aborted by user');
+    try {
+      const hash = await computeDHash(ts);
+      if (lastKeptTs !== null && lastKeptHash !== null) {
+        const dist = hammingDistance(lastKeptHash, hash);
+        if (dist <= 10) {
+          // It's a duplicate
+          remapping.set(ts, lastKeptTs);
+          // Try deleting it
+          fs.unlinkSync(`images/${ts}.jpg`);
+          continue;
+        }
+      }
+      lastKeptTs = ts;
+      lastKeptHash = hash;
+      remapping.set(ts, ts);
+    } catch (err) {
+      // If image doesn't exist or fails, just keep mapping to self
+      remapping.set(ts, ts);
+    }
+  }
+
+  // Cleanup temp dir
+  await fs.promises.rm(tempDir, { recursive: true, force: true });
+
+  // Update paragraphs with new remapped timestamps
+  for (const p of paragraphs) {
+    if (p.sceneTimestamp) {
+      const oldTs = parseFloat(p.sceneTimestamp);
+      if (remapping.has(oldTs)) {
+        p.sceneTimestamp = String(remapping.get(oldTs));
+      }
+    }
+  }
 }
