@@ -14,7 +14,7 @@ Convert YouTube videos into static, readable HTML with transcripts and scene-det
 <div align="center" style="margin: 2rem 0;">
   <video src="https://github.com/user-attachments/assets/012bb00d-2e57-4b40-a8d7-e7bacccf8d88" width="600"></video>
   <p>
-    <a href="https://abstraction.github.io/youtube.txt/">View Live Demo &rarr;</a>
+    <a href="https://abstraction.github.io/youtube.txt/">View live demo &rarr;</a>
   </p>
 </div>
 
@@ -22,16 +22,16 @@ Convert YouTube videos into static, readable HTML with transcripts and scene-det
 
 ## Features
 
-- **Self-contained static HTML:** Single portable file. Zero runtime JavaScript frameworks. Zero external network requests once loaded. Works offline.
-- **Asymmetric bento grid:** 65ch reading column anchored on the left; sticky 1–6 frame image composition on the right.
-- **Static timestamp badges:** Monospace timestamp tags (`00:55`) on each frame for passive cross-reference with text timestamps.
-- **Intentional focus:** 750ms dwell filter on frames and single-click focus on paragraphs. Any scroll immediately resets active states.
-- **Frictionless lightbox:** Click to view full-resolution frame; scroll to dismiss.
-- **Perceptual deduplication:** 64-bit dHash (Hamming threshold 4) prunes repetitive talking-head shots while keeping real motion and slides.
-- **Mid-paragraph scene capture:** Preserves visual cuts (B-roll, product reveals) occurring mid-sentence.
-- **5-second fallback sampling:** Extracts intermediate progress frames during continuous takes.
-- **Clean VTT parsing:** Strips rolling caption duplicates, decodes HTML entities, and marks speaker transitions (`>>`).
-- **Responsive mobile view:** Single-column layout with horizontal scroll-snap frame carousels on screens ≤800px.
+- **Static HTML output.** Produces a single file with zero client-side JavaScript libraries. It loads instantly and works offline.
+- **Asymmetric layout.** Keeps text measure at 65ch on the left with a sticky 1 to 6 frame image grid on the right.
+- **Timestamp badges.** Prints a monospace timestamp tag on each frame for easy cross-referencing with text.
+- **Intentional focus.** A 750ms dwell over a frame highlights its matching paragraph. Scrolling clears the highlight.
+- **Scroll-to-dismiss lightbox.** Click any image to enlarge it. Scroll to close it and resume reading.
+- **Perceptual deduplication.** 64-bit dHash with Hamming distance threshold 4 prunes repetitive talking-head shots while keeping slide changes and product reveals.
+- **Mid-paragraph scene capture.** Saves cuts and B-roll that appear while a sentence is being spoken.
+- **Periodic fallback sampling.** Takes a frame every 5 seconds during continuous uninterrupted speech.
+- **Clean VTT parsing.** Removes rolling caption duplicates, decodes HTML entities, and marks speaker changes.
+- **Mobile layout.** Drops to a single column with horizontal scroll-snap carousels on viewports under 800px.
 
 ---
 
@@ -48,7 +48,6 @@ sudo pacman -S yt-dlp ffmpeg
 
 # Ubuntu / Debian
 sudo apt install ffmpeg
-# For yt-dlp:
 sudo wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp
 sudo chmod a+rx /usr/local/bin/yt-dlp
 ```
@@ -57,9 +56,9 @@ sudo chmod a+rx /usr/local/bin/yt-dlp
 
 ## Usage
 
-### Zero Install (Recommended)
+### Run directly
 
-Run directly via `pnpm dlx` or `npx`:
+Use `pnpm dlx` or `npx` without installing globally:
 
 ```bash
 # pnpm
@@ -69,7 +68,7 @@ pnpm dlx github:abstraction/youtube.txt -u "https://www.youtube.com/watch?v=..."
 npx github:abstraction/youtube.txt -u "https://www.youtube.com/watch?v=..." -o "output-folder"
 ```
 
-### Global Install
+### Install globally
 
 ```bash
 git clone https://github.com/abstraction/youtube.txt.git
@@ -85,7 +84,7 @@ Run from any directory:
 youtube.txt -u "https://www.youtube.com/watch?v=..." -o "output-folder"
 ```
 
-### Local Run
+### Local development
 
 ```bash
 pnpm install
@@ -94,7 +93,7 @@ pnpm run dev -u "https://www.youtube.com/watch?v=..." -o "output-folder"
 
 ---
 
-## CLI Options
+## CLI options
 
 ```
 Usage: youtube.txt [options]
@@ -135,14 +134,14 @@ youtube.txt -u "https://www.youtube.com/watch?v=..." -o "tutorial" -s 0.08
 ```mermaid
 flowchart TD
     A[YouTube URL] --> B[Downloader]
-    B --> |yt-dlp single pass| C(Video & VTT)
+    B --> |yt-dlp single pass| C(Video and VTT)
 
     C --> D[Parser]
     D --> |NLP sentence boundaries| E(Paragraphs)
 
     C --> F[Extractor]
     E --> F
-    F --> |O1 seek + dynamic pool| G(Raw Frames)
+    F --> |O1 seek and dynamic pool| G(Raw Frames)
     G --> |Aspect-safe dHash| H(Deduplicated Scenes)
 
     H --> I[Generator]
@@ -150,10 +149,10 @@ flowchart TD
     I --> |Semantic chunking| J[index.html]
 ```
 
-1. **Downloader (`src/downloader.ts`):** Single-pass `yt-dlp` fetches video and subtitles simultaneously.
-2. **Parser (`src/parser.ts`):** Sliding-window deduplication, entity decoding, and sentence boundary reconstruction.
-3. **Extractor (`src/extractor.ts`):** Parallel frame extraction, 5s fallback sampling, and 64-bit dHash deduplication.
-4. **Generator (`src/generator.ts`):** Semantic chunking (max 14 paragraphs, max 180s, max 6 frames) into standalone static HTML.
+1. **Downloader.** `src/downloader.ts` runs `yt-dlp` in a single pass to fetch video and subtitles together.
+2. **Parser.** `src/parser.ts` cleans rolling caption duplicates, decodes entities, and groups sentences into paragraphs.
+3. **Extractor.** `src/extractor.ts` runs parallel frame extraction, 5s fallback sampling, and 64-bit dHash deduplication.
+4. **Generator.** `src/generator.ts` chunks content into chapters and renders standalone static HTML.
 
 ---
 
