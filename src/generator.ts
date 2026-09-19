@@ -391,6 +391,9 @@ const TEMPLATE = `<!DOCTYPE html>
             grid.classList.add('has-active', 'scroll-active');
             img.classList.add('active-scene');
             p.classList.add('active-p', 'active-p-scroll');
+            if (window.innerWidth <= 800) {
+              img.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
           }
         }
       }, {
