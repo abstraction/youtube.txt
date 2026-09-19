@@ -172,17 +172,21 @@ const TEMPLATE = `<!DOCTYPE html>
     }
     
     .lightbox {
-      display: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.9);
       z-index: 9999;
+      display: flex;
       align-items: center;
       justify-content: center;
       cursor: zoom-out;
     }
     .lightbox.active {
-      display: flex;
+      opacity: 1;
+      pointer-events: auto;
     }
     .lightbox img {
       max-width: 90%;
@@ -318,6 +322,8 @@ const TEMPLATE = `<!DOCTYPE html>
       const lightbox = document.getElementById('lightbox');
       const lightboxImg = document.getElementById('lightbox-img');
       
+      const closeLightbox = () => lightbox.classList.remove('active');
+      
       document.querySelectorAll('.lightbox-trigger').forEach(btn => {
         btn.addEventListener('click', () => {
           const img = btn.querySelector('img');
@@ -328,77 +334,20 @@ const TEMPLATE = `<!DOCTYPE html>
         });
       });
       
-      lightbox.addEventListener('click', () => {
-        lightbox.classList.remove('active');
-      });
+      lightbox.addEventListener('click', closeLightbox);
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-          lightbox.classList.remove('active');
-        }
+        if (e.key === 'Escape') closeLightbox();
       });
+      
+      // Frictionless dismiss: Close instantly on scroll attempt
+      window.addEventListener('wheel', closeLightbox, { passive: true });
+      window.addEventListener('touchmove', closeLightbox, { passive: true });
     });
   </script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const paragraphs = document.querySelectorAll('.transcript-p');
-      
-      // Hover logic: Image hover illuminates matching paragraph(s)
-      document.querySelectorAll('.bento-grid img').forEach(img => {
-        const sceneId = img.id.replace('img-', '');
-        
-        img.addEventListener('mouseenter', () => {
-          document.querySelectorAll('.transcript-p').forEach(p => {
-            const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',');
-            if (scenes.includes(sceneId)) {
-              p.classList.add('active-p');
-            }
-          });
-          img.classList.add('active-scene');
-          const grid = img.closest('.bento-grid');
-          if (grid) grid.classList.add('has-active');
-        });
-        
-        img.addEventListener('mouseleave', () => {
-          document.querySelectorAll('.transcript-p').forEach(p => {
-            p.classList.remove('active-p');
-          });
-          img.classList.remove('active-scene');
-          const grid = img.closest('.bento-grid');
-          if (grid) grid.classList.remove('has-active');
-        });
-      });
-
-      // Hover logic: Paragraph hover illuminates all active scene frames with dynamic zoom
-      paragraphs.forEach(p => {
-        p.addEventListener('mouseenter', () => {
-          const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',').filter(Boolean);
-          if (scenes.length === 0) return;
-          
-          p.classList.add('active-p');
-          scenes.forEach(sceneId => {
-            const img = document.getElementById('img-' + sceneId);
-            if (img) {
-              img.classList.add('active-scene');
-              const grid = img.closest('.bento-grid');
-              if (grid) grid.classList.add('has-active');
-            }
-          });
-        });
-        
-        p.addEventListener('mouseleave', () => {
-          p.classList.remove('active-p');
-          const scenes = (p.getAttribute('data-scenes') || p.getAttribute('data-scene') || '').split(',').filter(Boolean);
-          scenes.forEach(sceneId => {
-            const img = document.getElementById('img-' + sceneId);
-            if (img) {
-              img.classList.remove('active-scene');
-              const grid = img.closest('.bento-grid');
-              if (grid) grid.classList.remove('has-active');
-            }
-          });
-        });
-      });
 
       // Scroll observer logic (optimized for mobile)
       const observer = new IntersectionObserver((entries) => {
@@ -455,10 +404,8 @@ const TEMPLATE = `<!DOCTYPE html>
         threshold: [0, 0.5, 1]
       });
 
-      // Only enable scroll spy on mobile to avoid fighting with desktop hovers
-      if (window.innerWidth <= 800) {
-        paragraphs.forEach(p => observer.observe(p));
-      }
+      // Enable scroll spy on all viewports (drives all image highlights)
+      paragraphs.forEach(p => observer.observe(p));
     });
   </script>
 </body>
