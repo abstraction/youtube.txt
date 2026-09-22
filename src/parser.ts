@@ -116,7 +116,23 @@ export async function parseVtt(vttFile: string): Promise<Paragraph[]> {
 
   // 3. Let NLP parse the full text with complete context
   const doc = nlp(combinedText);
-  const sentences = doc.sentences().out('array') as string[];
+  const rawSentences = doc.sentences().out('array') as string[];
+
+  const sentences: string[] = [];
+  const MAX_WORDS = 40;
+  const CHUNK_SIZE = 20;
+
+  for (const rs of rawSentences) {
+    const words = rs.split(' ');
+    if (words.length <= MAX_WORDS) {
+      sentences.push(rs);
+    } else {
+      // Split excessively long unpunctuated sentences into smaller pseudo-sentences
+      for (let i = 0; i < words.length; i += CHUNK_SIZE) {
+        sentences.push(words.slice(i, i + CHUNK_SIZE).join(' '));
+      }
+    }
+  }
 
   // 4. Reconstruct paragraphs cleanly
   let currentParagraphSentences: string[] = [];
