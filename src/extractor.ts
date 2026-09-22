@@ -11,6 +11,7 @@ export interface ExtractFramesOptions {
   onProgress?: (completed: number, total: number) => void;
   sceneThreshold?: number;
   dedupThreshold?: number;
+  outputDir?: string;
 }
 
 export async function extractFrames(
@@ -25,9 +26,40 @@ export async function extractFrames(
     onProgress,
     sceneThreshold = 0.15,
     dedupThreshold = 4,
+    outputDir,
   } = options;
 
+  const imagesDir = outputDir
+    ? path.resolve(outputDir, 'images')
+    : path.resolve('images');
+  if (!fs.existsSync(imagesDir)) {
+    fs.mkdirSync(imagesDir, { recursive: true });
+  }
+
   if (paragraphs.length === 0) return;
+
+  // Probe video duration to avoid seeking past EOF
+  let videoDuration: number | null = null;
+  try {
+    const { stdout } = await execa('ffprobe', [
+      '-v',
+      'error',
+      '-show_entries',
+      'format=duration',
+      '-of',
+      'default=noprint_wrappers=1:nokey=1',
+      videoFile,
+    ]);
+    const parsed = parseFloat(stdout.trim());
+    if (!isNaN(parsed) && parsed > 0) {
+      videoDuration = parsed;
+    }
+  } catch {
+    // ffprobe failed or format unknown, proceed without duration clamping
+  }
+
+  const maxSafeTimestamp =
+    videoDuration !== null ? Math.max(0, videoDuration - 0.5) : Infinity;
 
   // Phase A: Scene detection pre-pass
   let sceneTimes: number[] = [0];
@@ -50,7 +82,10 @@ export async function extractFrames(
     const regex = /pts_time:([0-9.]+)/g;
     let match;
     while ((match = regex.exec(stderr)) !== null) {
-      sceneTimes.push(parseFloat(match[1] as string));
+      const st = parseFloat(match[1] as string);
+      if (st <= maxSafeTimestamp) {
+        sceneTimes.push(st);
+      }
     }
   } catch (err: any) {
     if (signal?.aborted) throw new Error('Frame extraction aborted by user');
@@ -62,7 +97,12 @@ export async function extractFrames(
   // Phase B: Collect all detected scene cuts and map paragraphs
   const uniqueScenes = new Set<number>();
   for (const st of sceneTimes) {
-    uniqueScenes.add(st);
+    if (st <= maxSafeTimestamp) {
+      uniqueScenes.add(st);
+    }
+  }
+  if (uniqueScenes.size === 0) {
+    uniqueScenes.add(0);
   }
 
   // Phase B2: 5-second span-based fallback for long continuous takes
@@ -70,10 +110,14 @@ export async function extractFrames(
   for (let i = 0; i < paragraphs.length; i++) {
     const p = paragraphs[i]!;
     const nextP = paragraphs[i + 1];
-    const pEnd = nextP ? nextP.seconds : p.seconds + 10;
+    let pEnd = nextP ? nextP.seconds : p.seconds + 10;
+    if (pEnd > maxSafeTimestamp) {
+      pEnd = maxSafeTimestamp;
+    }
 
     // Ensure we sample intermediate frames every 5s if no scene cut exists
-    for (let t = p.seconds; t < pEnd; t += FALLBACK_THRESHOLD) {
+    for (let t = p.seconds; t <= pEnd; t += FALLBACK_THRESHOLD) {
+      if (t > maxSafeTimestamp) break;
       const roundedT = Math.round(t * 100) / 100;
       const hasNearbyScene = Array.from(uniqueScenes).some(
         (s) => Math.abs(s - roundedT) < 2.5
@@ -124,31 +168,45 @@ export async function extractFrames(
 
       const idx = currentIndex++;
       const ts = timestampsToExtract[idx] as number;
-      const outPath = `images/${ts}.jpg`;
+      const outPath = path.join(imagesDir, `${ts}.jpg`);
 
       if (!fs.existsSync(outPath)) {
-        const execOptions = signal ? { cancelSignal: signal } : {};
-        await execa(
-          'ffmpeg',
-          [
-            '-y',
-            '-ss',
-            String(ts),
-            '-nostdin',
-            '-threads',
-            String(threadsPerWorker),
-            '-i',
-            videoFile,
-            '-frames:v',
-            '1',
-            '-q:v',
-            '2',
-            '-vf',
-            'scale=1024:-1',
-            outPath,
-          ],
-          execOptions
-        );
+        try {
+          const execOptions = signal ? { cancelSignal: signal } : {};
+          await execa(
+            'ffmpeg',
+            [
+              '-y',
+              '-ss',
+              String(ts),
+              '-nostdin',
+              '-threads',
+              String(threadsPerWorker),
+              '-i',
+              videoFile,
+              '-frames:v',
+              '1',
+              '-q:v',
+              '2',
+              '-vf',
+              'scale=1024:-1',
+              outPath,
+            ],
+            execOptions
+          );
+        } catch (err: unknown) {
+          if (signal?.aborted) {
+            throw new Error('Frame extraction aborted by user');
+          }
+          // Non-fatal: if extraction of a specific frame fails (e.g. past EOF or corrupted frame),
+          // clean up any 0-byte file that ffmpeg may have touched and continue
+          if (fs.existsSync(outPath)) {
+            try {
+              const stat = fs.statSync(outPath);
+              if (stat.size === 0) fs.unlinkSync(outPath);
+            } catch {}
+          }
+        }
       }
 
       completed++;
@@ -166,15 +224,44 @@ export async function extractFrames(
 
   await Promise.all(workers);
 
-  // Phase D: Deduplication (dHash)
-  timestampsToExtract.sort((a, b) => a - b);
+  // Validate extracted images and build fallback for any missing frames
+  const validTimestamps = timestampsToExtract
+    .filter((ts) => {
+      const p = path.join(imagesDir, `${ts}.jpg`);
+      try {
+        return fs.existsSync(p) && fs.statSync(p).size > 0;
+      } catch {
+        return false;
+      }
+    })
+    .sort((a, b) => a - b);
 
+  const missingRemap = new Map<number, number>();
+  for (const ts of timestampsToExtract) {
+    const p = path.join(imagesDir, `${ts}.jpg`);
+    const exists = fs.existsSync(p) && fs.statSync(p).size > 0;
+    if (!exists && validTimestamps.length > 0) {
+      let closest = validTimestamps[0]!;
+      let minDiff = Math.abs(ts - closest);
+      for (const vt of validTimestamps) {
+        const diff = Math.abs(ts - vt);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closest = vt;
+        }
+      }
+      missingRemap.set(ts, closest);
+    }
+  }
+
+  // Phase D: Deduplication (dHash)
   const tempDir = await fs.promises.mkdtemp(
     path.join(os.tmpdir(), 'yt-dhash-')
   );
 
   async function computeDHash(ts: number): Promise<string> {
-    const imagePath = `images/${ts}.jpg`;
+    const imagePath = path.join(imagesDir, `${ts}.jpg`);
+    if (!fs.existsSync(imagePath)) return '';
     const tmpPath = path.join(tempDir, `${ts}.raw`);
     await execa('ffmpeg', [
       '-i',
@@ -208,35 +295,32 @@ export async function extractFrames(
     return diff;
   }
 
-  // Parallelize hash calculation across workers
+  // Parallelize hash calculation across workers for valid images only
   const hashes = new Map<number, string>();
   let hashIdx = 0;
   const hashWorker = async (): Promise<void> => {
-    while (hashIdx < timestampsToExtract.length) {
+    while (hashIdx < validTimestamps.length) {
       if (signal?.aborted) throw new Error('Frame extraction aborted by user');
       const idx = hashIdx++;
-      const ts = timestampsToExtract[idx];
+      const ts = validTimestamps[idx];
       if (ts === undefined) break;
       try {
         const h = await computeDHash(ts);
-        hashes.set(ts, h);
+        if (h) hashes.set(ts, h);
       } catch {
         // If hash generation fails, leave unset so it won't be deleted
       }
     }
   };
 
-  const hashPool = Math.max(
-    1,
-    Math.min(concurrency, timestampsToExtract.length)
-  );
+  const hashPool = Math.max(1, Math.min(concurrency, validTimestamps.length));
   await Promise.all(Array.from({ length: hashPool }, () => hashWorker()));
 
   let lastKeptTs: number | null = null;
   let lastKeptHash: string | null = null;
   const remapping = new Map<number, number>();
 
-  for (const ts of timestampsToExtract) {
+  for (const ts of validTimestamps) {
     const hash = hashes.get(ts);
     if (!hash) {
       remapping.set(ts, ts);
@@ -249,7 +333,7 @@ export async function extractFrames(
         // It's a duplicate
         remapping.set(ts, lastKeptTs);
         try {
-          fs.unlinkSync(`images/${ts}.jpg`);
+          fs.unlinkSync(path.join(imagesDir, `${ts}.jpg`));
         } catch {
           // Keep deduplication mapping even if physical deletion fails
         }
@@ -264,18 +348,24 @@ export async function extractFrames(
   // Cleanup temp dir
   await fs.promises.rm(tempDir, { recursive: true, force: true });
 
+  function resolveTs(ts: number): number {
+    let current = missingRemap.has(ts) ? missingRemap.get(ts)! : ts;
+    if (remapping.has(current)) {
+      current = remapping.get(current)!;
+    }
+    return current;
+  }
+
   // Update paragraphs with new remapped timestamps
   for (const p of paragraphs) {
     if (p.sceneTimestamp) {
       const oldTs = parseFloat(p.sceneTimestamp);
-      if (remapping.has(oldTs)) {
-        p.sceneTimestamp = String(remapping.get(oldTs));
-      }
+      p.sceneTimestamp = String(resolveTs(oldTs));
     }
     if (p.sceneTimestamps) {
       const remappedList = p.sceneTimestamps.map((tsStr) => {
         const oldTs = parseFloat(tsStr);
-        return remapping.has(oldTs) ? String(remapping.get(oldTs)) : tsStr;
+        return String(resolveTs(oldTs));
       });
       p.sceneTimestamps = Array.from(new Set(remappedList));
     }

@@ -1,9 +1,392 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import ejs from 'ejs';
-import type { Paragraph } from './parser.js';
-
-const TEMPLATE = `<!DOCTYPE html>
+import { execa as Q } from 'execa';
+import W from 'fs';
+import N from 'path';
+async function be(r, t = {}) {
+  let o = t.outputDir ? N.resolve(t.outputDir) : process.cwd();
+  W.existsSync(o) || W.mkdirSync(o, { recursive: !0 });
+  let l = { cwd: o, ...(t.signal ? { cancelSignal: t.signal } : {}) },
+    g = [
+      '--write-auto-subs',
+      '--write-subs',
+      r,
+      '--no-simulate',
+      '--print',
+      'after_move:filepath',
+    ];
+  t.outputDir && g.push('-P', o);
+  let i;
+  for (let m = 1; m <= 3; m++)
+    try {
+      let { stdout: d } = await Q('yt-dlp', g, l),
+        p = d
+          .split(
+            `
+`
+          )
+          .map((u) => u.trim())
+          .filter(Boolean),
+        f =
+          p.find((u) => u.match(/\.(webm|mp4|mkv|m4a|weba|flv)$/i)) ||
+          p[p.length - 1];
+      f && !N.isAbsolute(f) && (f = N.resolve(o, f));
+      let E = W.readdirSync(o).find((u) => u.endsWith('.vtt'));
+      if (!f || !W.existsSync(f))
+        throw new Error(
+          `Failed to locate downloaded video file. Output was: ${d}`
+        );
+      if (!E)
+        throw new Error(
+          'Failed to locate downloaded VTT subtitles (video might not have captions).'
+        );
+      let y = N.resolve(o, E);
+      return { videoFile: f, vttFile: y };
+    } catch (d) {
+      if (((i = d), t.signal?.aborted)) throw d;
+      let p = d instanceof Error ? d.message : String(d);
+      if (
+        m < 3 &&
+        (p.includes('429') ||
+          p.includes('Too Many Requests') ||
+          p.includes('HTTP Error 429'))
+      ) {
+        await new Promise((f) => setTimeout(f, m * 2500));
+        continue;
+      }
+      throw d;
+    }
+  throw i;
+}
+import M from 'path';
+import ee from 'os';
+import T from 'fs';
+import { execa as U } from 'execa';
+async function Te(r, t, o = {}) {
+  let {
+      concurrency: l = 4,
+      threadsPerWorker: g = 1,
+      signal: i,
+      onProgress: m,
+      sceneThreshold: d = 0.15,
+      dedupThreshold: p = 4,
+      outputDir: f,
+    } = o,
+    x = f ? M.resolve(f, 'images') : M.resolve('images');
+  if ((T.existsSync(x) || T.mkdirSync(x, { recursive: !0 }), t.length === 0))
+    return;
+  let E = null;
+  try {
+    let { stdout: e } = await U('ffprobe', [
+        '-v',
+        'error',
+        '-show_entries',
+        'format=duration',
+        '-of',
+        'default=noprint_wrappers=1:nokey=1',
+        r,
+      ]),
+      n = parseFloat(e.trim());
+    !isNaN(n) && n > 0 && (E = n);
+  } catch {}
+  let y = E !== null ? Math.max(0, E - 0.5) : 1 / 0,
+    u = [0];
+  try {
+    let e = i ? { cancelSignal: i } : {},
+      { stderr: n } = await U(
+        'ffmpeg',
+        [
+          '-i',
+          r,
+          '-filter:v',
+          `select='gt(scene,${d})',showinfo`,
+          '-f',
+          'null',
+          '-',
+        ],
+        e
+      ),
+      s = /pts_time:([0-9.]+)/g,
+      c;
+    for (; (c = s.exec(n)) !== null;) {
+      let b = parseFloat(c[1]);
+      b <= y && u.push(b);
+    }
+  } catch {
+    if (i?.aborted) throw new Error('Frame extraction aborted by user');
+  }
+  u.sort((e, n) => e - n);
+  let v = new Set();
+  for (let e of u) e <= y && v.add(e);
+  v.size === 0 && v.add(0);
+  let R = 5;
+  for (let e = 0; e < t.length; e++) {
+    let n = t[e],
+      s = t[e + 1],
+      c = s ? s.seconds : n.seconds + 10;
+    c > y && (c = y);
+    for (let b = n.seconds; b <= c && !(b > y); b += R) {
+      let k = Math.round(b * 100) / 100;
+      Array.from(v).some((H) => Math.abs(H - k) < 2.5) || v.add(k);
+    }
+  }
+  let L = Array.from(v).sort((e, n) => e - n);
+  for (let e = 0; e < t.length; e++) {
+    let n = t[e],
+      s = t[e + 1],
+      c = s ? s.seconds : n.seconds + 10,
+      b = L[0] ?? 0,
+      k = [];
+    for (let P of L)
+      if (P <= n.seconds) b = P;
+      else if (P < c) k.push(P);
+      else break;
+    ((n.sceneTimestamp = String(b)),
+      (n.sceneTimestamps = Array.from(new Set([b, ...k])).map(String)));
+  }
+  let C = Array.from(v),
+    _ = C.length,
+    I = 0,
+    D = 0,
+    B = async () => {
+      for (; D < C.length;) {
+        if (i?.aborted) throw new Error('Frame extraction aborted by user');
+        let e = D++,
+          n = C[e],
+          s = M.join(x, `${n}.jpg`);
+        if (!T.existsSync(s))
+          try {
+            let c = i ? { cancelSignal: i } : {};
+            await U(
+              'ffmpeg',
+              [
+                '-y',
+                '-ss',
+                String(n),
+                '-nostdin',
+                '-threads',
+                String(g),
+                '-i',
+                r,
+                '-frames:v',
+                '1',
+                '-q:v',
+                '2',
+                '-vf',
+                'scale=1024:-1',
+                s,
+              ],
+              c
+            );
+          } catch {
+            if (i?.aborted) throw new Error('Frame extraction aborted by user');
+            if (T.existsSync(s))
+              try {
+                T.statSync(s).size === 0 && T.unlinkSync(s);
+              } catch {}
+          }
+        (I++, m && m(I, _));
+      }
+    },
+    w = Math.max(1, Math.min(l, C.length)),
+    S = Array.from({ length: w }, () => B());
+  await Promise.all(S);
+  let a = C.filter((e) => {
+      let n = M.join(x, `${e}.jpg`);
+      try {
+        return T.existsSync(n) && T.statSync(n).size > 0;
+      } catch {
+        return !1;
+      }
+    }).sort((e, n) => e - n),
+    h = new Map();
+  for (let e of C) {
+    let n = M.join(x, `${e}.jpg`);
+    if (!(T.existsSync(n) && T.statSync(n).size > 0) && a.length > 0) {
+      let c = a[0],
+        b = Math.abs(e - c);
+      for (let k of a) {
+        let P = Math.abs(e - k);
+        P < b && ((b = P), (c = k));
+      }
+      h.set(e, c);
+    }
+  }
+  let F = await T.promises.mkdtemp(M.join(ee.tmpdir(), 'yt-dhash-'));
+  async function V(e) {
+    let n = M.join(x, `${e}.jpg`);
+    if (!T.existsSync(n)) return '';
+    let s = M.join(F, `${e}.raw`);
+    await U('ffmpeg', [
+      '-i',
+      n,
+      '-vf',
+      'scale=1024:1024:force_original_aspect_ratio=decrease,pad=1024:1024:-1:-1:color=black,scale=9:8,format=gray',
+      '-f',
+      'rawvideo',
+      '-y',
+      s,
+    ]);
+    let c = await T.promises.readFile(s),
+      b = '';
+    for (let k = 0; k < 8; k++)
+      for (let P = 0; P < 8; P++) {
+        let H = c[k * 9 + P],
+          X = c[k * 9 + P + 1];
+        H !== void 0 && X !== void 0 && (b += H > X ? '1' : '0');
+      }
+    return b;
+  }
+  function O(e, n) {
+    let s = 0;
+    for (let c = 0; c < 64; c++) e[c] !== n[c] && s++;
+    return s;
+  }
+  let q = new Map(),
+    j = 0,
+    Y = async () => {
+      for (; j < a.length;) {
+        if (i?.aborted) throw new Error('Frame extraction aborted by user');
+        let e = j++,
+          n = a[e];
+        if (n === void 0) break;
+        try {
+          let s = await V(n);
+          s && q.set(n, s);
+        } catch {}
+      }
+    },
+    K = Math.max(1, Math.min(l, a.length));
+  await Promise.all(Array.from({ length: K }, () => Y()));
+  let z = null,
+    G = null,
+    $ = new Map();
+  for (let e of a) {
+    let n = q.get(e);
+    if (!n) {
+      $.set(e, e);
+      continue;
+    }
+    if (z !== null && G !== null && O(G, n) <= p) {
+      $.set(e, z);
+      try {
+        T.unlinkSync(M.join(x, `${e}.jpg`));
+      } catch {}
+      continue;
+    }
+    ((z = e), (G = n), $.set(e, e));
+  }
+  await T.promises.rm(F, { recursive: !0, force: !0 });
+  function J(e) {
+    let n = h.has(e) ? h.get(e) : e;
+    return ($.has(n) && (n = $.get(n)), n);
+  }
+  for (let e of t) {
+    if (e.sceneTimestamp) {
+      let n = parseFloat(e.sceneTimestamp);
+      e.sceneTimestamp = String(J(n));
+    }
+    if (e.sceneTimestamps) {
+      let n = e.sceneTimestamps.map((s) => {
+        let c = parseFloat(s);
+        return String(J(c));
+      });
+      e.sceneTimestamps = Array.from(new Set(n));
+    }
+  }
+}
+import te from 'fs';
+import ne from 'readline';
+import re from 'compromise';
+async function Ae(r) {
+  let t = te.createReadStream(r),
+    o = ne.createInterface({ input: t, crlfDelay: 1 / 0 }),
+    l = [],
+    g = null,
+    i = 0,
+    m = 0,
+    d = !1,
+    p = [],
+    f = 5;
+  for await (let w of o) {
+    let S = w.trim();
+    if (!S || (!d && !S.match(/^\d{2}:\d{2}/))) continue;
+    d = !0;
+    let a = S.match(
+      /^(\d{2}:)?(\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:)?(\d{2}:\d{2}\.\d{3})/
+    );
+    if (a) {
+      let F = a[1] ? `${a[1]}${a[2]}` : `00:${a[2]}`,
+        V = a[3] ? `${a[3]}${a[4]}` : `00:${a[4]}`;
+      g = F;
+      let O = (q) => {
+        let j = q.split(':'),
+          Y = parseInt(j[0] ?? '0', 10),
+          K = parseInt(j[1] ?? '0', 10),
+          z = parseFloat(j[2] ?? '0');
+        return Y * 3600 + K * 60 + z;
+      };
+      ((i = O(F)), (m = O(V)));
+      continue;
+    }
+    let h = S;
+    ((h.startsWith('>> ') || h.startsWith('&gt;&gt; ')) &&
+      (h = '[New Speaker]: ' + h.replace(/^(>>|&gt;&gt;)\s*/, '')),
+      (h = h
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")),
+      (h = h.replace(/<[^>]+>/g, '').trim()),
+      h &&
+        ((h = h.replace(/</g, '&lt;').replace(/>/g, '&gt;')),
+        g &&
+          (p.includes(h) ||
+            (l.push({ timestamp: g, seconds: i, endSeconds: m, text: h }),
+            p.push(h),
+            p.length > f && p.shift()))));
+  }
+  let x = [];
+  if (l.length === 0) return x;
+  let E = l.map((w) => w.text).join(' '),
+    y = [],
+    u = 0;
+  for (let w of l) {
+    let S = w.text.length;
+    (y.push({ cue: w, startChar: u, endChar: u + S }), (u += S + 1));
+  }
+  let R = re(E).sentences().out('array'),
+    L = [],
+    C = 40,
+    _ = 20;
+  for (let w of R) {
+    let S = w.split(' ');
+    if (S.length <= C) L.push(w);
+    else
+      for (let a = 0; a < S.length; a += _) L.push(S.slice(a, a + _).join(' '));
+  }
+  let I = [],
+    D = null,
+    B = 0;
+  for (let w = 0; w < L.length; w++) {
+    let S = L[w],
+      a = y.find((F) => F.endChar > B) || y[y.length - 1];
+    if (!a) continue;
+    let h = a.cue;
+    (I.length === 0 && (D = h),
+      I.push(S),
+      (B += S.length + 1),
+      (I.length >= 3 || w === L.length - 1) &&
+        (x.push({
+          timestamp: D.timestamp,
+          seconds: D.seconds,
+          text: I.join(' '),
+        }),
+        (I = [])));
+  }
+  return x;
+}
+import oe from 'fs';
+import ie from 'path';
+import se from 'ejs';
+var ae = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -339,7 +722,7 @@ const TEMPLATE = `<!DOCTYPE html>
           <% chapter.paragraphs.forEach(p => { 
                const linkChar = url.includes('?') ? '&' : '?';
                const timestampUrl = \`\${url}\${linkChar}t=\${Math.floor(p.seconds)}\`;
-               let timeLabel = p.timestamp.replace(/^\d{2}:/, '');
+               let timeLabel = p.timestamp.replace(/^d{2}:/, '');
                timeLabel = timeLabel.split('.')[0];
                const scenesAttr = (p.sceneTimestamps && p.sceneTimestamps.length > 0 ? p.sceneTimestamps : [p.sceneTimestamp]).filter(Boolean).join(',');
           %>
@@ -543,82 +926,53 @@ const TEMPLATE = `<!DOCTYPE html>
 
 </html>
 `;
-
-export interface Chapter {
-  uniqueScenes: string[];
-  paragraphs: Paragraph[];
-}
-
-export function chunkParagraphs(paragraphs: Paragraph[]): Chapter[] {
-  const chapters: Chapter[] = [];
-  if (paragraphs.length === 0) return chapters;
-
-  let currentChunk: Paragraph[] = [];
-  let currentScenes = new Set<string>();
-
-  for (let i = 0; i < paragraphs.length; i++) {
-    const p = paragraphs[i]!;
-    currentChunk.push(p);
-    if (p.sceneTimestamps && p.sceneTimestamps.length > 0) {
-      for (const st of p.sceneTimestamps) {
-        currentScenes.add(st);
-      }
-    } else if (p.sceneTimestamp) {
-      currentScenes.add(p.sceneTimestamp);
-    }
-
-    const nextP = paragraphs[i + 1];
-    if (nextP) {
-      const nextScenes =
-        nextP.sceneTimestamps && nextP.sceneTimestamps.length > 0
-          ? nextP.sceneTimestamps
-          : nextP.sceneTimestamp
-            ? [nextP.sceneTimestamp]
-            : [];
-      const isNewScene = nextScenes.some((st) => !currentScenes.has(st));
-
-      const chunkDuration = p.seconds - currentChunk[0]!.seconds;
-      const reachedMaxScenes = isNewScene && currentScenes.size >= 6;
-
-      // Hard limits: prevent never-ending chapters even if the scene never changes
-      const exceededMaxParagraphs = currentChunk.length >= 14;
-      const exceededMaxDuration = chunkDuration > 180;
-
-      // Natural limits: split at scene boundaries if we have sufficient content
-      const naturalSceneBreak =
-        isNewScene && (currentChunk.length >= 6 || chunkDuration > 60);
-
-      if (
-        reachedMaxScenes ||
-        exceededMaxParagraphs ||
-        exceededMaxDuration ||
-        naturalSceneBreak
-      ) {
-        chapters.push({
-          uniqueScenes: Array.from(currentScenes).sort(
-            (a, b) => parseFloat(a) - parseFloat(b)
+function ce(r) {
+  let t = [];
+  if (r.length === 0) return t;
+  let o = [],
+    l = new Set();
+  for (let g = 0; g < r.length; g++) {
+    let i = r[g];
+    if ((o.push(i), i.sceneTimestamps && i.sceneTimestamps.length > 0))
+      for (let d of i.sceneTimestamps) l.add(d);
+    else i.sceneTimestamp && l.add(i.sceneTimestamp);
+    let m = r[g + 1];
+    if (m) {
+      let p = (
+          m.sceneTimestamps && m.sceneTimestamps.length > 0
+            ? m.sceneTimestamps
+            : m.sceneTimestamp
+              ? [m.sceneTimestamp]
+              : []
+        ).some((v) => !l.has(v)),
+        f = i.seconds - o[0].seconds,
+        x = p && l.size >= 6,
+        E = o.length >= 14,
+        y = f > 180,
+        u = p && (o.length >= 6 || f > 60);
+      (x || E || y || u) &&
+        (t.push({
+          uniqueScenes: Array.from(l).sort(
+            (v, R) => parseFloat(v) - parseFloat(R)
           ),
-          paragraphs: currentChunk,
-        });
-        currentChunk = [];
-        currentScenes = new Set<string>();
-      }
+          paragraphs: o,
+        }),
+        (o = []),
+        (l = new Set()));
     }
   }
-
-  if (currentChunk.length > 0) {
-    chapters.push({
-      uniqueScenes: Array.from(currentScenes).sort(
-        (a, b) => parseFloat(a) - parseFloat(b)
-      ),
-      paragraphs: currentChunk,
-    });
-  }
-
-  return chapters;
+  return (
+    o.length > 0 &&
+      t.push({
+        uniqueScenes: Array.from(l).sort(
+          (g, i) => parseFloat(g) - parseFloat(i)
+        ),
+        paragraphs: o,
+      }),
+    t
+  );
 }
-
-export const CLEANUP_PROMPT_PREFIX = `Execute a highly precise cleanup of the provided YouTube transcript. Your objective is to translate raw, auto-generated spoken text into a visually readable, semantically coherent format without destroying the speaker’s original voice, slang, or pacing.
+var Z = `Execute a highly precise cleanup of the provided YouTube transcript. Your objective is to translate raw, auto-generated spoken text into a visually readable, semantically coherent format without destroying the speaker\u2019s original voice, slang, or pacing.
 
 **Hierarchy of Operations:**
 If two rules conflict, the rule higher on this list supersedes the lower rule.
@@ -630,7 +984,7 @@ Correct blatant auto-translation and captioning artifacts. Fix mismatched gender
 Do not rewrite sentences into rigid, formal prose. Slang, colloquialisms, and the speaker's original associative pacing must remain entirely intact. Maintaining the originality of the spoken voice is paramount.
 
 **3. Dynamic Punctuation & Typography**
-Eradicate rogue spacing and typographical glitches (e.g., "do n't", "problems ,"). Convert disjointed, fragmented periods inserted by the auto-captioner into commas or em dashes (—) to naturally bridge sprawling or run-on thoughts without truncating them.
+Eradicate rogue spacing and typographical glitches (e.g., "do n't", "problems ,"). Convert disjointed, fragmented periods inserted by the auto-captioner into commas or em dashes (\u2014) to naturally bridge sprawling or run-on thoughts without truncating them.
 
 **4. Selective Pruning & Anchor Words**
 Strip all numerical timestamps. You may selectively remove excessive non-lexical fillers ("um", "uh"), but you must strictly retain anchor words that establish the speaker's cadence ("like", "right", "honestly", "bro").
@@ -640,42 +994,139 @@ Group text into paragraphs based on natural shifts in thought or conversational 
 
 **6. Profanity Artifact Replacement**
 Replace the YouTube auto-censor artifact \`[ __ ]\` with \`[expletive]\` to remove visual friction while accurately indicating the redaction.`;
-
-export function decodeHtmlEntities(text: string): string {
-  return text
+function le(r) {
+  return r
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&amp;/g, '&');
 }
+function me(r) {
+  return r.map((t) => le(t.text).trim()).filter(Boolean).join(`
 
-export function extractTranscriptText(paragraphs: Paragraph[]): string {
-  return paragraphs
-    .map((p) => decodeHtmlEntities(p.text).trim())
-    .filter(Boolean)
-    .join('\n\n');
+`);
 }
+function de(r) {
+  let t = r.trim();
+  return t
+    ? `${Z}
 
-export function buildAiPrompt(transcript: string): string {
-  const trimmed = transcript.trim();
-  return trimmed
-    ? `${CLEANUP_PROMPT_PREFIX}\n\n\`\`\`\n${trimmed}\n\`\`\``
-    : `${CLEANUP_PROMPT_PREFIX}\n\n\`\`\`\n\`\`\``;
-}
+\`\`\`
+${t}
+\`\`\``
+    : `${Z}
 
-export async function generateHtml(
-  url: string,
-  paragraphs: Paragraph[],
-  title: string = 'YouTube Transcript',
-  outputDir?: string
-): Promise<void> {
-  const chapters = chunkParagraphs(paragraphs);
-  const transcriptText = extractTranscriptText(paragraphs);
-  const aiPrompt = buildAiPrompt(transcriptText);
-  const html = ejs.render(TEMPLATE, { url, chapters, title, aiPrompt });
-  const outPath = outputDir
-    ? path.resolve(outputDir, 'index.html')
-    : 'index.html';
-  fs.writeFileSync(outPath, html, 'utf-8');
+\`\`\`
+\`\`\``;
 }
+async function De(r, t, o = 'YouTube Transcript', l) {
+  let g = ce(t),
+    i = me(t),
+    m = de(i),
+    d = se.render(ae, { url: r, chapters: g, title: o, aiPrompt: m }),
+    p = l ? ie.resolve(l, 'index.html') : 'index.html';
+  oe.writeFileSync(p, d, 'utf-8');
+}
+import A from 'os';
+import { execa as pe } from 'execa';
+async function $e(r, t = 1) {
+  let l = A.cpus().length || 1,
+    g = Math.floor(A.freemem() / (1024 * 1024)),
+    i = Math.floor(A.totalmem() / (1024 * 1024)),
+    m = A.loadavg()[0] ?? 0,
+    d = Math.max(1, Math.min(8, Math.floor(l * 0.35))),
+    p = Math.max(1, Math.floor(g / 250)),
+    f = m > l * 0.7 ? 0.5 : 1,
+    x = Math.max(1, Math.floor(Math.min(d, p) * f)),
+    E = Math.max(1, t),
+    y = Math.max(1, Math.floor(x / E));
+  r && r > 0 && (y = r);
+  let u = null;
+  try {
+    let { stdout: v } = await pe('ffmpeg', ['-hwaccels']);
+    v.includes('cuda')
+      ? (u = 'cuda')
+      : v.includes('vaapi')
+        ? (u = 'vaapi')
+        : v.includes('qsv') && (u = 'qsv');
+  } catch {
+    u = null;
+  }
+  return {
+    cpuCount: l,
+    freeMemoryMb: g,
+    totalMemoryMb: i,
+    loadAverage: m,
+    recommendedConcurrency: y,
+    threadsPerWorker: 1,
+    hwaccel: u,
+  };
+}
+function _e() {
+  let r = A.cpus().length || 1,
+    t = Math.floor(A.freemem() / (1024 * 1024));
+  return r >= 16 && t >= 8e3 ? 3 : r >= 8 && t >= 4e3 ? 2 : 1;
+}
+function Be() {
+  let r = A.cpus().length || 1,
+    t = Math.floor(A.freemem() / (1024 * 1024)),
+    o = A.loadavg()[0] ?? 0;
+  return t < 500
+    ? {
+        healthy: !1,
+        freeMemoryMb: t,
+        loadAverage: o,
+        cpuCount: r,
+        throttleReason: `Low RAM (${t} MB free)`,
+      }
+    : o > r * 0.85
+      ? {
+          healthy: !1,
+          freeMemoryMb: t,
+          loadAverage: o,
+          cpuCount: r,
+          throttleReason: `High CPU load (${o.toFixed(1)} / ${r} cores)`,
+        }
+      : { healthy: !0, freeMemoryMb: t, loadAverage: o, cpuCount: r };
+}
+import { execa as ue } from 'execa';
+function He(r) {
+  try {
+    let t = new URL(r);
+    if (t.hostname.includes('youtube.com')) {
+      if (t.pathname === '/watch') return t.searchParams.get('v');
+      let o = t.pathname.split('/').filter(Boolean);
+      if (['shorts', 'embed', 'live', 'v'].includes(o[0] || ''))
+        return o[1] || null;
+    } else if (t.hostname === 'youtu.be')
+      return t.pathname.split('/').filter(Boolean)[0] || null;
+  } catch {}
+  return null;
+}
+async function We(r) {
+  let { stdout: t } = await ue('yt-dlp', ['--print', '%(title)s', r]);
+  return t.trim();
+}
+function Ne(r) {
+  return (
+    r
+      .replace(/[<>:"/\\|?*\x00-\x1f]+/g, '_')
+      .replace(/_{2,}/g, '_')
+      .replace(/^[_.]+|[_.]+$/g, '')
+      .trim()
+      .slice(0, 200) || 'untitled'
+  );
+}
+export {
+  be as a,
+  Te as b,
+  Ae as c,
+  De as d,
+  $e as e,
+  _e as f,
+  Be as g,
+  He as h,
+  We as i,
+  Ne as j,
+};

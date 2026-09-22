@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --clean --minify",
     "dev": "tsx src/index.ts",
+    "serve": "tsx src/index.ts serve",
     "test": "vitest run"
   },
   "keywords": [],

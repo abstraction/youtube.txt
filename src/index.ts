@@ -4,16 +4,18 @@ import chalk from 'chalk';
 import { execa } from 'execa';
 import ora from 'ora';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { downloadVideoAndCaptions } from './downloader.js';
 import { extractFrames } from './extractor.js';
 import { parseVtt } from './parser.js';
 import { generateHtml } from './generator.js';
 import { resolveResourceProfile } from './resources.js';
+import { fetchVideoTitle, sanitizeTitle } from './server/title.js';
 
 interface CliOptions {
-  out: string;
-  url: string;
+  out?: string;
+  url?: string;
   concurrency?: string;
   threads?: string;
   sceneThreshold?: string;
@@ -47,10 +49,11 @@ program
   .description(
     'Create a webpage from a Youtube video with a transcript paired with screenshots'
   )
-  .requiredOption('-u, --url <url>', 'URL of the YouTube video')
-  .requiredOption(
+  .argument('[url]', 'URL of the YouTube video')
+  .option('-u, --url <url>', 'URL of the YouTube video')
+  .option(
     '-o, --out <projectName>',
-    'Name of the output project folder'
+    'Name of the output project folder (defaults to sanitized video title)'
   )
   .option(
     '-c, --concurrency <number>',
@@ -64,10 +67,15 @@ program
     '-s, --scene-threshold <number>',
     'FFmpeg scene detection sensitivity 0-1, lower = more scenes (default: 0.15)'
   )
-  .action(async (options: CliOptions) => {
+  .action(async (urlArg: string | undefined, options: CliOptions) => {
+    const url = urlArg || options.url;
+    if (!url) {
+      program.help();
+      return;
+    }
+
     const {
-      out: projectName,
-      url,
+      out: outOpt,
       concurrency: concurrencyOpt,
       threads: threadsOpt,
       sceneThreshold: sceneThresholdOpt,
@@ -89,6 +97,26 @@ program
         chalk.red('Error: ffmpeg is not installed or not in PATH.')
       );
       process.exit(1);
+    }
+
+    let projectName = outOpt;
+    if (!projectName) {
+      const titleSpinner = ora('Fetching video title...').start();
+      try {
+        const rawTitle = await fetchVideoTitle(url);
+        const sanitized = sanitizeTitle(rawTitle);
+        projectName = sanitized;
+        let counter = 2;
+        while (fs.existsSync(projectName)) {
+          projectName = `${sanitized}-${counter++}`;
+        }
+        titleSpinner.succeed(`Output folder: ${projectName}`);
+      } catch {
+        titleSpinner.warn(
+          'Could not fetch video title; defaulting to "output"'
+        );
+        projectName = 'output';
+      }
     }
 
     const concurrencyParsed = concurrencyOpt
@@ -125,6 +153,7 @@ program
       fs.mkdirSync('images');
     }
 
+    const startTime = Date.now();
     const spinner = ora('Downloading video and captions...').start();
     try {
       const { videoFile, vttFile } = await downloadVideoAndCaptions(url, {
@@ -155,8 +184,9 @@ program
       const filename = path.parse(videoFile).name;
       const title = filename.replace(/\s\[[a-zA-Z0-9_-]+\]$/, '');
       await generateHtml(url, paragraphs, title);
+      const elapsedSec = ((Date.now() - startTime) / 1000).toFixed(1);
       spinner.succeed(
-        `Done! View your webpage at ${path.join(process.cwd(), 'index.html')}`
+        `Done in ${elapsedSec}s! View your webpage at ${path.join(process.cwd(), 'index.html')}`
       );
     } catch (err: unknown) {
       if (abortController.signal.aborted) {
@@ -169,6 +199,77 @@ program
       }
       process.exit(1);
     }
+  });
+
+interface ServeCliOptions {
+  port: string;
+  outputDir: string;
+  maxJobs?: string;
+  open: boolean;
+}
+
+program
+  .command('serve')
+  .description('Start local HTTP server for the Tampermonkey userscript bridge')
+  .option('-p, --port <number>', 'Port to listen on', '8384')
+  .option(
+    '-d, --output-dir <path>',
+    'Base directory for processed videos',
+    path.join(os.homedir(), 'youtube-txt')
+  )
+  .option(
+    '-j, --max-jobs <number>',
+    'Max concurrent video processing jobs (default: auto-tuned from hardware)'
+  )
+  .option(
+    '--no-open',
+    'Do not automatically open result in browser upon completion'
+  )
+  .action(async (options: ServeCliOptions) => {
+    const port = parseInt(options.port, 10);
+
+    if (isNaN(port) || port < 1 || port > 65535) {
+      console.error(chalk.red('Error: Invalid port number.'));
+      process.exit(1);
+    }
+
+    const maxJobs = options.maxJobs ? parseInt(options.maxJobs, 10) : undefined;
+    if (maxJobs !== undefined && (isNaN(maxJobs) || maxJobs < 1)) {
+      console.error(chalk.red('Error: Invalid max-jobs number.'));
+      process.exit(1);
+    }
+
+    try {
+      await execa('yt-dlp', ['--version']);
+    } catch {
+      console.error(
+        chalk.red('Error: yt-dlp is not installed or not in PATH.')
+      );
+      process.exit(1);
+    }
+
+    try {
+      await execa('ffmpeg', ['-version']);
+    } catch {
+      console.error(
+        chalk.red('Error: ffmpeg is not installed or not in PATH.')
+      );
+      process.exit(1);
+    }
+
+    const outputDir = path.resolve(options.outputDir);
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    console.log(chalk.blue('youtube.txt server'));
+    console.log(chalk.dim(`Output directory: ${outputDir}`));
+
+    const { startServer } = await import('./server/server.js');
+    await startServer({
+      port,
+      outputDir,
+      maxJobs,
+      autoOpen: options.open,
+    });
   });
 
 program.parse(process.argv);

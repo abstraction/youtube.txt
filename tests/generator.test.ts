@@ -1,5 +1,12 @@
 import { describe, it, expect, vi } from 'vitest';
-import { generateHtml, chunkParagraphs } from '../src/generator.js';
+import {
+  generateHtml,
+  chunkParagraphs,
+  buildAiPrompt,
+  extractTranscriptText,
+  decodeHtmlEntities,
+  CLEANUP_PROMPT_PREFIX,
+} from '../src/generator.js';
 import type { Paragraph } from '../src/parser.js';
 import fs from 'node:fs';
 
@@ -90,6 +97,50 @@ describe('chunkParagraphs', () => {
   });
 });
 
+describe('buildAiPrompt', () => {
+  it('wraps transcript inside markdown code fences following the cleanup prompt', () => {
+    const prompt = buildAiPrompt('Hello world transcript');
+    expect(prompt).toContain(CLEANUP_PROMPT_PREFIX);
+    expect(prompt).toContain('```\nHello world transcript\n```');
+    expect(prompt).toContain(
+      '**1. Absolute Syntax Preservation (Highest Priority)**'
+    );
+    expect(prompt).toContain('**2. Mechanical Paragraphing**');
+    expect(prompt).toContain('**3. Rule-Based Lexical Pruning**');
+    expect(prompt).toContain('**4. Profanity Artifact Replacement**');
+    expect(prompt).toContain('**5. Timestamp Eradication**');
+    expect(prompt).not.toContain('[Insert Transcript]');
+  });
+
+  it('handles empty transcript gracefully', () => {
+    const prompt = buildAiPrompt('');
+    expect(prompt).toContain(CLEANUP_PROMPT_PREFIX);
+    expect(prompt).toContain('```\n```');
+  });
+});
+
+describe('decodeHtmlEntities', () => {
+  it('correctly decodes HTML entities without double-unescaping', () => {
+    expect(decodeHtmlEntities('&lt;div&gt; &amp; &quot;test&#39;')).toBe(
+      '<div> & "test\''
+    );
+    expect(decodeHtmlEntities('&amp;lt;')).toBe('&lt;');
+  });
+});
+
+describe('extractTranscriptText', () => {
+  it('joins paragraphs with double newlines and unescapes text', () => {
+    const paragraphs: Paragraph[] = [
+      { seconds: 0, timestamp: '00:00', text: 'First paragraph &lt;intro&gt;' },
+      { seconds: 10, timestamp: '00:10', text: 'Second paragraph &amp; more' },
+    ];
+    const extracted = extractTranscriptText(paragraphs);
+    expect(extracted).toBe(
+      'First paragraph <intro>\n\nSecond paragraph & more'
+    );
+  });
+});
+
 describe('generateHtml', () => {
   it('renders index.html with provided chapters and metadata', async () => {
     let writtenHtml = '';
@@ -124,5 +175,12 @@ describe('generateHtml', () => {
     expect(writtenHtml).toContain("Steven's analysis & take");
     expect(writtenHtml).toContain('--accent: #065fd4');
     expect(writtenHtml).toContain('--accent: #3ea6ff');
+    expect(writtenHtml).toContain('id="copy-ai-btn"');
+    expect(writtenHtml).toContain('[copy for ai]');
+    expect(writtenHtml).toContain('id="ai-prompt"');
+    expect(writtenHtml).toContain(
+      'Execute a mechanical cleanup of the provided YouTube transcript'
+    );
+    expect(writtenHtml).toContain('```');
   });
 });

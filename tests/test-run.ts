@@ -14,7 +14,10 @@ async function main() {
   const paragraphs = await parseVtt(vttFile);
   console.log(`Parsed ${paragraphs.length} paragraphs.`);
   console.log('Extracting frames...');
-  await extractFrames(videoFile, paragraphs, { concurrency: 4, threadsPerWorker: 1 });
+  await extractFrames(videoFile, paragraphs, {
+    concurrency: 4,
+    threadsPerWorker: 1,
+  });
   console.log('Generating HTML...');
   await generateHtml(url, paragraphs);
   console.log('Done!');
