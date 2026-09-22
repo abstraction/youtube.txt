@@ -35,6 +35,16 @@ describe('extractVideoId', () => {
     expect(extractVideoId('https://vimeo.com/123456')).toBeNull();
     expect(extractVideoId('invalid-url')).toBeNull();
   });
+
+  it('rejects spoofed or lookalike domains containing youtube.com', () => {
+    expect(
+      extractVideoId('https://evil-youtube.com/watch?v=123456')
+    ).toBeNull();
+    expect(
+      extractVideoId('https://youtube.com.attacker.com/watch?v=123456')
+    ).toBeNull();
+    expect(extractVideoId('https://myyoutube.com/watch?v=123456')).toBeNull();
+  });
 });
 
 describe('JobManager Deduplication and Cache', () => {
@@ -114,5 +124,42 @@ describe('JobManager Deduplication and Cache', () => {
     const job = jobManager.createJob(videoUrl);
     expect(job.phase).toBe('completed');
     expect(job.outputDir).toBe(completedDir);
+  });
+
+  it('detects completed folder when index.html has large stylesheet and meta tags', () => {
+    const videoUrl = 'https://www.youtube.com/watch?v=3vyPSMSnMT4';
+    const folderName = 'Large Style Project';
+    const completedDir = path.join(tmpDir, folderName);
+    fs.mkdirSync(completedDir, { recursive: true });
+
+    // Simulate 10KB of CSS before the body
+    const largeCss = '/* dummy style */\n'.repeat(500);
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="youtube-txt-url" content="${videoUrl}"><meta name="youtube-txt-video-id" content="3vyPSMSnMT4"><title>Test</title><style>${largeCss}</style></head><body>Content</body></html>`;
+    fs.writeFileSync(path.join(completedDir, 'index.html'), html);
+
+    const job = jobManager.createJob(videoUrl);
+    expect(job.phase).toBe('completed');
+    expect(job.outputDir).toBe(completedDir);
+  });
+
+  it('does not evict active or queued jobs when capacity exceeds 100 jobs', () => {
+    const activeJob = jobManager.createJob(
+      'https://www.youtube.com/watch?v=activeJob1'
+    );
+    expect(activeJob.phase).toBe('queued');
+
+    // Create 110 subsequent jobs
+    for (let i = 0; i < 110; i++) {
+      const dummy = jobManager.createJob(
+        `https://www.youtube.com/watch?v=dummy${i}`
+      );
+      // Simulate completion of dummy jobs so they become evictable
+      dummy.phase = 'completed';
+    }
+
+    // Active job must still exist and not have been evicted
+    const retrieved = jobManager.getJob(activeJob.id);
+    expect(retrieved).toBeDefined();
+    expect(retrieved?.id).toBe(activeJob.id);
   });
 });

@@ -6,7 +6,13 @@ import { execa } from 'execa';
 export function extractVideoId(url: string): string | null {
   try {
     const parsed = new URL(url);
-    if (parsed.hostname.includes('youtube.com')) {
+    const host = parsed.hostname.toLowerCase();
+    const isYouTube =
+      host === 'youtube.com' ||
+      host === 'www.youtube.com' ||
+      host.endsWith('.youtube.com');
+
+    if (isYouTube) {
       if (parsed.pathname === '/watch') {
         return parsed.searchParams.get('v');
       }
@@ -14,7 +20,7 @@ export function extractVideoId(url: string): string | null {
       if (['shorts', 'embed', 'live', 'v'].includes(parts[0] || '')) {
         return parts[1] || null;
       }
-    } else if (parsed.hostname === 'youtu.be') {
+    } else if (host === 'youtu.be' || host === 'www.youtu.be') {
       const parts = parsed.pathname.split('/').filter(Boolean);
       return parts[0] || null;
     }

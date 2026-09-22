@@ -24,6 +24,14 @@ export async function openInBrowser(url: string): Promise<boolean> {
   }
 }
 
+function escapeAppleScript(str: string): string {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/[\r\n]+/g, ' ')
+    .slice(0, 250);
+}
+
 /**
  * Sends an OS-level desktop notification (e.g. notify-send on Linux).
  * Best-effort: silently completes if notification daemon is absent.
@@ -37,9 +45,11 @@ export async function sendDesktopNotification(
     if (platform === 'linux') {
       await execa('notify-send', ['-a', 'youtube.txt', title, message]);
     } else if (platform === 'darwin') {
+      const safeTitle = escapeAppleScript(title);
+      const safeMessage = escapeAppleScript(message);
       await execa('osascript', [
         '-e',
-        `display notification "${message.replace(/"/g, '\\"')}" with title "${title.replace(/"/g, '\\"')}"`,
+        `display notification "${safeMessage}" with title "${safeTitle}"`,
       ]);
     }
   } catch {

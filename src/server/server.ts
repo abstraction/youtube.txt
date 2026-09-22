@@ -80,6 +80,29 @@ export async function startServer(options: ServeOptions): Promise<void> {
   });
 
   const server = http.createServer(async (req, res) => {
+    // Validate Host header against DNS rebinding
+    const hostHeader = req.headers.host || '';
+    const reqHostname = hostHeader.split(':')[0]?.toLowerCase();
+    if (
+      reqHostname &&
+      reqHostname !== '127.0.0.1' &&
+      reqHostname !== 'localhost'
+    ) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Forbidden: Invalid Host header' }));
+      return;
+    }
+
+    // Validate Origin header if present (block cross-origin requests from non-YouTube origins)
+    const origin = req.headers.origin;
+    if (origin && origin !== CORS_ORIGIN) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({ error: 'Forbidden: Cross-origin access denied' })
+      );
+      return;
+    }
+
     setCorsHeaders(res);
 
     if (req.method === 'OPTIONS') {
@@ -107,6 +130,18 @@ export async function startServer(options: ServeOptions): Promise<void> {
       }
 
       if (req.method === 'POST' && pathname === '/api/process') {
+        const contentType = req.headers['content-type'] || '';
+        if (!contentType.includes('application/json')) {
+          res.writeHead(415, { 'Content-Type': 'application/json' });
+          res.end(
+            JSON.stringify({
+              error:
+                'Unsupported Media Type: Content-Type must be application/json',
+            })
+          );
+          return;
+        }
+
         const body = await parseBody(req);
         if (!body.url || typeof body.url !== 'string') {
           res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -260,11 +295,23 @@ export async function startServer(options: ServeOptions): Promise<void> {
           return;
         }
 
-        const relPath = parts.slice(3).join('/');
+        let relPath: string;
+        try {
+          relPath = decodeURIComponent(parts.slice(3).join('/'));
+        } catch {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Malformed path' }));
+          return;
+        }
+
+        const resolvedBase = path.resolve(job.outputDir);
         const absolutePath = path.resolve(job.outputDir, relPath);
 
         // Security check to prevent directory traversal
-        if (!absolutePath.startsWith(path.resolve(job.outputDir))) {
+        if (
+          absolutePath !== resolvedBase &&
+          !absolutePath.startsWith(resolvedBase + path.sep)
+        ) {
           res.writeHead(403, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: 'Forbidden' }));
           return;

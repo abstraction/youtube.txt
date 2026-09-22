@@ -1,11 +1,11 @@
-import { execa as Q } from 'execa';
+import { execa as ee } from 'execa';
 import W from 'fs';
 import N from 'path';
-async function be(r, t = {}) {
-  let o = t.outputDir ? N.resolve(t.outputDir) : process.cwd();
+async function ye(r, n = {}) {
+  let o = n.outputDir ? N.resolve(n.outputDir) : process.cwd();
   W.existsSync(o) || W.mkdirSync(o, { recursive: !0 });
-  let l = { cwd: o, ...(t.signal ? { cancelSignal: t.signal } : {}) },
-    g = [
+  let a = { cwd: o, ...(n.signal ? { cancelSignal: n.signal } : {}) },
+    m = [
       '--write-auto-subs',
       '--write-subs',
       r,
@@ -13,69 +13,69 @@ async function be(r, t = {}) {
       '--print',
       'after_move:filepath',
     ];
-  t.outputDir && g.push('-P', o);
+  n.outputDir && m.push('-P', o);
   let i;
-  for (let m = 1; m <= 3; m++)
+  for (let p = 1; p <= 3; p++)
     try {
-      let { stdout: d } = await Q('yt-dlp', g, l),
-        p = d
+      let { stdout: u } = await ee('yt-dlp', m, a),
+        g = u
           .split(
             `
 `
           )
-          .map((u) => u.trim())
+          .map((f) => f.trim())
           .filter(Boolean),
-        f =
-          p.find((u) => u.match(/\.(webm|mp4|mkv|m4a|weba|flv)$/i)) ||
-          p[p.length - 1];
-      f && !N.isAbsolute(f) && (f = N.resolve(o, f));
-      let E = W.readdirSync(o).find((u) => u.endsWith('.vtt'));
-      if (!f || !W.existsSync(f))
+        h =
+          g.find((f) => f.match(/\.(webm|mp4|mkv|m4a|weba|flv)$/i)) ||
+          g[g.length - 1];
+      h && !N.isAbsolute(h) && (h = N.resolve(o, h));
+      let E = W.readdirSync(o).find((f) => f.endsWith('.vtt'));
+      if (!h || !W.existsSync(h))
         throw new Error(
-          `Failed to locate downloaded video file. Output was: ${d}`
+          `Failed to locate downloaded video file. Output was: ${u}`
         );
       if (!E)
         throw new Error(
           'Failed to locate downloaded VTT subtitles (video might not have captions).'
         );
       let y = N.resolve(o, E);
-      return { videoFile: f, vttFile: y };
-    } catch (d) {
-      if (((i = d), t.signal?.aborted)) throw d;
-      let p = d instanceof Error ? d.message : String(d);
+      return { videoFile: h, vttFile: y };
+    } catch (u) {
+      if (((i = u), n.signal?.aborted)) throw u;
+      let g = u instanceof Error ? u.message : String(u);
       if (
-        m < 3 &&
-        (p.includes('429') ||
-          p.includes('Too Many Requests') ||
-          p.includes('HTTP Error 429'))
+        p < 3 &&
+        (g.includes('429') ||
+          g.includes('Too Many Requests') ||
+          g.includes('HTTP Error 429'))
       ) {
-        await new Promise((f) => setTimeout(f, m * 2500));
+        await new Promise((h) => setTimeout(h, p * 2500));
         continue;
       }
-      throw d;
+      throw u;
     }
   throw i;
 }
 import M from 'path';
-import ee from 'os';
+import te from 'os';
 import T from 'fs';
-import { execa as U } from 'execa';
-async function Te(r, t, o = {}) {
+import { execa as V } from 'execa';
+async function ke(r, n, o = {}) {
   let {
-      concurrency: l = 4,
-      threadsPerWorker: g = 1,
+      concurrency: a = 4,
+      threadsPerWorker: m = 1,
       signal: i,
-      onProgress: m,
-      sceneThreshold: d = 0.15,
-      dedupThreshold: p = 4,
-      outputDir: f,
+      onProgress: p,
+      sceneThreshold: u = 0.15,
+      dedupThreshold: g = 4,
+      outputDir: h,
     } = o,
-    x = f ? M.resolve(f, 'images') : M.resolve('images');
-  if ((T.existsSync(x) || T.mkdirSync(x, { recursive: !0 }), t.length === 0))
+    x = h ? M.resolve(h, 'images') : M.resolve('images');
+  if ((T.existsSync(x) || T.mkdirSync(x, { recursive: !0 }), n.length === 0))
     return;
   let E = null;
   try {
-    let { stdout: e } = await U('ffprobe', [
+    let { stdout: e } = await V('ffprobe', [
         '-v',
         'error',
         '-show_entries',
@@ -84,20 +84,20 @@ async function Te(r, t, o = {}) {
         'default=noprint_wrappers=1:nokey=1',
         r,
       ]),
-      n = parseFloat(e.trim());
-    !isNaN(n) && n > 0 && (E = n);
+      t = parseFloat(e.trim());
+    !isNaN(t) && t > 0 && (E = t);
   } catch {}
   let y = E !== null ? Math.max(0, E - 0.5) : 1 / 0,
-    u = [0];
+    f = [0];
   try {
     let e = i ? { cancelSignal: i } : {},
-      { stderr: n } = await U(
+      { stderr: t } = await V(
         'ffmpeg',
         [
           '-i',
           r,
           '-filter:v',
-          `select='gt(scene,${d})',showinfo`,
+          `select='gt(scene,${u})',showinfo`,
           '-f',
           'null',
           '-',
@@ -105,65 +105,65 @@ async function Te(r, t, o = {}) {
         e
       ),
       s = /pts_time:([0-9.]+)/g,
-      c;
-    for (; (c = s.exec(n)) !== null;) {
-      let b = parseFloat(c[1]);
-      b <= y && u.push(b);
+      l;
+    for (; (l = s.exec(t)) !== null;) {
+      let b = parseFloat(l[1]);
+      b <= y && f.push(b);
     }
   } catch {
     if (i?.aborted) throw new Error('Frame extraction aborted by user');
   }
-  u.sort((e, n) => e - n);
+  f.sort((e, t) => e - t);
   let v = new Set();
-  for (let e of u) e <= y && v.add(e);
+  for (let e of f) e <= y && v.add(e);
   v.size === 0 && v.add(0);
   let R = 5;
-  for (let e = 0; e < t.length; e++) {
-    let n = t[e],
-      s = t[e + 1],
-      c = s ? s.seconds : n.seconds + 10;
-    c > y && (c = y);
-    for (let b = n.seconds; b <= c && !(b > y); b += R) {
+  for (let e = 0; e < n.length; e++) {
+    let t = n[e],
+      s = n[e + 1],
+      l = s ? s.seconds : t.seconds + 10;
+    l > y && (l = y);
+    for (let b = t.seconds; b <= l && !(b > y); b += R) {
       let k = Math.round(b * 100) / 100;
       Array.from(v).some((H) => Math.abs(H - k) < 2.5) || v.add(k);
     }
   }
-  let L = Array.from(v).sort((e, n) => e - n);
-  for (let e = 0; e < t.length; e++) {
-    let n = t[e],
-      s = t[e + 1],
-      c = s ? s.seconds : n.seconds + 10,
+  let L = Array.from(v).sort((e, t) => e - t);
+  for (let e = 0; e < n.length; e++) {
+    let t = n[e],
+      s = n[e + 1],
+      l = s ? s.seconds : t.seconds + 10,
       b = L[0] ?? 0,
       k = [];
     for (let P of L)
-      if (P <= n.seconds) b = P;
-      else if (P < c) k.push(P);
+      if (P <= t.seconds) b = P;
+      else if (P < l) k.push(P);
       else break;
-    ((n.sceneTimestamp = String(b)),
-      (n.sceneTimestamps = Array.from(new Set([b, ...k])).map(String)));
+    ((t.sceneTimestamp = String(b)),
+      (t.sceneTimestamps = Array.from(new Set([b, ...k])).map(String)));
   }
   let C = Array.from(v),
-    _ = C.length,
+    B = C.length,
     I = 0,
     D = 0,
-    B = async () => {
+    _ = async () => {
       for (; D < C.length;) {
         if (i?.aborted) throw new Error('Frame extraction aborted by user');
         let e = D++,
-          n = C[e],
-          s = M.join(x, `${n}.jpg`);
+          t = C[e],
+          s = M.join(x, `${t}.jpg`);
         if (!T.existsSync(s))
           try {
-            let c = i ? { cancelSignal: i } : {};
-            await U(
+            let l = i ? { cancelSignal: i } : {};
+            await V(
               'ffmpeg',
               [
                 '-y',
                 '-ss',
-                String(n),
+                String(t),
                 '-nostdin',
                 '-threads',
-                String(g),
+                String(m),
                 '-i',
                 r,
                 '-frames:v',
@@ -174,7 +174,7 @@ async function Te(r, t, o = {}) {
                 'scale=1024:-1',
                 s,
               ],
-              c
+              l
             );
           } catch {
             if (i?.aborted) throw new Error('Frame extraction aborted by user');
@@ -183,41 +183,41 @@ async function Te(r, t, o = {}) {
                 T.statSync(s).size === 0 && T.unlinkSync(s);
               } catch {}
           }
-        (I++, m && m(I, _));
+        (I++, p && p(I, B));
       }
     },
-    w = Math.max(1, Math.min(l, C.length)),
-    S = Array.from({ length: w }, () => B());
-  await Promise.all(S);
-  let a = C.filter((e) => {
-      let n = M.join(x, `${e}.jpg`);
+    S = Math.max(1, Math.min(a, C.length)),
+    w = Array.from({ length: S }, () => _());
+  await Promise.all(w);
+  let d = C.filter((e) => {
+      let t = M.join(x, `${e}.jpg`);
       try {
-        return T.existsSync(n) && T.statSync(n).size > 0;
+        return T.existsSync(t) && T.statSync(t).size > 0;
       } catch {
         return !1;
       }
-    }).sort((e, n) => e - n),
-    h = new Map();
+    }).sort((e, t) => e - t),
+    c = new Map();
   for (let e of C) {
-    let n = M.join(x, `${e}.jpg`);
-    if (!(T.existsSync(n) && T.statSync(n).size > 0) && a.length > 0) {
-      let c = a[0],
-        b = Math.abs(e - c);
-      for (let k of a) {
+    let t = M.join(x, `${e}.jpg`);
+    if (!(T.existsSync(t) && T.statSync(t).size > 0) && d.length > 0) {
+      let l = d[0],
+        b = Math.abs(e - l);
+      for (let k of d) {
         let P = Math.abs(e - k);
-        P < b && ((b = P), (c = k));
+        P < b && ((b = P), (l = k));
       }
-      h.set(e, c);
+      c.set(e, l);
     }
   }
-  let F = await T.promises.mkdtemp(M.join(ee.tmpdir(), 'yt-dhash-'));
-  async function V(e) {
-    let n = M.join(x, `${e}.jpg`);
-    if (!T.existsSync(n)) return '';
+  let F = await T.promises.mkdtemp(M.join(te.tmpdir(), 'yt-dhash-'));
+  async function U(e) {
+    let t = M.join(x, `${e}.jpg`);
+    if (!T.existsSync(t)) return '';
     let s = M.join(F, `${e}.raw`);
-    await U('ffmpeg', [
+    await V('ffmpeg', [
       '-i',
-      n,
+      t,
       '-vf',
       'scale=1024:1024:force_original_aspect_ratio=decrease,pad=1024:1024:-1:-1:color=black,scale=9:8,format=gray',
       '-f',
@@ -225,98 +225,98 @@ async function Te(r, t, o = {}) {
       '-y',
       s,
     ]);
-    let c = await T.promises.readFile(s),
+    let l = await T.promises.readFile(s),
       b = '';
     for (let k = 0; k < 8; k++)
       for (let P = 0; P < 8; P++) {
-        let H = c[k * 9 + P],
-          X = c[k * 9 + P + 1];
+        let H = l[k * 9 + P],
+          X = l[k * 9 + P + 1];
         H !== void 0 && X !== void 0 && (b += H > X ? '1' : '0');
       }
     return b;
   }
-  function O(e, n) {
+  function O(e, t) {
     let s = 0;
-    for (let c = 0; c < 64; c++) e[c] !== n[c] && s++;
+    for (let l = 0; l < 64; l++) e[l] !== t[l] && s++;
     return s;
   }
   let q = new Map(),
     j = 0,
     Y = async () => {
-      for (; j < a.length;) {
+      for (; j < d.length;) {
         if (i?.aborted) throw new Error('Frame extraction aborted by user');
         let e = j++,
-          n = a[e];
-        if (n === void 0) break;
+          t = d[e];
+        if (t === void 0) break;
         try {
-          let s = await V(n);
-          s && q.set(n, s);
+          let s = await U(t);
+          s && q.set(t, s);
         } catch {}
       }
     },
-    K = Math.max(1, Math.min(l, a.length));
+    K = Math.max(1, Math.min(a, d.length));
   await Promise.all(Array.from({ length: K }, () => Y()));
   let z = null,
     G = null,
     $ = new Map();
-  for (let e of a) {
-    let n = q.get(e);
-    if (!n) {
+  for (let e of d) {
+    let t = q.get(e);
+    if (!t) {
       $.set(e, e);
       continue;
     }
-    if (z !== null && G !== null && O(G, n) <= p) {
+    if (z !== null && G !== null && O(G, t) <= g) {
       $.set(e, z);
       try {
         T.unlinkSync(M.join(x, `${e}.jpg`));
       } catch {}
       continue;
     }
-    ((z = e), (G = n), $.set(e, e));
+    ((z = e), (G = t), $.set(e, e));
   }
   await T.promises.rm(F, { recursive: !0, force: !0 });
   function J(e) {
-    let n = h.has(e) ? h.get(e) : e;
-    return ($.has(n) && (n = $.get(n)), n);
+    let t = c.has(e) ? c.get(e) : e;
+    return ($.has(t) && (t = $.get(t)), t);
   }
-  for (let e of t) {
+  for (let e of n) {
     if (e.sceneTimestamp) {
-      let n = parseFloat(e.sceneTimestamp);
-      e.sceneTimestamp = String(J(n));
+      let t = parseFloat(e.sceneTimestamp);
+      e.sceneTimestamp = String(J(t));
     }
     if (e.sceneTimestamps) {
-      let n = e.sceneTimestamps.map((s) => {
-        let c = parseFloat(s);
-        return String(J(c));
+      let t = e.sceneTimestamps.map((s) => {
+        let l = parseFloat(s);
+        return String(J(l));
       });
-      e.sceneTimestamps = Array.from(new Set(n));
+      e.sceneTimestamps = Array.from(new Set(t));
     }
   }
 }
-import te from 'fs';
-import ne from 'readline';
-import re from 'compromise';
-async function Ae(r) {
-  let t = te.createReadStream(r),
-    o = ne.createInterface({ input: t, crlfDelay: 1 / 0 }),
-    l = [],
-    g = null,
+import ne from 'fs';
+import re from 'readline';
+import oe from 'compromise';
+async function Le(r) {
+  let n = ne.createReadStream(r),
+    o = re.createInterface({ input: n, crlfDelay: 1 / 0 }),
+    a = [],
+    m = null,
     i = 0,
-    m = 0,
-    d = !1,
-    p = [],
-    f = 5;
-  for await (let w of o) {
-    let S = w.trim();
-    if (!S || (!d && !S.match(/^\d{2}:\d{2}/))) continue;
-    d = !0;
-    let a = S.match(
+    p = 0,
+    u = !1,
+    g = [],
+    h = 5;
+  for await (let S of o) {
+    let w = S.trim();
+    if (!w || (!u && !w.match(/^\d{2}:\d{2}/))) continue;
+    u = !0;
+    let d = w.match(
       /^(\d{2}:)?(\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:)?(\d{2}:\d{2}\.\d{3})/
     );
-    if (a) {
-      let F = a[1] ? `${a[1]}${a[2]}` : `00:${a[2]}`,
-        V = a[3] ? `${a[3]}${a[4]}` : `00:${a[4]}`;
-      g = F;
+    if (d) {
+      let F = d[1] ? `${d[1]}${d[2]}` : `00:${d[2]}`,
+        U = d[3] ? `${d[3]}${d[4]}` : `00:${d[4]}`;
+      m = F;
       let O = (q) => {
         let j = q.split(':'),
           Y = parseInt(j[0] ?? '0', 10),
@@ -324,56 +324,58 @@ async function Ae(r) {
           z = parseFloat(j[2] ?? '0');
         return Y * 3600 + K * 60 + z;
       };
-      ((i = O(F)), (m = O(V)));
+      ((i = O(F)), (p = O(U)));
       continue;
     }
-    let h = S;
-    ((h.startsWith('>> ') || h.startsWith('&gt;&gt; ')) &&
-      (h = '[New Speaker]: ' + h.replace(/^(>>|&gt;&gt;)\s*/, '')),
-      (h = h
+    let c = w;
+    ((c.startsWith('>> ') || c.startsWith('&gt;&gt; ')) &&
+      (c = '[New Speaker]: ' + c.replace(/^(>>|&gt;&gt;)\s*/, '')),
+      (c = c
         .replace(/&amp;/g, '&')
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")),
-      (h = h.replace(/<[^>]+>/g, '').trim()),
-      h &&
-        ((h = h.replace(/</g, '&lt;').replace(/>/g, '&gt;')),
-        g &&
-          (p.includes(h) ||
-            (l.push({ timestamp: g, seconds: i, endSeconds: m, text: h }),
-            p.push(h),
-            p.length > f && p.shift()))));
+      (c = c.replace(/<[^>]+>/g, '').trim()),
+      c &&
+        ((c = c.replace(/</g, '&lt;').replace(/>/g, '&gt;')),
+        m &&
+          (g.includes(c) ||
+            (a.push({ timestamp: m, seconds: i, endSeconds: p, text: c }),
+            g.push(c),
+            g.length > h && g.shift()))));
   }
   let x = [];
-  if (l.length === 0) return x;
-  let E = l.map((w) => w.text).join(' '),
+  if (a.length === 0) return x;
+  let E = a.map((S) => S.text).join(' '),
     y = [],
-    u = 0;
-  for (let w of l) {
-    let S = w.text.length;
-    (y.push({ cue: w, startChar: u, endChar: u + S }), (u += S + 1));
+    f = 0;
+  for (let S of a) {
+    let w = S.text.length;
+    (y.push({ cue: S, startChar: f, endChar: f + w }), (f += w + 1));
   }
-  let R = re(E).sentences().out('array'),
+  let R = oe(E).sentences().out('array'),
     L = [],
     C = 40,
-    _ = 20;
-  for (let w of R) {
-    let S = w.split(' ');
-    if (S.length <= C) L.push(w);
+    B = 20;
+  for (let S of R) {
+    let w = S.trim();
+    if (!w) continue;
+    let d = w.split(/\s+/).filter(Boolean);
+    if (d.length <= C) L.push(w);
     else
-      for (let a = 0; a < S.length; a += _) L.push(S.slice(a, a + _).join(' '));
+      for (let c = 0; c < d.length; c += B) L.push(d.slice(c, c + B).join(' '));
   }
   let I = [],
     D = null,
-    B = 0;
-  for (let w = 0; w < L.length; w++) {
-    let S = L[w],
-      a = y.find((F) => F.endChar > B) || y[y.length - 1];
-    if (!a) continue;
-    let h = a.cue;
-    (I.length === 0 && (D = h),
-      I.push(S),
-      (B += S.length + 1),
-      (I.length >= 3 || w === L.length - 1) &&
+    _ = 0;
+  for (let S = 0; S < L.length; S++) {
+    let w = L[S],
+      d = y.find((F) => F.endChar > _) || y[y.length - 1];
+    if (!d) continue;
+    let c = d.cue;
+    (I.length === 0 && (D = c),
+      I.push(w),
+      (_ += w.length + 1),
+      (I.length >= 3 || S === L.length - 1) &&
         (x.push({
           timestamp: D.timestamp,
           seconds: D.seconds,
@@ -383,14 +385,49 @@ async function Ae(r) {
   }
   return x;
 }
-import oe from 'fs';
-import ie from 'path';
-import se from 'ejs';
-var ae = `<!DOCTYPE html>
+import { execa as ie } from 'execa';
+function Z(r) {
+  try {
+    let n = new URL(r),
+      o = n.hostname.toLowerCase();
+    if (
+      o === 'youtube.com' ||
+      o === 'www.youtube.com' ||
+      o.endsWith('.youtube.com')
+    ) {
+      if (n.pathname === '/watch') return n.searchParams.get('v');
+      let m = n.pathname.split('/').filter(Boolean);
+      if (['shorts', 'embed', 'live', 'v'].includes(m[0] || ''))
+        return m[1] || null;
+    } else if (o === 'youtu.be' || o === 'www.youtu.be')
+      return n.pathname.split('/').filter(Boolean)[0] || null;
+  } catch {}
+  return null;
+}
+async function Fe(r) {
+  let { stdout: n } = await ie('yt-dlp', ['--print', '%(title)s', r]);
+  return n.trim();
+}
+function De(r) {
+  return (
+    r
+      .replace(/[<>:"/\\|?*\x00-\x1f]+/g, '_')
+      .replace(/_{2,}/g, '_')
+      .replace(/^[_.]+|[_.]+$/g, '')
+      .trim()
+      .slice(0, 200) || 'untitled'
+  );
+}
+import se from 'fs';
+import ae from 'path';
+import ce from 'ejs';
+var le = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="youtube-txt-url" content="<%= url %>">
+  <meta name="youtube-txt-video-id" content="<%= videoId %>">
   <title><%= title %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -926,53 +963,53 @@ var ae = `<!DOCTYPE html>
 
 </html>
 `;
-function ce(r) {
-  let t = [];
-  if (r.length === 0) return t;
+function me(r) {
+  let n = [];
+  if (r.length === 0) return n;
   let o = [],
-    l = new Set();
-  for (let g = 0; g < r.length; g++) {
-    let i = r[g];
+    a = new Set();
+  for (let m = 0; m < r.length; m++) {
+    let i = r[m];
     if ((o.push(i), i.sceneTimestamps && i.sceneTimestamps.length > 0))
-      for (let d of i.sceneTimestamps) l.add(d);
-    else i.sceneTimestamp && l.add(i.sceneTimestamp);
-    let m = r[g + 1];
-    if (m) {
-      let p = (
-          m.sceneTimestamps && m.sceneTimestamps.length > 0
-            ? m.sceneTimestamps
-            : m.sceneTimestamp
-              ? [m.sceneTimestamp]
+      for (let u of i.sceneTimestamps) a.add(u);
+    else i.sceneTimestamp && a.add(i.sceneTimestamp);
+    let p = r[m + 1];
+    if (p) {
+      let g = (
+          p.sceneTimestamps && p.sceneTimestamps.length > 0
+            ? p.sceneTimestamps
+            : p.sceneTimestamp
+              ? [p.sceneTimestamp]
               : []
-        ).some((v) => !l.has(v)),
-        f = i.seconds - o[0].seconds,
-        x = p && l.size >= 6,
+        ).some((v) => !a.has(v)),
+        h = i.seconds - o[0].seconds,
+        x = g && a.size >= 6,
         E = o.length >= 14,
-        y = f > 180,
-        u = p && (o.length >= 6 || f > 60);
-      (x || E || y || u) &&
-        (t.push({
-          uniqueScenes: Array.from(l).sort(
+        y = h > 180,
+        f = g && (o.length >= 6 || h > 60);
+      (x || E || y || f) &&
+        (n.push({
+          uniqueScenes: Array.from(a).sort(
             (v, R) => parseFloat(v) - parseFloat(R)
           ),
           paragraphs: o,
         }),
         (o = []),
-        (l = new Set()));
+        (a = new Set()));
     }
   }
   return (
     o.length > 0 &&
-      t.push({
-        uniqueScenes: Array.from(l).sort(
-          (g, i) => parseFloat(g) - parseFloat(i)
+      n.push({
+        uniqueScenes: Array.from(a).sort(
+          (m, i) => parseFloat(m) - parseFloat(i)
         ),
         paragraphs: o,
       }),
-    t
+    n
   );
 }
-var Z = `Execute a highly precise cleanup of the provided YouTube transcript. Your objective is to translate raw, auto-generated spoken text into a visually readable, semantically coherent format without destroying the speaker\u2019s original voice, slang, or pacing.
+var Q = `Execute a highly precise cleanup of the provided YouTube transcript. Your objective is to translate raw, auto-generated spoken text into a visually readable, semantically coherent format without destroying the speaker\u2019s original voice, slang, or pacing.
 
 **Hierarchy of Operations:**
 If two rules conflict, the rule higher on this list supersedes the lower rule.
@@ -994,7 +1031,7 @@ Group text into paragraphs based on natural shifts in thought or conversational 
 
 **6. Profanity Artifact Replacement**
 Replace the YouTube auto-censor artifact \`[ __ ]\` with \`[expletive]\` to remove visual friction while accurately indicating the redaction.`;
-function le(r) {
+function de(r) {
   return r
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
@@ -1002,131 +1039,110 @@ function le(r) {
     .replace(/&#39;/g, "'")
     .replace(/&amp;/g, '&');
 }
-function me(r) {
-  return r.map((t) => le(t.text).trim()).filter(Boolean).join(`
+function pe(r) {
+  return r.map((n) => de(n.text).trim()).filter(Boolean).join(`
 
 `);
 }
-function de(r) {
-  let t = r.trim();
-  return t
-    ? `${Z}
+function ue(r) {
+  let n = r.trim();
+  return n
+    ? `${Q}
 
 \`\`\`
-${t}
+${n}
 \`\`\``
-    : `${Z}
+    : `${Q}
 
 \`\`\`
 \`\`\``;
 }
-async function De(r, t, o = 'YouTube Transcript', l) {
-  let g = ce(t),
-    i = me(t),
-    m = de(i),
-    d = se.render(ae, { url: r, chapters: g, title: o, aiPrompt: m }),
-    p = l ? ie.resolve(l, 'index.html') : 'index.html';
-  oe.writeFileSync(p, d, 'utf-8');
+async function _e(r, n, o = 'YouTube Transcript', a) {
+  let m = me(n),
+    i = pe(n),
+    p = ue(i),
+    u = Z(r) || '',
+    g = ce.render(le, {
+      url: r,
+      videoId: u,
+      chapters: m,
+      title: o,
+      aiPrompt: p,
+    }),
+    h = a ? ae.resolve(a, 'index.html') : 'index.html';
+  se.writeFileSync(h, g, 'utf-8');
 }
 import A from 'os';
-import { execa as pe } from 'execa';
-async function $e(r, t = 1) {
-  let l = A.cpus().length || 1,
-    g = Math.floor(A.freemem() / (1024 * 1024)),
+import { execa as ge } from 'execa';
+async function We(r, n = 1) {
+  let a = A.cpus().length || 1,
+    m = Math.floor(A.freemem() / (1024 * 1024)),
     i = Math.floor(A.totalmem() / (1024 * 1024)),
-    m = A.loadavg()[0] ?? 0,
-    d = Math.max(1, Math.min(8, Math.floor(l * 0.35))),
-    p = Math.max(1, Math.floor(g / 250)),
-    f = m > l * 0.7 ? 0.5 : 1,
-    x = Math.max(1, Math.floor(Math.min(d, p) * f)),
-    E = Math.max(1, t),
+    p = A.loadavg()[0] ?? 0,
+    u = Math.max(1, Math.min(8, Math.floor(a * 0.35))),
+    g = Math.max(1, Math.floor(m / 250)),
+    h = p > a * 0.7 ? 0.5 : 1,
+    x = Math.max(1, Math.floor(Math.min(u, g) * h)),
+    E = Math.max(1, n),
     y = Math.max(1, Math.floor(x / E));
   r && r > 0 && (y = r);
-  let u = null;
+  let f = null;
   try {
-    let { stdout: v } = await pe('ffmpeg', ['-hwaccels']);
+    let { stdout: v } = await ge('ffmpeg', ['-hwaccels']);
     v.includes('cuda')
-      ? (u = 'cuda')
+      ? (f = 'cuda')
       : v.includes('vaapi')
-        ? (u = 'vaapi')
-        : v.includes('qsv') && (u = 'qsv');
+        ? (f = 'vaapi')
+        : v.includes('qsv') && (f = 'qsv');
   } catch {
-    u = null;
+    f = null;
   }
   return {
-    cpuCount: l,
-    freeMemoryMb: g,
+    cpuCount: a,
+    freeMemoryMb: m,
     totalMemoryMb: i,
-    loadAverage: m,
+    loadAverage: p,
     recommendedConcurrency: y,
     threadsPerWorker: 1,
-    hwaccel: u,
+    hwaccel: f,
   };
 }
-function _e() {
+function Ne() {
   let r = A.cpus().length || 1,
-    t = Math.floor(A.freemem() / (1024 * 1024));
-  return r >= 16 && t >= 8e3 ? 3 : r >= 8 && t >= 4e3 ? 2 : 1;
+    n = Math.floor(A.freemem() / (1024 * 1024));
+  return r >= 16 && n >= 8e3 ? 3 : r >= 8 && n >= 4e3 ? 2 : 1;
 }
-function Be() {
+function Ve() {
   let r = A.cpus().length || 1,
-    t = Math.floor(A.freemem() / (1024 * 1024)),
+    n = Math.floor(A.freemem() / (1024 * 1024)),
     o = A.loadavg()[0] ?? 0;
-  return t < 500
+  return n < 500
     ? {
         healthy: !1,
-        freeMemoryMb: t,
+        freeMemoryMb: n,
         loadAverage: o,
         cpuCount: r,
-        throttleReason: `Low RAM (${t} MB free)`,
+        throttleReason: `Low RAM (${n} MB free)`,
       }
     : o > r * 0.85
       ? {
           healthy: !1,
-          freeMemoryMb: t,
+          freeMemoryMb: n,
           loadAverage: o,
           cpuCount: r,
           throttleReason: `High CPU load (${o.toFixed(1)} / ${r} cores)`,
         }
-      : { healthy: !0, freeMemoryMb: t, loadAverage: o, cpuCount: r };
-}
-import { execa as ue } from 'execa';
-function He(r) {
-  try {
-    let t = new URL(r);
-    if (t.hostname.includes('youtube.com')) {
-      if (t.pathname === '/watch') return t.searchParams.get('v');
-      let o = t.pathname.split('/').filter(Boolean);
-      if (['shorts', 'embed', 'live', 'v'].includes(o[0] || ''))
-        return o[1] || null;
-    } else if (t.hostname === 'youtu.be')
-      return t.pathname.split('/').filter(Boolean)[0] || null;
-  } catch {}
-  return null;
-}
-async function We(r) {
-  let { stdout: t } = await ue('yt-dlp', ['--print', '%(title)s', r]);
-  return t.trim();
-}
-function Ne(r) {
-  return (
-    r
-      .replace(/[<>:"/\\|?*\x00-\x1f]+/g, '_')
-      .replace(/_{2,}/g, '_')
-      .replace(/^[_.]+|[_.]+$/g, '')
-      .trim()
-      .slice(0, 200) || 'untitled'
-  );
+      : { healthy: !0, freeMemoryMb: n, loadAverage: o, cpuCount: r };
 }
 export {
-  be as a,
-  Te as b,
-  Ae as c,
-  De as d,
-  $e as e,
-  _e as f,
-  Be as g,
-  He as h,
-  We as i,
-  Ne as j,
+  ye as a,
+  ke as b,
+  Le as c,
+  Z as d,
+  Fe as e,
+  De as f,
+  _e as g,
+  We as h,
+  Ne as i,
+  Ve as j,
 };

@@ -7,7 +7,7 @@ import { extractFrames } from '../extractor.js';
 import { generateHtml } from '../generator.js';
 import { parseVtt } from '../parser.js';
 import { checkSystemHealth, resolveResourceProfile } from '../resources.js';
-import { openInBrowser } from './browser.js';
+import { openInBrowser, sendDesktopNotification } from './browser.js';
 import { logger } from './logger.js';
 import { extractVideoId, fetchVideoTitle, sanitizeTitle } from './title.js';
 
@@ -116,12 +116,17 @@ export class JobManager {
 
         if (!matches) {
           try {
-            const buffer = Buffer.alloc(2048);
+            const buffer = Buffer.alloc(65536);
             const fd = fs.openSync(indexPath, 'r');
-            const bytesRead = fs.readSync(fd, buffer, 0, 2048, 0);
+            const bytesRead = fs.readSync(fd, buffer, 0, 65536, 0);
             fs.closeSync(fd);
             const chunk = buffer.toString('utf-8', 0, bytesRead);
-            if (chunk.includes(url) || (videoId && chunk.includes(videoId))) {
+            if (
+              chunk.includes(url) ||
+              (videoId &&
+                (chunk.includes(videoId) ||
+                  chunk.includes(`content="${videoId}"`)))
+            ) {
               matches = true;
             }
           } catch {
@@ -190,10 +195,14 @@ export class JobManager {
     };
     this.jobs.set(id, job);
 
-    // Keep memory clean: remove old jobs if map grows large (>100 entries)
+    // Keep memory clean: remove old completed/errored jobs if map grows large (>100 entries)
     if (this.jobs.size > 100) {
-      const oldestKey = this.jobs.keys().next().value;
-      if (oldestKey) this.jobs.delete(oldestKey);
+      for (const [key, j] of this.jobs.entries()) {
+        if (j.phase === 'completed' || j.phase === 'error') {
+          this.jobs.delete(key);
+          break;
+        }
+      }
     }
 
     return job;
@@ -342,6 +351,11 @@ export class JobManager {
           }
         }
 
+        void sendDesktopNotification(
+          'youtube.txt Complete',
+          `Finished: ${displayTitle}`
+        );
+
         emit({
           phase: 'completed',
           viewUrl,
@@ -350,6 +364,10 @@ export class JobManager {
         const message = err instanceof Error ? err.message : String(err);
         job.phase = 'error';
         logger.error(job.id, `Failed: ${message}`);
+        void sendDesktopNotification(
+          'youtube.txt Failed',
+          `Failed: ${job.title || job.url}`
+        );
         job.emitter.emit('event', { phase: 'error' as const, message });
 
         // Clean up abandoned directory if it failed before generating index.html

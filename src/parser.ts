@@ -123,9 +123,11 @@ export async function parseVtt(vttFile: string): Promise<Paragraph[]> {
   const CHUNK_SIZE = 20;
 
   for (const rs of rawSentences) {
-    const words = rs.split(' ');
+    const trimmed = rs.trim();
+    if (!trimmed) continue;
+    const words = trimmed.split(/\s+/).filter(Boolean);
     if (words.length <= MAX_WORDS) {
-      sentences.push(rs);
+      sentences.push(trimmed);
     } else {
       // Split excessively long unpunctuated sentences into smaller pseudo-sentences
       for (let i = 0; i < words.length; i += CHUNK_SIZE) {

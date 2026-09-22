@@ -103,13 +103,13 @@ describe('buildAiPrompt', () => {
     expect(prompt).toContain(CLEANUP_PROMPT_PREFIX);
     expect(prompt).toContain('```\nHello world transcript\n```');
     expect(prompt).toContain(
-      '**1. Absolute Syntax Preservation (Highest Priority)**'
+      '**1. Semantic Localization & Auto-Sub Repair (Highest Priority)**'
     );
-    expect(prompt).toContain('**2. Mechanical Paragraphing**');
-    expect(prompt).toContain('**3. Rule-Based Lexical Pruning**');
-    expect(prompt).toContain('**4. Profanity Artifact Replacement**');
-    expect(prompt).toContain('**5. Timestamp Eradication**');
-    expect(prompt).not.toContain('[Insert Transcript]');
+    expect(prompt).toContain('**2. Voice, Slang & Originality Preservation**');
+    expect(prompt).toContain('**3. Dynamic Punctuation & Typography**');
+    expect(prompt).toContain('**4. Selective Pruning & Anchor Words**');
+    expect(prompt).toContain('**5. Thematic & Visual Paragraphing**');
+    expect(prompt).toContain('**6. Profanity Artifact Replacement**');
   });
 
   it('handles empty transcript gracefully', () => {
@@ -172,6 +172,12 @@ describe('generateHtml', () => {
     expect(fs.writeFileSync).toHaveBeenCalled();
     expect(writtenHtml).toContain('Test Video');
     expect(writtenHtml).toContain('https://youtube.com/watch?v=123');
+    expect(writtenHtml).toContain(
+      '<meta name="youtube-txt-url" content="https://youtube.com/watch?v=123">'
+    );
+    expect(writtenHtml).toContain(
+      '<meta name="youtube-txt-video-id" content="123">'
+    );
     expect(writtenHtml).toContain("Steven's analysis & take");
     expect(writtenHtml).toContain('--accent: #065fd4');
     expect(writtenHtml).toContain('--accent: #3ea6ff');
@@ -179,7 +185,7 @@ describe('generateHtml', () => {
     expect(writtenHtml).toContain('[copy for ai]');
     expect(writtenHtml).toContain('id="ai-prompt"');
     expect(writtenHtml).toContain(
-      'Execute a mechanical cleanup of the provided YouTube transcript'
+      'Execute a highly precise cleanup of the provided YouTube transcript'
     );
     expect(writtenHtml).toContain('```');
   });

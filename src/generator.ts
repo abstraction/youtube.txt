@@ -2,12 +2,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ejs from 'ejs';
 import type { Paragraph } from './parser.js';
+import { extractVideoId } from './server/title.js';
 
 const TEMPLATE = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="youtube-txt-url" content="<%= url %>">
+  <meta name="youtube-txt-video-id" content="<%= videoId %>">
   <title><%= title %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -673,7 +676,14 @@ export async function generateHtml(
   const chapters = chunkParagraphs(paragraphs);
   const transcriptText = extractTranscriptText(paragraphs);
   const aiPrompt = buildAiPrompt(transcriptText);
-  const html = ejs.render(TEMPLATE, { url, chapters, title, aiPrompt });
+  const videoId = extractVideoId(url) || '';
+  const html = ejs.render(TEMPLATE, {
+    url,
+    videoId,
+    chapters,
+    title,
+    aiPrompt,
+  });
   const outPath = outputDir
     ? path.resolve(outputDir, 'index.html')
     : 'index.html';
