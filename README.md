@@ -1,10 +1,7 @@
 <div align="center">
-<pre>
-      ▗   ▌     ▗   ▗ 
-▌▌▛▌▌▌▜▘▌▌▛▌█▌  ▜▘▚▘▜▘
-▙▌▙▌▙▌▐▖▙▌▙▌▙▖▗ ▐▖▞▖▐▖
-▄▌                    
-</pre>
+<p>
+  <img src="./logo.svg" alt="youtube.txt" height="80">
+</p>
 
 Convert YouTube videos into static, readable HTML with transcripts and scene-detected frames.
 </div>
