@@ -1,6 +1,10 @@
 <div align="center">
 <p>
-  <img src="./logo.svg" alt="youtube.txt" height="80">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./logo-light.svg">
+    <img alt="youtube.txt" src="./logo-light.svg" height="80">
+  </picture>
 </p>
 
 Convert YouTube videos into static, readable HTML with transcripts and scene-detected frames.
